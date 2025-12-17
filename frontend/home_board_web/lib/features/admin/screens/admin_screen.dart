@@ -45,7 +45,13 @@ class AdminScreen extends ConsumerWidget {
                         context,
                         title: 'Task Definitions',
                         icon: Icons.task,
-                        onTap: () {},
+                        onTap: () => context.go('/admin/tasks'),
+                      ),
+                      _buildAdminCard(
+                        context,
+                        title: 'Task Assignments',
+                        icon: Icons.assignment,
+                        onTap: () => context.go('/admin/assignments'),
                       ),
                       _buildAdminCard(
                         context,

@@ -9,6 +9,14 @@ public class CreateTaskDefinitionRequest
     public int DefaultPoints { get; set; }
 }
 
+public class UpdateTaskDefinitionRequest
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public int? DefaultPoints { get; set; }
+    public bool? IsActive { get; set; }
+}
+
 public class CreateTaskAssignmentRequest
 {
     public Guid TaskDefinitionId { get; set; }

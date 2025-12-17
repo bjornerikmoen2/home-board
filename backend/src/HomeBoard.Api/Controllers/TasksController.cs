@@ -39,6 +39,33 @@ public class TasksController : ControllerBase
         return Ok(definitions);
     }
 
+    [HttpGet("assignments")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<List<TaskAssignmentDto>>> GetTaskAssignments()
+    {
+        var assignments = await _context.TaskAssignments
+            .Include(a => a.TaskDefinition)
+            .Include(a => a.AssignedToUser)
+            .Where(a => a.IsActive)
+            .Select(a => new TaskAssignmentDto
+            {
+                Id = a.Id,
+                TaskDefinitionId = a.TaskDefinitionId,
+                TaskTitle = a.TaskDefinition!.Title,
+                AssignedToUserId = a.AssignedToUserId,
+                AssignedToName = a.AssignedToUser!.DisplayName,
+                ScheduleType = a.ScheduleType,
+                DaysOfWeek = a.DaysOfWeek,
+                StartDate = a.StartDate,
+                EndDate = a.EndDate,
+                DueTime = a.DueTime,
+                IsActive = a.IsActive
+            })
+            .ToListAsync();
+
+        return Ok(assignments);
+    }
+
     [HttpPost("definitions")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TaskDefinitionDto>> CreateTaskDefinition([FromBody] CreateTaskDefinitionRequest request)
@@ -67,6 +94,65 @@ public class TasksController : ControllerBase
             DefaultPoints = taskDefinition.DefaultPoints,
             IsActive = taskDefinition.IsActive
         });
+    }
+
+    [HttpPatch("definitions/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<TaskDefinitionDto>> UpdateTaskDefinition(Guid id, [FromBody] UpdateTaskDefinitionRequest request)
+    {
+        var taskDefinition = await _context.TaskDefinitions.FindAsync(id);
+        if (taskDefinition == null)
+        {
+            return NotFound();
+        }
+
+        if (request.Title != null)
+        {
+            taskDefinition.Title = request.Title;
+        }
+
+        if (request.Description != null)
+        {
+            taskDefinition.Description = request.Description;
+        }
+
+        if (request.DefaultPoints.HasValue)
+        {
+            taskDefinition.DefaultPoints = request.DefaultPoints.Value;
+        }
+
+        if (request.IsActive.HasValue)
+        {
+            taskDefinition.IsActive = request.IsActive.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new TaskDefinitionDto
+        {
+            Id = taskDefinition.Id,
+            Title = taskDefinition.Title,
+            Description = taskDefinition.Description,
+            DefaultPoints = taskDefinition.DefaultPoints,
+            IsActive = taskDefinition.IsActive
+        });
+    }
+
+    [HttpDelete("definitions/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteTaskDefinition(Guid id)
+    {
+        var taskDefinition = await _context.TaskDefinitions.FindAsync(id);
+        if (taskDefinition == null)
+        {
+            return NotFound();
+        }
+
+        // Soft delete - just mark as inactive
+        taskDefinition.IsActive = false;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     [HttpPost("assignments")]
@@ -150,6 +236,23 @@ public class TasksController : ControllerBase
             DueTime = assignment.DueTime,
             IsActive = assignment.IsActive
         });
+    }
+
+    [HttpDelete("assignments/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteTaskAssignment(Guid id)
+    {
+        var assignment = await _context.TaskAssignments.FindAsync(id);
+        if (assignment == null)
+        {
+            return NotFound();
+        }
+
+        // Soft delete - just mark as inactive
+        assignment.IsActive = false;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     [HttpPost("{assignmentId}/complete")]

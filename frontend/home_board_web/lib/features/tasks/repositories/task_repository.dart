@@ -27,17 +27,21 @@ class TaskRepository {
   }
 
   Future<void> completeTask(
-    int assignmentId, {
+    String assignmentId, {
     String? notes,
     String? photoUrl,
   }) async {
     try {
+      final Map<String, dynamic>? data = (notes != null || photoUrl != null)
+          ? {
+              if (notes != null) 'notes': notes,
+              if (photoUrl != null) 'photoUrl': photoUrl,
+            }
+          : null;
+      
       await _dio.post(
         '/tasks/$assignmentId/complete',
-        data: {
-          if (notes != null) 'notes': notes,
-          if (photoUrl != null) 'photoUrl': photoUrl,
-        },
+        data: data,
       );
     } catch (e) {
       rethrow;

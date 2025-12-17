@@ -22,7 +22,7 @@ class TodayTasks extends _$TodayTasks {
   }
 
   Future<void> completeTask(
-    int assignmentId, {
+    String assignmentId, {
     String? notes,
     String? photoUrl,
   }) async {

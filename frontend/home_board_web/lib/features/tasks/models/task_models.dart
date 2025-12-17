@@ -39,14 +39,14 @@ class TaskAssignmentModel with _$TaskAssignmentModel {
 @freezed
 class TodayTaskModel with _$TodayTaskModel {
   const factory TodayTaskModel({
-    required int assignmentId,
-    required String taskName,
-    required String description,
-    required int pointValue,
-    required String status,
-    required bool requiresVerification,
-    DateTime? completedAt,
-    DateTime? verifiedAt,
+    required String assignmentId,
+    required String title,
+    String? description,
+    required int points,
+    String? dueTime,
+    required bool isCompleted,
+    String? completionId,
+    int? status,
   }) = _TodayTaskModel;
 
   factory TodayTaskModel.fromJson(Map<String, dynamic> json) =>

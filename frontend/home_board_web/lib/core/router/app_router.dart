@@ -7,6 +7,8 @@ import '../../features/home/screens/home_screen.dart';
 import '../../features/today/screens/today_screen.dart';
 import '../../features/admin/screens/admin_screen.dart';
 import '../../features/admin/screens/user_management_screen.dart';
+import '../../features/admin/screens/task_definition_management_screen.dart';
+import '../../features/admin/screens/task_assignment_management_screen.dart';
 import '../../features/leaderboard/screens/leaderboard_screen.dart';
 
 part 'app_router.g.dart';
@@ -56,6 +58,16 @@ GoRouter router(RouterRef ref) {
         path: '/admin/users',
         name: 'admin-users',
         builder: (context, state) => const UserManagementScreen(),
+      ),
+      GoRoute(
+        path: '/admin/tasks',
+        name: 'admin-tasks',
+        builder: (context, state) => const TaskDefinitionManagementScreen(),
+      ),
+      GoRoute(
+        path: '/admin/assignments',
+        name: 'admin-assignments',
+        builder: (context, state) => const TaskAssignmentManagementScreen(),
       ),
       GoRoute(
         path: '/leaderboard',

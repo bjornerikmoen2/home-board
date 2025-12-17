@@ -71,17 +71,15 @@ class TodayScreen extends ConsumerWidget {
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final task = tasks[index];
-                          final isCompleted = task.status == 'Completed' ||
-                              task.status == 'Verified';
                           return _buildTaskCard(
                             context,
                             ref,
                             assignmentId: task.assignmentId,
-                            title: task.taskName,
-                            description: task.description,
-                            points: task.pointValue,
-                            isCompleted: isCompleted,
-                            requiresVerification: task.requiresVerification,
+                            title: task.title,
+                            description: task.description ?? '',
+                            points: task.points,
+                            isCompleted: task.isCompleted,
+                            requiresVerification: false,
                           );
                         },
                       );
@@ -132,7 +130,7 @@ class TodayScreen extends ConsumerWidget {
   Widget _buildTaskCard(
     BuildContext context,
     WidgetRef ref, {
-    required int assignmentId,
+    required String assignmentId,
     required String title,
     required String description,
     required int points,
