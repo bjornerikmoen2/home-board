@@ -1,9 +1,10 @@
 version: '3.8'
+name: home-board
 
 services:
   db:
     image: postgres:16-alpine
-    container_name: homeboard-db
+    container_name: home-board-db
     environment:
       POSTGRES_DB: homeboard
       POSTGRES_USER: postgres
@@ -11,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - homeboard-db-data:/var/lib/postgresql/data
+      - home-board-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -22,7 +23,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: homeboard-api
+    container_name: home-board-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__Default: "Host=db;Port=5432;Database=homeboard;Username=postgres;Password=postgres123"
@@ -38,5 +39,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  homeboard-db-data:
-    name: homeboard-db-data
+  home-board-db-data:
+    name: home-board-db-data

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using HomeBoard.Api.Models;
+using HomeBoard.Domain.Enums;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

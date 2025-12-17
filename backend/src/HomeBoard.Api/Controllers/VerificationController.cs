@@ -30,7 +30,7 @@ public class VerificationController : ControllerBase
             .Include(c => c.TaskAssignment)
             .ThenInclude(a => a!.TaskDefinition)
             .Include(c => c.CompletedByUser)
-            .Where(c => c.Status == TaskStatus.Completed)
+            .Where(c => c.Status == Domain.Enums.TaskStatus.Completed)
             .OrderBy(c => c.CompletedAt)
             .Select(c => new PendingVerificationDto
             {
@@ -62,7 +62,7 @@ public class VerificationController : ControllerBase
             return NotFound();
         }
 
-        if (completion.Status != TaskStatus.Completed)
+        if (completion.Status != Domain.Enums.TaskStatus.Completed)
         {
             return BadRequest(new { message = "Task completion has already been verified or rejected" });
         }
@@ -77,7 +77,7 @@ public class VerificationController : ControllerBase
         }
 
         // Update completion status
-        completion.Status = TaskStatus.Verified;
+        completion.Status = Domain.Enums.TaskStatus.Verified;
         completion.VerifiedByUserId = adminUserId;
         completion.VerifiedAt = DateTime.UtcNow;
 
@@ -110,12 +110,12 @@ public class VerificationController : ControllerBase
             return NotFound();
         }
 
-        if (completion.Status != TaskStatus.Completed)
+        if (completion.Status != Domain.Enums.TaskStatus.Completed)
         {
             return BadRequest(new { message = "Task completion has already been verified or rejected" });
         }
 
-        completion.Status = TaskStatus.Rejected;
+        completion.Status = Domain.Enums.TaskStatus.Rejected;
         completion.VerifiedByUserId = adminUserId;
         completion.VerifiedAt = DateTime.UtcNow;
         completion.RejectionReason = request.Reason;

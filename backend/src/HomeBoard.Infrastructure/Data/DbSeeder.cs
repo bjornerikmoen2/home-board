@@ -28,7 +28,7 @@ public class DbSeeder
             Id = Guid.NewGuid(),
             Username = "admin",
             DisplayName = "Administrator",
-            PasswordHash = "$2a$11$XSBhwU6x5fJJH8p0jq0pxeBK8JxNFHKGZvV5kRqGKX7dN1qC8Cw8W", // This should be hashed with BCrypt
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
             Role = UserRole.Admin,
             IsActive = true,
             CreatedAt = DateTime.UtcNow

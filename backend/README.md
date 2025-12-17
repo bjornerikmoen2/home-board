@@ -6,7 +6,7 @@ Home Board is a tablet-first web application for families to manage chores and r
 
 ## Tech Stack
 
-- **Framework**: ASP.NET Core Web API (.NET 8)
+- **Framework**: ASP.NET Core Web API (.NET 9)
 - **Database**: PostgreSQL with Entity Framework Core
 - **Authentication**: JWT with role-based authorization
 - **API Documentation**: Swagger/OpenAPI
@@ -36,7 +36,7 @@ Contains API controllers, services, and models:
 
 ### Prerequisites
 
-- .NET 8 SDK
+- .NET 9 SDK
 - Docker and Docker Compose (for local development)
 - PostgreSQL (if running without Docker)
 

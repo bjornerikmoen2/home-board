@@ -59,5 +59,5 @@ public class TodayTaskDto
     public TimeOnly? DueTime { get; set; }
     public bool IsCompleted { get; set; }
     public Guid? CompletionId { get; set; }
-    public TaskStatus? Status { get; set; }
+    public Domain.Enums.TaskStatus? Status { get; set; }
 }

@@ -9,7 +9,7 @@ public class TaskCompletion
     public DateOnly Date { get; set; }
     public Guid CompletedByUserId { get; set; }
     public DateTime CompletedAt { get; set; }
-    public TaskStatus Status { get; set; }
+    public Enums.TaskStatus Status { get; set; }
     public Guid? VerifiedByUserId { get; set; }
     public DateTime? VerifiedAt { get; set; }
     public string? RejectionReason { get; set; }

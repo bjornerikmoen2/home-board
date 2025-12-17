@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "home-board",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

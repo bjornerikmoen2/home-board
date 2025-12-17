@@ -183,7 +183,7 @@ public class TasksController : ControllerBase
             Date = today,
             CompletedByUserId = userId,
             CompletedAt = DateTime.UtcNow,
-            Status = TaskStatus.Completed
+            Status = Domain.Enums.TaskStatus.Completed
         };
 
         _context.TaskCompletions.Add(completion);
