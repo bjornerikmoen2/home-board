@@ -6,7 +6,7 @@ The initial focus is **chores and rewards for kids**, but the platform must be e
 
 This is a learning project using:
 - Flutter Web (frontend)
-- ASP.NET Core Web API (.NET 8) (backend)
+- ASP.NET Core Web API (.NET 9) (backend)
 - PostgreSQL
 - Docker for local development
 - Azure for future hosting
