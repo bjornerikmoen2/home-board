@@ -6,6 +6,7 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/today/screens/today_screen.dart';
 import '../../features/admin/screens/admin_screen.dart';
+import '../../features/admin/screens/user_management_screen.dart';
 import '../../features/leaderboard/screens/leaderboard_screen.dart';
 
 part 'app_router.g.dart';
@@ -50,6 +51,11 @@ GoRouter router(RouterRef ref) {
         path: '/admin',
         name: 'admin',
         builder: (context, state) => const AdminScreen(),
+      ),
+      GoRoute(
+        path: '/admin/users',
+        name: 'admin-users',
+        builder: (context, state) => const UserManagementScreen(),
       ),
       GoRoute(
         path: '/leaderboard',

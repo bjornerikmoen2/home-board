@@ -87,6 +87,20 @@ public class UsersController : ControllerBase
             user.IsActive = request.IsActive.Value;
         }
 
+        if (request.Role.HasValue)
+        {
+            // Prevent changing the last admin's role
+            if (user.Role == Domain.Enums.UserRole.Admin && request.Role.Value != Domain.Enums.UserRole.Admin)
+            {
+                var adminCount = await _context.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Admin && u.IsActive);
+                if (adminCount <= 1)
+                {
+                    return BadRequest(new { message = "Cannot change the last admin's role" });
+                }
+            }
+            user.Role = request.Role.Value;
+        }
+
         await _context.SaveChangesAsync();
 
         return Ok(new UserDto
@@ -111,5 +125,31 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Password reset successfully" });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(Guid id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Prevent deleting the last admin
+        if (user.Role == Domain.Enums.UserRole.Admin)
+        {
+            var adminCount = await _context.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Admin && u.IsActive);
+            if (adminCount <= 1)
+            {
+                return BadRequest(new { message = "Cannot delete the last admin user" });
+            }
+        }
+
+        // Soft delete - just mark as inactive
+        user.IsActive = false;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }

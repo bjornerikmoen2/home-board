@@ -39,7 +39,7 @@ class AdminScreen extends ConsumerWidget {
                         context,
                         title: 'Users',
                         icon: Icons.people,
-                        onTap: () {},
+                        onTap: () => context.go('/admin/users'),
                       ),
                       _buildAdminCard(
                         context,

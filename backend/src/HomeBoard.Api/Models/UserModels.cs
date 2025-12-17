@@ -14,6 +14,7 @@ public class UpdateUserRequest
 {
     public string? DisplayName { get; set; }
     public bool? IsActive { get; set; }
+    public UserRole? Role { get; set; }
 }
 
 public class ResetPasswordRequest
