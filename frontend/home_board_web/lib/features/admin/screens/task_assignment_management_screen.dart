@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 import '../models/task_assignment_models.dart';
 import '../models/task_definition_models.dart';
 import '../models/user_management_models.dart';
@@ -37,7 +38,7 @@ class _TaskAssignmentManagementScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Task Assignments'),
+        title: Text(context.l10n.taskAssignments),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/admin'),
@@ -59,13 +60,13 @@ class _TaskAssignmentManagementScreenState
             children: [
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
-              Text('Error: $error'),
+              Text(context.l10n.errorMessage(error.toString())),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref
                     .read(taskAssignmentManagementProvider.notifier)
                     .refresh(),
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -77,27 +78,27 @@ class _TaskAssignmentManagementScreenState
           usersAsync.value ?? [],
         ),
         icon: const Icon(Icons.add),
-        label: const Text('New Assignment'),
+        label: Text(context.l10n.newAssignment),
       ),
     );
   }
 
   Widget _buildAssignmentsList(List<TaskAssignmentModel> assignments) {
     if (assignments.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.assignment_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.assignment_outlined, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(
-              'No task assignments yet',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+              context.l10n.noAssignmentsYet,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Create an assignment to get started',
-              style: TextStyle(color: Colors.grey),
+              context.l10n.createAssignmentToStart,
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),
@@ -164,23 +165,23 @@ class _TaskAssignmentManagementScreenState
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Edit'),
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.edit),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                          const Icon(Icons.delete, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
                         ],
                       ),
                     ),
@@ -242,7 +243,7 @@ class _TaskAssignmentManagementScreenState
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    assignment.isActive ? 'Active' : 'Inactive',
+                    assignment.isActive ? context.l10n.active : context.l10n.inactive,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
@@ -257,25 +258,25 @@ class _TaskAssignmentManagementScreenState
   String _getScheduleTypeText(int scheduleType) {
     switch (scheduleType) {
       case 0:
-        return 'Daily';
+        return context.l10n.daily;
       case 1:
-        return 'Weekly';
+        return context.l10n.weekly;
       case 2:
-        return 'Once';
+        return context.l10n.once;
       default:
-        return 'Unknown';
+        return context.l10n.unknown;
     }
   }
 
   String _getDaysOfWeekText(int daysOfWeek) {
     final days = <String>[];
-    if (daysOfWeek & 1 != 0) days.add('Sun');
-    if (daysOfWeek & 2 != 0) days.add('Mon');
-    if (daysOfWeek & 4 != 0) days.add('Tue');
-    if (daysOfWeek & 8 != 0) days.add('Wed');
-    if (daysOfWeek & 16 != 0) days.add('Thu');
-    if (daysOfWeek & 32 != 0) days.add('Fri');
-    if (daysOfWeek & 64 != 0) days.add('Sat');
+    if (daysOfWeek & 1 != 0) days.add(context.l10n.sun);
+    if (daysOfWeek & 2 != 0) days.add(context.l10n.mon);
+    if (daysOfWeek & 4 != 0) days.add(context.l10n.tue);
+    if (daysOfWeek & 8 != 0) days.add(context.l10n.wed);
+    if (daysOfWeek & 16 != 0) days.add(context.l10n.thu);
+    if (daysOfWeek & 32 != 0) days.add(context.l10n.fri);
+    if (daysOfWeek & 64 != 0) days.add(context.l10n.sat);
     return days.join(', ');
   }
 
@@ -285,8 +286,8 @@ class _TaskAssignmentManagementScreenState
   ) {
     if (taskDefinitions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No task definitions available. Create one first.'),
+        SnackBar(
+          content: Text(context.l10n.noTaskDefinitionsAvailable),
           backgroundColor: Colors.orange,
         ),
       );
@@ -295,8 +296,8 @@ class _TaskAssignmentManagementScreenState
 
     if (users.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No users available. Create a user first.'),
+        SnackBar(
+          content: Text(context.l10n.noUsersAvailable),
           backgroundColor: Colors.orange,
         ),
       );
@@ -315,7 +316,7 @@ class _TaskAssignmentManagementScreenState
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Create Task Assignment'),
+          title: Text(context.l10n.createTaskAssignment),
           content: SingleChildScrollView(
             child: SizedBox(
               width: 500,
@@ -324,9 +325,9 @@ class _TaskAssignmentManagementScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Task',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.task,
+                      border: const OutlineInputBorder(),
                     ),
                     value: selectedTaskId,
                     items: taskDefinitions
@@ -341,9 +342,9 @@ class _TaskAssignmentManagementScreenState
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Assign To',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.assignTo,
+                      border: const OutlineInputBorder(),
                     ),
                     value: selectedUserId,
                     items: users
@@ -356,16 +357,16 @@ class _TaskAssignmentManagementScreenState
                         setDialogState(() => selectedUserId = value),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Schedule Type',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Text(
+                    context.l10n.scheduleType,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   SegmentedButton<int>(
-                    segments: const [
-                      ButtonSegment(value: 0, label: Text('Daily')),
-                      ButtonSegment(value: 1, label: Text('Weekly')),
-                      ButtonSegment(value: 2, label: Text('Once')),
+                    segments: [
+                      ButtonSegment(value: 0, label: Text(context.l10n.daily)),
+                      ButtonSegment(value: 1, label: Text(context.l10n.weekly)),
+                      ButtonSegment(value: 2, label: Text(context.l10n.once)),
                     ],
                     selected: {scheduleType},
                     onSelectionChanged: (Set<int> newSelection) {
@@ -374,9 +375,9 @@ class _TaskAssignmentManagementScreenState
                   ),
                   if (scheduleType == 1) ...[
                     const SizedBox(height: 16),
-                    const Text(
-                      'Days of Week',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      context.l10n.daysOfWeek,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     _buildDayPicker(
@@ -404,7 +405,7 @@ class _TaskAssignmentManagementScreenState
                           icon: const Icon(Icons.calendar_today),
                           label: Text(
                             startDate == null
-                                ? 'Start Date (Optional)'
+                                ? context.l10n.startDateOptional
                                 : DateFormat('yyyy-MM-dd').format(startDate!),
                           ),
                         ),
@@ -437,7 +438,7 @@ class _TaskAssignmentManagementScreenState
                           icon: const Icon(Icons.calendar_today),
                           label: Text(
                             endDate == null
-                                ? 'End Date (Optional)'
+                                ? context.l10n.endDateOptional
                                 : DateFormat('yyyy-MM-dd').format(endDate!),
                           ),
                         ),
@@ -467,7 +468,7 @@ class _TaskAssignmentManagementScreenState
                           icon: const Icon(Icons.access_time),
                           label: Text(
                             dueTime == null
-                                ? 'Due Time (Optional)'
+                                ? context.l10n.dueTimeOptional
                                 : dueTime!.format(context),
                           ),
                         ),
@@ -487,7 +488,7 @@ class _TaskAssignmentManagementScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
               onPressed: selectedTaskId == null || selectedUserId == null
@@ -521,8 +522,8 @@ class _TaskAssignmentManagementScreenState
                         if (context.mounted) {
                           Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Assignment created successfully'),
+                            SnackBar(
+                              content: Text(context.l10n.assignmentCreatedSuccessfully),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -531,14 +532,14 @@ class _TaskAssignmentManagementScreenState
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Error: $e'),
+                              content: Text(context.l10n.errorMessage(e.toString())),
                               backgroundColor: Colors.red,
                             ),
                           );
                         }
                       }
                     },
-              child: const Text('Create'),
+              child: Text(context.l10n.create),
             ),
           ],
         ),
@@ -551,13 +552,13 @@ class _TaskAssignmentManagementScreenState
     required Function(Set<int>) onChanged,
   }) {
     final days = [
-      {'name': 'Sun', 'value': 1},
-      {'name': 'Mon', 'value': 2},
-      {'name': 'Tue', 'value': 4},
-      {'name': 'Wed', 'value': 8},
-      {'name': 'Thu', 'value': 16},
-      {'name': 'Fri', 'value': 32},
-      {'name': 'Sat', 'value': 64},
+      {'name': context.l10n.sun, 'value': 1},
+      {'name': context.l10n.mon, 'value': 2},
+      {'name': context.l10n.tue, 'value': 4},
+      {'name': context.l10n.wed, 'value': 8},
+      {'name': context.l10n.thu, 'value': 16},
+      {'name': context.l10n.fri, 'value': 32},
+      {'name': context.l10n.sat, 'value': 64},
     ];
 
     return Wrap(
@@ -595,7 +596,7 @@ class _TaskAssignmentManagementScreenState
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit Assignment'),
+          title: Text(context.l10n.editAssignment),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,12 +609,12 @@ class _TaskAssignmentManagementScreenState
                 ),
               ),
               Text(
-                'Assigned to: ${assignment.assignedToName}',
+                '${context.l10n.assignedTo}: ${assignment.assignedToName}',
                 style: const TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Active'),
+                title: Text(context.l10n.active),
                 value: isActive,
                 onChanged: (value) => setDialogState(() => isActive = value),
               ),
@@ -634,7 +635,7 @@ class _TaskAssignmentManagementScreenState
                       icon: const Icon(Icons.access_time),
                       label: Text(
                         dueTime == null
-                            ? 'Due Time (Optional)'
+                            ? context.l10n.dueTimeOptional
                             : dueTime!.format(context),
                       ),
                     ),
@@ -652,7 +653,7 @@ class _TaskAssignmentManagementScreenState
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -671,8 +672,8 @@ class _TaskAssignmentManagementScreenState
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Assignment updated successfully'),
+                      SnackBar(
+                        content: Text(context.l10n.assignmentUpdatedSuccessfully),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -681,14 +682,14 @@ class _TaskAssignmentManagementScreenState
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error: $e'),
+                        content: Text(context.l10n.errorMessage(e.toString())),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Update'),
+              child: Text(context.l10n.update),
             ),
           ],
         ),
@@ -700,14 +701,14 @@ class _TaskAssignmentManagementScreenState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Assignment'),
+        title: Text(context.l10n.deleteAssignment),
         content: Text(
-          'Are you sure you want to delete the assignment "${assignment.taskTitle}" for ${assignment.assignedToName}?',
+          context.l10n.deleteAssignmentQuestion(assignment.taskTitle, assignment.assignedToName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -719,8 +720,8 @@ class _TaskAssignmentManagementScreenState
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Assignment deleted successfully'),
+                    SnackBar(
+                      content: Text(context.l10n.assignmentDeletedSuccessfully),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -729,7 +730,7 @@ class _TaskAssignmentManagementScreenState
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error: $e'),
+                      content: Text(context.l10n.errorMessage(e.toString())),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -740,7 +741,7 @@ class _TaskAssignmentManagementScreenState
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 import '../models/task_definition_models.dart';
 import '../providers/task_definition_provider.dart';
 import '../providers/user_management_provider.dart';
@@ -14,7 +15,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Task Definitions'),
+        title: Text(context.l10n.taskDefinitions),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/admin'),
@@ -39,13 +40,13 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Task Definitions',
+                      context.l10n.taskDefinitions,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     ElevatedButton.icon(
                       onPressed: () => _showCreateTaskDialog(context, ref),
                       icon: const Icon(Icons.add),
-                      label: const Text('Add Task'),
+                      label: Text(context.l10n.addTask),
                     ),
                   ],
                 ),
@@ -65,12 +66,12 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No task definitions',
+                                context.l10n.noTaskDefinitions,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Create your first task template!',
+                                context.l10n.createFirstTask,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
@@ -102,12 +103,12 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Error loading tasks',
+                            context.l10n.errorLoadingTasks,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            error.toString(),
+                            context.l10n.errorMessage(error.toString()),
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
@@ -116,7 +117,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                             onPressed: () => ref
                                 .read(taskDefinitionManagementProvider.notifier)
                                 .refresh(),
-                            child: const Text('Retry'),
+                            child: Text(context.l10n.retry),
                           ),
                         ],
                       ),
@@ -191,16 +192,16 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             if (!task.isActive)
-              const Chip(
-                label: Text('Inactive'),
+              Chip(
+                label: Text(context.l10n.inactive),
                 backgroundColor: Colors.grey,
-                labelStyle: TextStyle(color: Colors.white),
+                labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             const SizedBox(width: 8),
             ElevatedButton.icon(
               onPressed: () => _showAssignTaskDialog(context, ref, task),
               icon: const Icon(Icons.person_add, size: 18),
-              label: const Text('Assign'),
+              label: Text(context.l10n.assign),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
@@ -218,23 +219,23 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit),
-                      SizedBox(width: 8),
-                      Text('Edit'),
+                      const Icon(Icons.edit),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.edit),
                     ],
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
+                      const Icon(Icons.delete, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.delete, style: const TextStyle(color: Colors.red)),
                     ],
                   ),
                 ),
@@ -257,7 +258,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Create Task Definition'),
+          title: Text(context.l10n.createTaskDefinition),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -266,29 +267,29 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                 children: [
                   TextField(
                     controller: titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title *',
+                    decoration: InputDecoration(
+                      labelText: '${context.l10n.title} *',
                       hintText: 'e.g., Clean Your Room',
-                      prefixIcon: Icon(Icons.title),
+                      prefixIcon: const Icon(Icons.title),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.description,
                       hintText: 'What needs to be done?',
-                      prefixIcon: Icon(Icons.description),
+                      prefixIcon: const Icon(Icons.description),
                     ),
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: pointsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Points *',
+                    decoration: InputDecoration(
+                      labelText: '${context.l10n.points} *',
                       hintText: 'How many points is this worth?',
-                      prefixIcon: Icon(Icons.star),
+                      prefixIcon: const Icon(Icons.star),
                     ),
                     keyboardType: TextInputType.number,
                   ),
@@ -306,7 +307,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -314,7 +315,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                   : () async {
                       if (titleController.text.isEmpty) {
                         setState(() {
-                          errorMessage = 'Title is required';
+                          errorMessage = context.l10n.titleRequired;
                         });
                         return;
                       }
@@ -322,7 +323,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                       final points = int.tryParse(pointsController.text);
                       if (points == null || points <= 0) {
                         setState(() {
-                          errorMessage = 'Points must be a positive number';
+                          errorMessage = context.l10n.pointsPositiveNumber;
                         });
                         return;
                       }
@@ -347,8 +348,8 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                         if (dialogContext.mounted) {
                           Navigator.pop(dialogContext);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Task created successfully'),
+                            SnackBar(
+                              content: Text(context.l10n.taskCreatedSuccessfully),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -366,7 +367,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Create'),
+                  : Text(context.l10n.create),
             ),
           ],
         ),
@@ -389,7 +390,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Edit Task Definition'),
+          title: Text(context.l10n.editTaskDefinition),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -398,33 +399,33 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                 children: [
                   TextField(
                     controller: titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title *',
-                      prefixIcon: Icon(Icons.title),
+                    decoration: InputDecoration(
+                      labelText: '${context.l10n.title} *',
+                      prefixIcon: const Icon(Icons.title),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      prefixIcon: Icon(Icons.description),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.description,
+                      prefixIcon: const Icon(Icons.description),
                     ),
                     maxLines: 3,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: pointsController,
-                    decoration: const InputDecoration(
-                      labelText: 'Points *',
-                      prefixIcon: Icon(Icons.star),
+                    decoration: InputDecoration(
+                      labelText: '${context.l10n.points} *',
+                      prefixIcon: const Icon(Icons.star),
                     ),
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 16),
                   SwitchListTile(
-                    title: const Text('Active'),
-                    subtitle: const Text('Task can be assigned to users'),
+                    title: Text(context.l10n.active),
+                    subtitle: Text(context.l10n.taskCanBeAssigned),
                     value: isActive,
                     onChanged: (value) {
                       setState(() => isActive = value);
@@ -444,7 +445,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -452,7 +453,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                   : () async {
                       if (titleController.text.isEmpty) {
                         setState(() {
-                          errorMessage = 'Title is required';
+                          errorMessage = context.l10n.titleRequired;
                         });
                         return;
                       }
@@ -460,7 +461,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                       final points = int.tryParse(pointsController.text);
                       if (points == null || points <= 0) {
                         setState(() {
-                          errorMessage = 'Points must be a positive number';
+                          errorMessage = context.l10n.pointsPositiveNumber;
                         });
                         return;
                       }
@@ -487,8 +488,8 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                         if (dialogContext.mounted) {
                           Navigator.pop(dialogContext);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Task updated successfully'),
+                            SnackBar(
+                              content: Text(context.l10n.taskUpdatedSuccessfully),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -506,7 +507,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Save'),
+                  : Text(context.l10n.save),
             ),
           ],
         ),
@@ -523,16 +524,16 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Delete Task Definition'),
+          title: Text(context.l10n.deleteTaskDefinition),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Are you sure you want to delete "${task.title}"?'),
+              Text(context.l10n.deleteTaskConfirmation(task.title)),
               const SizedBox(height: 8),
-              const Text(
-                'This will mark it as inactive. Existing assignments will remain.',
-                style: TextStyle(color: Colors.orange),
+              Text(
+                context.l10n.deleteTaskWarning,
+                style: const TextStyle(color: Colors.orange),
               ),
               if (errorMessage != null) ...[
                 const SizedBox(height: 16),
@@ -546,7 +547,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -564,8 +565,8 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                         if (dialogContext.mounted) {
                           Navigator.pop(dialogContext);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Task deleted successfully'),
+                            SnackBar(
+                              content: Text(context.l10n.taskDeletedSuccessfully),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -587,7 +588,7 @@ class TaskDefinitionManagementScreen extends ConsumerWidget {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Delete'),
+                  : Text(context.l10n.delete),
             ),
           ],
         ),

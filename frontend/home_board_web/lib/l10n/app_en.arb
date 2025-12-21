@@ -508,6 +508,31 @@
     "description": "Message when no tasks exist"
   },
   
+  "noTaskDefinitions": "No task definitions",
+  "@noTaskDefinitions": {
+    "description": "Message when no task definitions exist"
+  },
+  
+  "createFirstTask": "Create your first task template!",
+  "@createFirstTask": {
+    "description": "Encouraging message to create first task"
+  },
+  
+  "titleRequired": "Title is required",
+  "@titleRequired": {
+    "description": "Error message for missing title"
+  },
+  
+  "pointsPositiveNumber": "Points must be a positive number",
+  "@pointsPositiveNumber": {
+    "description": "Error message for invalid points"
+  },
+  
+  "deleteTaskWarning": "This will mark it as inactive. Existing assignments will remain.",
+  "@deleteTaskWarning": {
+    "description": "Warning message when deleting task definition"
+  },
+  
   "inactive": "Inactive",
   "@inactive": {
     "description": "Inactive status"
@@ -582,6 +607,101 @@
   "noAssignmentsFound": "No assignments found",
   "@noAssignmentsFound": {
     "description": "Message when no assignments exist"
+  },
+  
+  "noAssignmentsYet": "No task assignments yet",
+  "@noAssignmentsYet": {
+    "description": "Message when no assignments exist"
+  },
+  
+  "createAssignmentToStart": "Create an assignment to get started",
+  "@createAssignmentToStart": {
+    "description": "Encouraging message to create first assignment"
+  },
+  
+  "scheduleType": "Schedule Type",
+  "@scheduleType": {
+    "description": "Schedule type label"
+  },
+  
+  "daysOfWeek": "Days of Week",
+  "@daysOfWeek": {
+    "description": "Days of week label"
+  },
+  
+  "startDateOptional": "Start Date (Optional)",
+  "@startDateOptional": {
+    "description": "Start date field label"
+  },
+  
+  "endDateOptional": "End Date (Optional)",
+  "@endDateOptional": {
+    "description": "End date field label"
+  },
+  
+  "dueTimeOptional": "Due Time (Optional)",
+  "@dueTimeOptional": {
+    "description": "Due time field label"
+  },
+  
+  "update": "Update",
+  "@update": {
+    "description": "Update button"
+  },
+  
+  "sun": "Sun",
+  "@sun": {
+    "description": "Sunday abbreviation"
+  },
+  
+  "mon": "Mon",
+  "@mon": {
+    "description": "Monday abbreviation"
+  },
+  
+  "tue": "Tue",
+  "@tue": {
+    "description": "Tuesday abbreviation"
+  },
+  
+  "wed": "Wed",
+  "@wed": {
+    "description": "Wednesday abbreviation"
+  },
+  
+  "thu": "Thu",
+  "@thu": {
+    "description": "Thursday abbreviation"
+  },
+  
+  "fri": "Fri",
+  "@fri": {
+    "description": "Friday abbreviation"
+  },
+  
+  "sat": "Sat",
+  "@sat": {
+    "description": "Saturday abbreviation"
+  },
+  
+  "unknown": "Unknown",
+  "@unknown": {
+    "description": "Unknown status"
+  },
+  
+  "deleteAssignmentQuestion": "Are you sure you want to delete the assignment \"{task}\" for {user}?",
+  "@deleteAssignmentQuestion": {
+    "description": "Delete assignment confirmation",
+    "placeholders": {
+      "task": {
+        "type": "String",
+        "example": "Clean room"
+      },
+      "user": {
+        "type": "String",
+        "example": "John"
+      }
+    }
   },
   
   "assignedTo": "Assigned to: {name}",
