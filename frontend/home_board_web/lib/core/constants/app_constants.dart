@@ -1,6 +1,6 @@
 class AppConstants {
   // API
-  static const String apiBaseUrl = 'http://192.168.1.148:8080/api';
+  static const String apiBaseUrl = '/api';
   static const Duration apiTimeout = Duration(seconds: 30);
   
   // Storage Keys
