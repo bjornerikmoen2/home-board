@@ -30,7 +30,8 @@ public class UsersController : ControllerBase
                 Username = u.Username,
                 DisplayName = u.DisplayName,
                 Role = u.Role.ToString(),
-                PreferredLanguage = u.PreferredLanguage
+                PreferredLanguage = u.PreferredLanguage,
+                ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
             })
             .ToListAsync();
 
@@ -38,12 +39,36 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserRequest request)
+    public async Task<ActionResult<UserDto>> CreateUser([FromForm] CreateUserRequest request)
     {
         // Check if username already exists
         if (await _context.Users.AnyAsync(u => u.Username == request.Username))
         {
             return Conflict(new { message = "Username already exists" });
+        }
+
+        byte[]? profileImageData = null;
+        string? contentType = null;
+        
+        if (request.ProfileImage != null)
+        {
+            // Validate image type
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+            if (!allowedTypes.Contains(request.ProfileImage.ContentType))
+            {
+                return BadRequest(new { message = "Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed." });
+            }
+            
+            // Validate size (max 5MB)
+            if (request.ProfileImage.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "Image size must be less than 5MB." });
+            }
+            
+            using var memoryStream = new MemoryStream();
+            await request.ProfileImage.CopyToAsync(memoryStream);
+            profileImageData = memoryStream.ToArray();
+            contentType = request.ProfileImage.ContentType;
         }
 
         var user = new User
@@ -53,7 +78,9 @@ public class UsersController : ControllerBase
             DisplayName = request.DisplayName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = request.Role,
-            PreferredLanguage = request.PreferredLanguage,
+            PreferredLanguage = request.PreferredLanguage ?? "en",
+            ProfileImage = profileImageData,
+            ProfileImageContentType = contentType,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
@@ -67,12 +94,13 @@ public class UsersController : ControllerBase
             Username = user.Username,
             DisplayName = user.DisplayName,
             Role = user.Role.ToString(),
-            PreferredLanguage = user.PreferredLanguage
+            PreferredLanguage = user.PreferredLanguage,
+            ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }
 
     [HttpPatch("{id}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
+    public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromForm] UpdateUserRequest request)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
@@ -108,6 +136,32 @@ public class UsersController : ControllerBase
         {
             user.PreferredLanguage = request.PreferredLanguage;
         }
+        
+        if (request.RemoveProfileImage == true)
+        {
+            user.ProfileImage = null;
+            user.ProfileImageContentType = null;
+        }
+        else if (request.ProfileImage != null)
+        {
+            // Validate image type
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+            if (!allowedTypes.Contains(request.ProfileImage.ContentType))
+            {
+                return BadRequest(new { message = "Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed." });
+            }
+            
+            // Validate size (max 5MB)
+            if (request.ProfileImage.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "Image size must be less than 5MB." });
+            }
+            
+            using var memoryStream = new MemoryStream();
+            await request.ProfileImage.CopyToAsync(memoryStream);
+            user.ProfileImage = memoryStream.ToArray();
+            user.ProfileImageContentType = request.ProfileImage.ContentType;
+        }
 
         await _context.SaveChangesAsync();
 
@@ -117,7 +171,8 @@ public class UsersController : ControllerBase
             Username = user.Username,
             DisplayName = user.DisplayName,
             Role = user.Role.ToString(),
-            PreferredLanguage = user.PreferredLanguage
+            PreferredLanguage = user.PreferredLanguage,
+            ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }
 
@@ -134,6 +189,19 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Password reset successfully" });
+    }
+
+    [HttpGet("{id}/profile-image")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProfileImage(Guid id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null || user.ProfileImage == null)
+        {
+            return NotFound();
+        }
+
+        return File(user.ProfileImage, user.ProfileImageContentType ?? "image/jpeg");
     }
 
     [HttpDelete("{id}")]

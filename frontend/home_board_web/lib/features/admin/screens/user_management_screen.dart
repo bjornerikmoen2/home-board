@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
 import '../../../core/l10n/l10n_extensions.dart';
 import '../models/user_management_models.dart';
 import '../providers/user_management_provider.dart';
@@ -241,6 +243,8 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     final passwordController = TextEditingController();
     String selectedRole = 'User';
     String selectedLanguage = 'en';
+    Uint8List? profileImageBytes;
+    String? profileImageName;
     bool isLoading = false;
     String? errorMessage;
 
@@ -308,6 +312,75 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                     setState(() => selectedLanguage = value!);
                   },
                 ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.image,
+                      allowMultiple: false,
+                    );
+                    if (result != null && result.files.isNotEmpty) {
+                      setState(() {
+                        profileImageBytes = result.files.first.bytes;
+                        profileImageName = result.files.first.name;
+                      });
+                    }
+                  },
+                  child: Container(
+                    height: 120,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: profileImageBytes != null
+                        ? Stack(
+                            children: [
+                              Center(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    profileImageBytes!,
+                                    height: 120,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: IconButton(
+                                  icon: const Icon(Icons.close,
+                                      color: Colors.white),
+                                  style: IconButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.black.withOpacity(0.5),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      profileImageBytes = null;
+                                      profileImageName = null;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_photo_alternate,
+                                  size: 48, color: Colors.grey[600]),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap to select profile image',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
                 if (errorMessage != null) ...[
                   const SizedBox(height: 16),
                   Text(
@@ -342,6 +415,8 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                                 password: passwordController.text,
                                 role: selectedRole,
                                 preferredLanguage: selectedLanguage,
+                                profileImage: profileImageBytes,
+                                profileImageName: profileImageName,
                               ),
                             );
                         if (dialogContext.mounted) {
@@ -380,6 +455,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
         TextEditingController(text: user.displayName);
     String selectedRole = user.role;
     String selectedLanguage = user.preferredLanguage;
+    Uint8List? profileImageBytes;
+    String? profileImageName;
+    bool removeProfileImage = false;
     bool isLoading = false;
     String? errorMessage;
 
@@ -439,6 +517,141 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                     setState(() => selectedLanguage = value!);
                   },
                 ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.image,
+                      allowMultiple: false,
+                    );
+                    if (result != null && result.files.isNotEmpty) {
+                      setState(() {
+                        profileImageBytes = result.files.first.bytes;
+                        profileImageName = result.files.first.name;
+                        removeProfileImage = false;
+                      });
+                    }
+                  },
+                  child: Container(
+                    height: 120,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: removeProfileImage
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_photo_alternate,
+                                  size: 48, color: Colors.grey[600]),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tap to select profile image',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          )
+                        : profileImageBytes != null
+                            ? Stack(
+                                children: [
+                                  Center(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.memory(
+                                        profileImageBytes!,
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: IconButton(
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.white),
+                                      style: IconButton.styleFrom(
+                                        backgroundColor:
+                                            Colors.black.withOpacity(0.5),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          profileImageBytes = null;
+                                          profileImageName = null;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : user.profileImageUrl != null &&
+                                    user.profileImageUrl!.isNotEmpty
+                                ? Stack(
+                                    children: [
+                                      Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.network(
+                                            user.profileImageUrl!,
+                                            height: 120,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.add_photo_alternate,
+                                                    size: 48,
+                                                    color: Colors.grey[600]),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  'Tap to select profile image',
+                                                  style: TextStyle(
+                                                      color: Colors.grey[600]),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.white),
+                                          style: IconButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.red.withOpacity(0.7),
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              removeProfileImage = true;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_photo_alternate,
+                                          size: 48, color: Colors.grey[600]),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Tap to select profile image',
+                                        style: TextStyle(color: Colors.grey[600]),
+                                      ),
+                                    ],
+                                  ),
+                  ),
+                ),
                 if (errorMessage != null) ...[
                   const SizedBox(height: 16),
                   Text(
@@ -472,6 +685,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                                 displayName: displayNameController.text,
                                 role: selectedRole,
                                 preferredLanguage: selectedLanguage,
+                                profileImage: profileImageBytes,
+                                profileImageName: profileImageName,
+                                removeProfileImage: removeProfileImage,
                               ),
                             );
                         if (dialogContext.mounted) {

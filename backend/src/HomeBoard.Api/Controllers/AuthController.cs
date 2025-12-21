@@ -53,7 +53,8 @@ public class AuthController : ControllerBase
                 Username = user.Username,
                 DisplayName = user.DisplayName,
                 Role = user.Role.ToString(),
-                PreferredLanguage = user.PreferredLanguage
+                PreferredLanguage = user.PreferredLanguage,
+                ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
             }
         });
     }

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'dart:typed_data';
 
 part 'user_management_models.freezed.dart';
 part 'user_management_models.g.dart';
@@ -11,6 +12,7 @@ class UserManagementModel with _$UserManagementModel {
     required String displayName,
     required String role,
     @Default('en') String preferredLanguage,
+    String? profileImageUrl,
   }) = _UserManagementModel;
 
   factory UserManagementModel.fromJson(Map<String, dynamic> json) =>
@@ -25,6 +27,8 @@ class CreateUserRequestModel with _$CreateUserRequestModel {
     required String password,
     required String role,
     @Default('en') String preferredLanguage,
+    @JsonKey(includeFromJson: false, includeToJson: false) Uint8List? profileImage,
+    @JsonKey(includeFromJson: false, includeToJson: false) String? profileImageName,
   }) = _CreateUserRequestModel;
 
   factory CreateUserRequestModel.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +42,9 @@ class UpdateUserRequestModel with _$UpdateUserRequestModel {
     bool? isActive,
     String? role,
     String? preferredLanguage,
+    @JsonKey(includeFromJson: false, includeToJson: false) Uint8List? profileImage,
+    @JsonKey(includeFromJson: false, includeToJson: false) String? profileImageName,
+    @JsonKey(includeFromJson: false, includeToJson: false) bool? removeProfileImage,
   }) = _UpdateUserRequestModel;
 
   factory UpdateUserRequestModel.fromJson(Map<String, dynamic> json) =>

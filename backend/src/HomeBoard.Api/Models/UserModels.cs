@@ -8,8 +8,7 @@ public class CreateUserRequest
     public required string DisplayName { get; set; }
     public required string Password { get; set; }
     public UserRole Role { get; set; }
-    public string PreferredLanguage { get; set; } = "en";
-}
+    public string PreferredLanguage { get; set; } = "en";    public IFormFile? ProfileImage { get; set; }}
 
 public class UpdateUserRequest
 {
@@ -17,6 +16,8 @@ public class UpdateUserRequest
     public bool? IsActive { get; set; }
     public UserRole? Role { get; set; }
     public string? PreferredLanguage { get; set; }
+    public IFormFile? ProfileImage { get; set; }
+    public bool? RemoveProfileImage { get; set; }
 }
 
 public class ResetPasswordRequest

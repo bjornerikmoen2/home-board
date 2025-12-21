@@ -11,6 +11,7 @@ class UserModel with _$UserModel {
     required String displayName,
     required String role,
     @Default('en') String preferredLanguage,
+    String? profileImageUrl,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
