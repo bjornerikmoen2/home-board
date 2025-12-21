@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 import '../../tasks/providers/task_provider.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -12,7 +13,7 @@ class TodayScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Today\'s Tasks'),
+        title: Text(context.l10n.todayTasks),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
@@ -33,7 +34,7 @@ class TodayScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'My Tasks for Today',
+                  context.l10n.myTasksForToday,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 24),
@@ -52,12 +53,12 @@ class TodayScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No tasks for today!',
+                                context.l10n.noTasksToday,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Enjoy your free time! 🎉',
+                                context.l10n.enjoyFreeTime,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ],
@@ -98,12 +99,12 @@ class TodayScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Error loading tasks',
+                            context.l10n.errorLoadingTasks,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            error.toString(),
+                            context.l10n.errorMessage(error.toString()),
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
@@ -112,7 +113,7 @@ class TodayScreen extends ConsumerWidget {
                             onPressed: () => ref
                                 .read(todayTasksProvider.notifier)
                                 .refresh(),
-                            child: const Text('Retry'),
+                            child: Text(context.l10n.retry),
                           ),
                         ],
                       ),
@@ -147,16 +148,16 @@ class TodayScreen extends ConsumerWidget {
                 final confirmed = await showDialog<bool>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Complete Task'),
-                    content: Text('Mark "$title" as complete?'),
+                    title: Text(context.l10n.completeTask),
+                    content: Text(context.l10n.markAsComplete(title)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
+                        child: Text(context.l10n.cancel),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Complete'),
+                        child: Text(context.l10n.complete),
                       ),
                     ],
                   ),
@@ -172,8 +173,8 @@ class TodayScreen extends ConsumerWidget {
                         SnackBar(
                           content: Text(
                             requiresVerification
-                                ? 'Task completed! Waiting for verification.'
-                                : 'Task completed! +$points points',
+                                ? context.l10n.taskCompletedVerification
+                                : context.l10n.taskCompletedPoints(points),
                           ),
                           backgroundColor: Colors.green,
                         ),
@@ -183,7 +184,7 @@ class TodayScreen extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Error: ${e.toString()}'),
+                          content: Text(context.l10n.errorMessage(e.toString())),
                           backgroundColor: Colors.red,
                         ),
                       );
@@ -223,29 +224,29 @@ class TodayScreen extends ConsumerWidget {
                         const Icon(Icons.star, size: 16, color: Colors.amber),
                         const SizedBox(width: 4),
                         Text(
-                          '$points points',
+                          context.l10n.pointsValue(points),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        if (requiresVerification) ...[
+                        if (requiresVerification) ...{
                           const SizedBox(width: 12),
                           const Icon(Icons.verified_user,
                               size: 16, color: Colors.blue),
                           const SizedBox(width: 4),
                           Text(
-                            'Needs verification',
+                            context.l10n.needsVerification,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
-                        ],
+                        },
                       ],
                     ),
                   ],
                 ),
               ),
               if (isCompleted)
-                const Chip(
-                  label: Text('Completed'),
+                Chip(
+                  label: Text(context.l10n.completed),
                   backgroundColor: Colors.green,
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                 ),
             ],
           ),

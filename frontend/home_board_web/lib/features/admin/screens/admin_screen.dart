@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 
 class AdminScreen extends ConsumerWidget {
   const AdminScreen({super.key});
@@ -9,7 +10,7 @@ class AdminScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: Text(context.l10n.adminPanel),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
@@ -24,7 +25,7 @@ class AdminScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Admin Dashboard',
+                  context.l10n.adminDashboard,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 24),
@@ -37,33 +38,39 @@ class AdminScreen extends ConsumerWidget {
                     children: [
                       _buildAdminCard(
                         context,
-                        title: 'Users',
+                        title: context.l10n.users,
                         icon: Icons.people,
                         onTap: () => context.go('/admin/users'),
                       ),
                       _buildAdminCard(
                         context,
-                        title: 'Task Definitions',
+                        title: context.l10n.taskDefinitions,
                         icon: Icons.task,
                         onTap: () => context.go('/admin/tasks'),
                       ),
                       _buildAdminCard(
                         context,
-                        title: 'Task Assignments',
+                        title: context.l10n.taskAssignments,
                         icon: Icons.assignment,
                         onTap: () => context.go('/admin/assignments'),
                       ),
                       _buildAdminCard(
                         context,
-                        title: 'Verification Queue',
+                        title: context.l10n.verificationQueue,
                         icon: Icons.verified,
                         onTap: () => context.go('/admin/verification-queue'),
                       ),
                       _buildAdminCard(
                         context,
-                        title: 'Analytics',
+                        title: context.l10n.analytics,
                         icon: Icons.analytics,
                         onTap: () {},
+                      ),
+                      _buildAdminCard(
+                        context,
+                        title: context.l10n.settings,
+                        icon: Icons.settings,
+                        onTap: () => context.go('/admin/settings'),
                       ),
                     ],
                   ),

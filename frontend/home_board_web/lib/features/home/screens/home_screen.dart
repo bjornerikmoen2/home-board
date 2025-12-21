@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Board'),
+        title: Text(context.l10n.appTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -44,7 +45,7 @@ class HomeScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Welcome, ${user.displayName}!',
+                  context.l10n.welcomeUser(user.displayName),
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -52,8 +53,8 @@ class HomeScreen extends ConsumerWidget {
                 if (isAdmin) ...[
                   _buildMenuCard(
                     context,
-                    title: 'Admin Panel',
-                    subtitle: 'Manage users, tasks, and verify completions',
+                    title: context.l10n.adminPanel,
+                    subtitle: context.l10n.adminPanelSubtitle,
                     icon: Icons.admin_panel_settings,
                     onTap: () => context.go('/admin'),
                   ),
@@ -61,16 +62,16 @@ class HomeScreen extends ConsumerWidget {
                 ],
                 _buildMenuCard(
                   context,
-                  title: 'Today\'s Tasks',
-                  subtitle: 'View and complete your tasks for today',
+                  title: context.l10n.todayTasksTitle,
+                  subtitle: context.l10n.todayTasksSubtitle,
                   icon: Icons.today,
                   onTap: () => context.go('/today'),
                 ),
                 const SizedBox(height: 16),
                 _buildMenuCard(
                   context,
-                  title: 'Leaderboard',
-                  subtitle: 'See who\'s leading in points',
+                  title: context.l10n.leaderboardTitle,
+                  subtitle: context.l10n.leaderboardSubtitle,
                   icon: Icons.leaderboard,
                   onTap: () => context.go('/leaderboard'),
                 ),

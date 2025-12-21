@@ -28,6 +28,9 @@ RUN flutter pub get
 # Copy the entire app
 COPY . .
 
+# Generate localization files
+RUN flutter gen-l10n
+
 # Enable web for the project
 RUN flutter create . --platforms web
 

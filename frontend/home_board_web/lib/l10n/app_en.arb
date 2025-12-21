@@ -1,0 +1,342 @@
+{
+  "@@locale": "en",
+  "appTitle": "Home Board",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "login": "Login",
+  "@login": {
+    "description": "Login button and screen title"
+  },
+  
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button"
+  },
+  
+  "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
+  
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  
+  "loginButton": "Sign In",
+  "@loginButton": {
+    "description": "Login button text"
+  },
+  
+  "todayTasks": "Today's Tasks",
+  "@todayTasks": {
+    "description": "Title for today's tasks screen"
+  },
+  
+  "myTasksForToday": "My Tasks for Today",
+  "@myTasksForToday": {
+    "description": "Heading for user's tasks"
+  },
+  
+  "noTasksToday": "No tasks for today!",
+  "@noTasksToday": {
+    "description": "Message when there are no tasks"
+  },
+  
+  "enjoyFreeTime": "Enjoy your free time! 🎉",
+  "@enjoyFreeTime": {
+    "description": "Encouraging message when no tasks"
+  },
+  
+  "errorLoadingTasks": "Error loading tasks",
+  "@errorLoadingTasks": {
+    "description": "Error message for task loading failure"
+  },
+  
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  
+  "completeTask": "Complete Task",
+  "@completeTask": {
+    "description": "Dialog title for completing a task"
+  },
+  
+  "markAsComplete": "Mark \"{title}\" as complete?",
+  "@markAsComplete": {
+    "description": "Confirmation message for completing a task",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Clean the kitchen"
+      }
+    }
+  },
+  
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button"
+  },
+  
+  "home": "Home",
+  "@home": {
+    "description": "Home navigation item"
+  },
+  
+  "today": "Today",
+  "@today": {
+    "description": "Today navigation item"
+  },
+  
+  "leaderboard": "Leaderboard",
+  "@leaderboard": {
+    "description": "Leaderboard navigation item"
+  },
+  
+  "admin": "Admin",
+  "@admin": {
+    "description": "Admin navigation item"
+  },
+  
+  "tasks": "Tasks",
+  "@tasks": {
+    "description": "Tasks label"
+  },
+  
+  "points": "Points",
+  "@points": {
+    "description": "Points label"
+  },
+  
+  "users": "Users",
+  "@users": {
+    "description": "Users label"
+  },
+  
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings label"
+  },
+  
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button"
+  },
+  
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button"
+  },
+  
+  "add": "Add",
+  "@add": {
+    "description": "Add button"
+  },
+  
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading indicator text"
+  },
+  
+  "error": "Error",
+  "@error": {
+    "description": "Generic error label"
+  },
+  
+  "success": "Success",
+  "@success": {
+    "description": "Success message"
+  },
+  
+  "taskDefinitions": "Task Definitions",
+  "@taskDefinitions": {
+    "description": "Task definitions screen title"
+  },
+  
+  "taskAssignments": "Task Assignments",
+  "@taskAssignments": {
+    "description": "Task assignments screen title"
+  },
+  
+  "verificationQueue": "Verification Queue",
+  "@verificationQueue": {
+    "description": "Verification queue screen title"
+  },
+  
+  "userManagement": "User Management",
+  "@userManagement": {
+    "description": "User management screen title"
+  },
+  
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  
+  "description": "Description",
+  "@description": {
+    "description": "Description field label"
+  },
+  
+  "status": "Status",
+  "@status": {
+    "description": "Status label"
+  },
+  
+  "role": "Role",
+  "@role": {
+    "description": "Role label"
+  },
+  
+  "parent": "Parent",
+  "@parent": {
+    "description": "Parent role"
+  },
+  
+  "child": "Child",
+  "@child": {
+    "description": "Child role"
+  },
+  
+  "welcome": "Welcome",
+  "@welcome": {
+    "description": "Welcome message"
+  },
+  
+  "pointsEarned": "Points Earned",
+  "@pointsEarned": {
+    "description": "Points earned label"
+  },
+  
+  "taskCount": "Task Count",
+  "@taskCount": {
+    "description": "Task count label"
+  },
+  
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  
+  "welcomeUser": "Welcome, {name}!",
+  "@welcomeUser": {
+    "description": "Welcome message with user name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  
+  "adminPanel": "Admin Panel",
+  "@adminPanel": {
+    "description": "Admin panel title"
+  },
+  
+  "adminPanelSubtitle": "Manage users, tasks, and verify completions",
+  "@adminPanelSubtitle": {
+    "description": "Admin panel subtitle"
+  },
+  
+  "todayTasksTitle": "Today's Tasks",
+  "@todayTasksTitle": {
+    "description": "Today's tasks menu title"
+  },
+  
+  "todayTasksSubtitle": "View and complete your tasks for today",
+  "@todayTasksSubtitle": {
+    "description": "Today's tasks subtitle"
+  },
+  
+  "leaderboardTitle": "Leaderboard",
+  "@leaderboardTitle": {
+    "description": "Leaderboard menu title"
+  },
+  
+  "leaderboardSubtitle": "See who's leading in points",
+  "@leaderboardSubtitle": {
+    "description": "Leaderboard subtitle"
+  },
+  
+  "adminDashboard": "Admin Dashboard",
+  "@adminDashboard": {
+    "description": "Admin dashboard heading"
+  },
+  
+  "analytics": "Analytics",
+  "@analytics": {
+    "description": "Analytics label"
+  },
+  
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh button"
+  },
+  
+  "complete": "Complete",
+  "@complete": {
+    "description": "Complete button text"
+  },
+  
+  "completed": "Completed",
+  "@completed": {
+    "description": "Completed status label"
+  },
+  
+  "taskCompletedVerification": "Task completed! Waiting for verification.",
+  "@taskCompletedVerification": {
+    "description": "Success message for tasks requiring verification"
+  },
+  
+  "taskCompletedPoints": "Task completed! +{points} points",
+  "@taskCompletedPoints": {
+    "description": "Success message with points earned",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  
+  "pointsValue": "{points} points",
+  "@pointsValue": {
+    "description": "Points value display",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  
+  "needsVerification": "Needs verification",
+  "@needsVerification": {
+    "description": "Label for tasks requiring verification"
+  },
+  
+  "errorMessage": "Error: {error}",
+  "@errorMessage": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  }
+}
