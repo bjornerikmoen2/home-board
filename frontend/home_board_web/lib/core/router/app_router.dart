@@ -5,6 +5,7 @@ import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/today/screens/today_screen.dart';
+import '../../features/calendar/screens/calendar_screen.dart';
 import '../../features/admin/screens/admin_screen.dart';
 import '../../features/admin/screens/user_management_screen.dart';
 import '../../features/admin/screens/task_definition_management_screen.dart';
@@ -50,6 +51,11 @@ GoRouter router(RouterRef ref) {
         path: '/today',
         name: 'today',
         builder: (context, state) => const TodayScreen(),
+      ),
+      GoRoute(
+        path: '/calendar',
+        name: 'calendar',
+        builder: (context, state) => const CalendarScreen(),
       ),
       GoRoute(
         path: '/admin',

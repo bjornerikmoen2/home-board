@@ -302,4 +302,81 @@ public class TasksController : ControllerBase
 
         return Ok(new { message = "Task marked as completed", completionId = completion.Id });
     }
+
+    [HttpGet("calendar")]
+    public async Task<ActionResult<List<CalendarTaskDto>>> GetCalendarTasks(
+        [FromQuery] DateOnly startDate,
+        [FromQuery] DateOnly endDate)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var isAdmin = User.IsInRole("Admin");
+
+        // Get all active assignments for the user (or all if admin)
+        var assignmentsQuery = _context.TaskAssignments
+            .Include(a => a.TaskDefinition)
+            .Include(a => a.AssignedToUser)
+            .Where(a => a.IsActive && a.TaskDefinition.IsActive);
+
+        if (!isAdmin)
+        {
+            assignmentsQuery = assignmentsQuery.Where(a => a.AssignedToUserId == userId);
+        }
+
+        var assignments = await assignmentsQuery.ToListAsync();
+
+        // Get existing completions in the date range
+        var completions = await _context.TaskCompletions
+            .Where(c => c.Date >= startDate && c.Date <= endDate)
+            .ToListAsync();
+
+        var calendarTasks = new List<CalendarTaskDto>();
+
+        // Generate tasks for each date in the range
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            var dayOfWeek = (int)date.DayOfWeek;
+            var dayFlag = 1 << dayOfWeek;
+
+            foreach (var assignment in assignments)
+            {
+                // Check if task is scheduled for this date
+                bool isScheduledForDate = assignment.ScheduleType switch
+                {
+                    ScheduleType.Daily => ((int)assignment.DaysOfWeek & dayFlag) != 0,
+                    ScheduleType.Weekly => ((int)assignment.DaysOfWeek & dayFlag) != 0,
+                    ScheduleType.Once => assignment.StartDate == date,
+                    _ => false
+                };
+
+                // Check date range constraints
+                if (assignment.StartDate.HasValue && date < assignment.StartDate.Value)
+                    continue;
+                if (assignment.EndDate.HasValue && date > assignment.EndDate.Value)
+                    continue;
+
+                if (isScheduledForDate)
+                {
+                    var completion = completions.FirstOrDefault(
+                        c => c.TaskAssignmentId == assignment.Id && c.Date == date);
+
+                    calendarTasks.Add(new CalendarTaskDto
+                    {
+                        AssignmentId = assignment.Id,
+                        Date = date,
+                        Title = assignment.TaskDefinition.Title,
+                        Description = assignment.TaskDefinition.Description,
+                        AssignedToUserId = assignment.AssignedToUserId,
+                        AssignedToName = assignment.AssignedToUser.DisplayName,
+                        DueTime = assignment.DueTime,
+                        DefaultPoints = assignment.TaskDefinition.DefaultPoints,
+                        IsCompleted = completion != null,
+                        CompletionId = completion?.Id,
+                        Status = completion?.Status
+                    });
+                }
+            }
+        }
+
+        return Ok(calendarTasks.OrderBy(t => t.Date).ThenBy(t => t.DueTime).ToList());
+    }
 }

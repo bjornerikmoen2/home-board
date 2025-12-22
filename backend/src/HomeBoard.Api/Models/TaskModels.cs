@@ -81,3 +81,18 @@ public class CompleteTaskRequest
     public string? Notes { get; set; }
     public string? PhotoUrl { get; set; }
 }
+
+public class CalendarTaskDto
+{
+    public Guid AssignmentId { get; set; }
+    public DateOnly Date { get; set; }
+    public required string Title { get; set; }
+    public string? Description { get; set; }
+    public Guid AssignedToUserId { get; set; }
+    public required string AssignedToName { get; set; }
+    public TimeOnly? DueTime { get; set; }
+    public int DefaultPoints { get; set; }
+    public bool IsCompleted { get; set; }
+    public Guid? CompletionId { get; set; }
+    public Domain.Enums.TaskStatus? Status { get; set; }
+}
