@@ -41,7 +41,7 @@ public class DbSeeder
         {
             Id = Guid.NewGuid(),
             Timezone = "Europe/Oslo",
-            PointToMoneyRate = 0.10m,
+            PointToMoneyRate = 1m,
             WeekStartsOn = DayOfWeek.Monday
         };
 
