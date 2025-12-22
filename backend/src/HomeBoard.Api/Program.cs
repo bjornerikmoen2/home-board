@@ -96,22 +96,27 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Run database migrations and seeding in development
-if (app.Environment.IsDevelopment())
+// Run database migrations and seeding
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<HomeBoardDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 
     try
     {
         await context.Database.MigrateAsync();
-        await seeder.SeedAsync();
+        
+        // Only seed in development to avoid overwriting production data
+        if (app.Environment.IsDevelopment())
+        {
+            await seeder.SeedAsync();
+        }
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+        throw; // Re-throw to prevent app from starting with broken database
     }
 }
 
