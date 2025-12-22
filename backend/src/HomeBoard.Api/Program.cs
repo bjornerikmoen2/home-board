@@ -2,6 +2,7 @@ using System.Text;
 using HomeBoard.Api.Services;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -128,6 +129,12 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger"; // Swagger at root
     });
 }
+
+// Handle forwarded headers from reverse proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseCors("AllowAll");
 
