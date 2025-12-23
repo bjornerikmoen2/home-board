@@ -1062,5 +1062,66 @@
         "example": "3"
       }
     }
+  },
+  
+  "timezone": "Timezone",
+  "@timezone": {
+    "description": "Timezone setting label"
+  },
+  
+  "changeTimezone": "Change Timezone",
+  "@changeTimezone": {
+    "description": "Change timezone dialog title"
+  },
+  
+  "timezoneHint": "e.g., Europe/Oslo, America/New_York",
+  "@timezoneHint": {
+    "description": "Timezone input hint"
+  },
+  
+  "timezoneHelper": "IANA timezone identifier",
+  "@timezoneHelper": {
+    "description": "Timezone input helper text"
+  },
+  
+  "pointToMoneyRate": "Point to Money Rate",
+  "@pointToMoneyRate": {
+    "description": "Point to money rate setting label"
+  },
+  
+  "changePointToMoneyRate": "Change Point to Money Rate",
+  "@changePointToMoneyRate": {
+    "description": "Change point to money rate dialog title"
+  },
+  
+  "rate": "Rate",
+  "@rate": {
+    "description": "Rate field label"
+  },
+  
+  "rateHint": "e.g., 1.0, 0.5, 0.10",
+  "@rateHint": {
+    "description": "Rate input hint"
+  },
+  
+  "rateHelper": "Currency value per point",
+  "@rateHelper": {
+    "description": "Rate input helper text"
+  },
+  
+  "currencyPerPoint": "{amount} currency per point",
+  "@currencyPerPoint": {
+    "description": "Currency per point display",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1.00"
+      }
+    }
+  },
+  
+  "weekStartsOn": "Week Starts On",
+  "@weekStartsOn": {
+    "description": "Week starts on setting label"
   }
 }

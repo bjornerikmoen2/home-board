@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n_extensions.dart';
+import '../../../core/l10n/locale_provider.dart';
 import '../../admin/providers/family_settings_provider.dart';
 import '../models/calendar_models.dart';
 import '../providers/calendar_provider.dart';
@@ -100,6 +101,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   }
 
   Widget _buildMonthSelector() {
+    final currentLocale = ref.watch(localeProvider);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -111,7 +114,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             onPressed: _previousMonth,
           ),
           Text(
-            DateFormat.yMMMM().format(_selectedMonth),
+            DateFormat.yMMMM(currentLocale.languageCode).format(_selectedMonth),
             style: Theme.of(context).textTheme.titleLarge,
           ),
           IconButton(

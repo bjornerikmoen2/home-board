@@ -76,7 +76,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.schedule),
-                title: const Text('Timezone'),
+                title: Text(context.l10n.timezone),
                 subtitle: Text(settings.timezone),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showTimezoneDialog(context, settings),
@@ -84,15 +84,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.attach_money),
-                title: const Text('Point to Money Rate'),
-                subtitle: Text('${settings.pointToMoneyRate.toStringAsFixed(2)} currency per point'),
+                title: Text(context.l10n.pointToMoneyRate),
+                subtitle: Text(context.l10n.currencyPerPoint(settings.pointToMoneyRate.toStringAsFixed(2))),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showPointRateDialog(context, settings),
               ),
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.calendar_today),
-                title: const Text('Week Starts On'),
+                title: Text(context.l10n.weekStartsOn),
                 subtitle: Text(_getDayName(settings.weekStartsOn)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showWeekStartsDialog(context, settings),
@@ -105,16 +105,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   String _getDayName(int dayOfWeek) {
-    const days = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday'
-    ];
-    return days[dayOfWeek % 7];
+    switch (dayOfWeek % 7) {
+      case 0:
+        return context.l10n.sunday;
+      case 1:
+        return context.l10n.monday;
+      case 2:
+        return context.l10n.tuesday;
+      case 3:
+        return context.l10n.wednesday;
+      case 4:
+        return context.l10n.thursday;
+      case 5:
+        return context.l10n.friday;
+      case 6:
+        return context.l10n.saturday;
+      default:
+        return '';
+    }
   }
 
   void _showTimezoneDialog(
@@ -125,13 +133,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
-        title: const Text('Change Timezone'),
+        title: Text(context.l10n.changeTimezone),
         content: TextField(
           controller: timezoneController,
-          decoration: const InputDecoration(
-            labelText: 'Timezone',
-            hintText: 'e.g., Europe/Oslo, America/New_York',
-            helperText: 'IANA timezone identifier',
+          decoration: InputDecoration(
+            labelText: context.l10n.timezone,
+            hintText: context.l10n.timezoneHint,
+            helperText: context.l10n.timezoneHelper,
           ),
         ),
         actions: [
@@ -171,13 +179,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
-        title: const Text('Change Point to Money Rate'),
+        title: Text(context.l10n.changePointToMoneyRate),
         content: TextField(
           controller: rateController,
-          decoration: const InputDecoration(
-            labelText: 'Rate',
-            hintText: 'e.g., 1.0, 0.5, 0.10',
-            helperText: 'Currency value per point',
+          decoration: InputDecoration(
+            labelText: context.l10n.rate,
+            hintText: context.l10n.rateHint,
+            helperText: context.l10n.rateHelper,
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
         ),
@@ -215,7 +223,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
-        title: const Text('Week Starts On'),
+        title: Text(context.l10n.weekStartsOn),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(7, (index) {

@@ -190,5 +190,16 @@
   "thu": "Tor",
   "fri": "Fre",
   "sat": "Lør",
-  "moreTasksCount": "+{count} flere"
+  "moreTasksCount": "+{count} flere",
+  "timezone": "Tidssone",
+  "changeTimezone": "Endre tidssone",
+  "timezoneHint": "f.eks., Europe/Oslo, America/New_York",
+  "timezoneHelper": "IANA tidssone-identifikator",
+  "pointToMoneyRate": "Poeng til pengesats",
+  "changePointToMoneyRate": "Endre poeng til pengesats",
+  "rate": "Sats",
+  "rateHint": "f.eks., 1.0, 0.5, 0.10",
+  "rateHelper": "Valutaverdi per poeng",
+  "currencyPerPoint": "{amount} valuta per poeng",
+  "weekStartsOn": "Uken starter på"
 }
