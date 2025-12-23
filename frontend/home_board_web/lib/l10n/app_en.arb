@@ -1123,5 +1123,81 @@
   "weekStartsOn": "Week Starts On",
   "@weekStartsOn": {
     "description": "Week starts on setting label"
+  },
+  
+  "analytics": "Analytics",
+  "@analytics": {
+    "description": "Analytics screen title"
+  },
+  
+  "analyticsSubtitle": "View completion rates and points statistics",
+  "@analyticsSubtitle": {
+    "description": "Analytics menu subtitle"
+  },
+  
+  "timePeriod": "Time Period:",
+  "@timePeriod": {
+    "description": "Time period selector label"
+  },
+  
+  "days": "{count} Days",
+  "@days": {
+    "description": "Number of days label",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  
+  "pointsSummary": "Points Summary",
+  "@pointsSummary": {
+    "description": "Points summary card title"
+  },
+  
+  "totalEarned": "Total Earned",
+  "@totalEarned": {
+    "description": "Total points earned label"
+  },
+  
+  "totalRedeemed": "Total Redeemed",
+  "@totalRedeemed": {
+    "description": "Total points redeemed label"
+  },
+  
+  "currentBalance": "Current Balance",
+  "@currentBalance": {
+    "description": "Current points balance label"
+  },
+  
+  "completionRates": "Completion Rates",
+  "@completionRates": {
+    "description": "Completion rates card title"
+  },
+  
+  "average": "Average",
+  "@average": {
+    "description": "Average label"
+  },
+  
+  "pointsEarnedVsRedeemed": "Points Earned vs Redeemed",
+  "@pointsEarnedVsRedeemed": {
+    "description": "Points chart card title"
+  },
+  
+  "earned": "Earned",
+  "@earned": {
+    "description": "Earned legend label"
+  },
+  
+  "redeemed": "Redeemed",
+  "@redeemed": {
+    "description": "Redeemed legend label"
+  },
+  
+  "noData": "No data available",
+  "@noData": {
+    "description": "No data message"
   }
 }

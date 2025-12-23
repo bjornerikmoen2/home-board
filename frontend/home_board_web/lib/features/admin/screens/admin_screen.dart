@@ -64,7 +64,7 @@ class AdminScreen extends ConsumerWidget {
                         context,
                         title: context.l10n.analytics,
                         icon: Icons.analytics,
-                        onTap: () {},
+                        onTap: () => context.go('/analytics'),
                       ),
                       _buildAdminCard(
                         context,

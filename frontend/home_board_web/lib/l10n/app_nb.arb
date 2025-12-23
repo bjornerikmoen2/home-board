@@ -201,5 +201,17 @@
   "rateHint": "f.eks., 1.0, 0.5, 0.10",
   "rateHelper": "Valutaverdi per poeng",
   "currencyPerPoint": "{amount} valuta per poeng",
-  "weekStartsOn": "Uken starter på"
+  "weekStartsOn": "Uken starter på",
+  "analytics": "Analyse",
+  "analyticsSubtitle": "Se fullføringsgrad og poengstatistikk",
+  "timePeriod": "Tidsperiode:",
+  "days": "{count} dager",
+  "pointsSummary": "Poengoversikt",
+  "totalEarned": "Totalt opptjent",
+  "totalRedeemed": "Totalt innløst",
+  "currentBalance": "Nåværende saldo",
+  "completionRates": "Fullføringsgrad",
+  "average": "Gjennomsnitt",
+  "pointsEarnedVsRedeemed": "Poeng opptjent vs innløst",
+  "earned": "Opptjent",  "redeemed": "Innl\u00f8st",  "noData": "Ingen data tilgjengelig"
 }
