@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n_extensions.dart';
+import '../../admin/providers/family_settings_provider.dart';
 import '../models/calendar_models.dart';
 import '../providers/calendar_provider.dart';
 
@@ -45,6 +46,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final tasksAsync = ref.watch(calendarProvider);
+    final settingsAsync = ref.watch(familySettingsNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -64,26 +66,33 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         children: [
           _buildMonthSelector(),
           Expanded(
-            child: tasksAsync.when(
-              data: (tasks) => _buildCalendarView(tasks),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(context.l10n.error),
-                    const SizedBox(height: 8),
-                    Text(error.toString()),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () =>
-                          ref.read(calendarProvider.notifier).refresh(),
-                      child: Text(context.l10n.refresh),
-                    ),
-                  ],
-                ),
+            child: settingsAsync.when(
+              data: (settings) => tasksAsync.when(
+                data: (tasks) => _buildCalendarView(tasks, settings.weekStartsOn),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => _buildError(context, error),
               ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => _buildError(context, error),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, Object error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(context.l10n.error),
+          const SizedBox(height: 8),
+          Text(error.toString()),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => ref.read(calendarProvider.notifier).refresh(),
+            child: Text(context.l10n.refresh),
           ),
         ],
       ),
@@ -114,7 +123,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Widget _buildCalendarView(List<CalendarTaskModel> tasks) {
+  Widget _buildCalendarView(List<CalendarTaskModel> tasks, int weekStartsOn) {
     // Group tasks by date
     final tasksByDate = <DateTime, List<CalendarTaskModel>>{};
     for (var task in tasks) {
@@ -129,9 +138,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     final lastDayOfMonth =
         DateTime(_selectedMonth.year, _selectedMonth.month + 1, 0);
 
-    // Get first day of calendar (might be from previous month)
+    // Calculate days to subtract based on weekStartsOn setting
+    // weekStartsOn: 0=Sunday, 1=Monday, etc.
+    int daysToSubtract = (firstDayOfMonth.weekday % 7 - weekStartsOn + 7) % 7;
     final firstDayOfCalendar = firstDayOfMonth
-        .subtract(Duration(days: firstDayOfMonth.weekday % 7));
+        .subtract(Duration(days: daysToSubtract));
 
     // Build calendar grid
     final days = <DateTime>[];
@@ -148,21 +159,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       currentDay = currentDay.add(const Duration(days: 1));
     }
 
+    // Get weekday names based on weekStartsOn
+    final weekdayNames = _getWeekdayNames(context, weekStartsOn);
+
     return Column(
       children: [
         // Weekday headers
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
-            children: [
-              context.l10n.sun,
-              context.l10n.mon,
-              context.l10n.tue,
-              context.l10n.wed,
-              context.l10n.thu,
-              context.l10n.fri,
-              context.l10n.sat
-            ]
+            children: weekdayNames
                 .map((day) => Expanded(
                       child: Center(
                         child: Text(
@@ -357,5 +363,20 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         ),
       ),
     );
+  }
+
+  List<String> _getWeekdayNames(BuildContext context, int weekStartsOn) {
+    final allDays = [
+      context.l10n.sun,
+      context.l10n.mon,
+      context.l10n.tue,
+      context.l10n.wed,
+      context.l10n.thu,
+      context.l10n.fri,
+      context.l10n.sat,
+    ];
+
+    // Rotate the list based on weekStartsOn
+    return [...allDays.sublist(weekStartsOn), ...allDays.sublist(0, weekStartsOn)];
   }
 }
