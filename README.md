@@ -10,6 +10,7 @@ A family chores and rewards management system designed for families with childre
 - 💰 **Points System** - Track earned points with complete audit history
 - 👥 **Multi-User** - Support for parents (admins) and children (users)
 - 🔒 **Secure** - JWT authentication with role-based authorization
+- 🌙 **Dark Mode** - User-specific theme preference with automatic sync across devices
 - 📱 **Tablet-First** - Optimized for family tablet usage
 
 ## Tech Stack
