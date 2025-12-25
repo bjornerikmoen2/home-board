@@ -39,46 +39,47 @@ class HomeScreen extends ConsumerWidget {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (user.profileImageUrl != null) ...[
-                  Center(
-                    child: ClipOval(
-                      child: Image.network(
-                        '${AppConstants.apiBaseUrl.replaceAll('/api', '')}${user.profileImageUrl}',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.person,
-                              size: 60,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
-                          );
-                        },
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (user.profileImageUrl != null) ...[
+                    Center(
+                      child: ClipOval(
+                        child: Image.network(
+                          '${AppConstants.apiBaseUrl.replaceAll('/api', '')}${user.profileImageUrl}',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                  ],
+                  Text(
+                    context.l10n.welcomeUser(user.displayName),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 24),
-                ],
-                Text(
-                  context.l10n.welcomeUser(user.displayName),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
                 if (isAdmin) ...[
                   _buildMenuCard(
                     context,
@@ -115,6 +116,7 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
