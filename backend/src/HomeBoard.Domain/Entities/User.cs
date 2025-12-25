@@ -11,6 +11,7 @@ public class User
     public UserRole Role { get; set; }
     public bool IsActive { get; set; }
     public string PreferredLanguage { get; set; } = "en";
+    public bool PrefersDarkMode { get; set; } = false;
     public byte[]? ProfileImage { get; set; }
     public string? ProfileImageContentType { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -31,6 +31,7 @@ public class UsersController : ControllerBase
                 DisplayName = u.DisplayName,
                 Role = u.Role.ToString(),
                 PreferredLanguage = u.PreferredLanguage,
+                PrefersDarkMode = u.PrefersDarkMode,
                 ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
             })
             .ToListAsync();
@@ -95,6 +96,7 @@ public class UsersController : ControllerBase
             DisplayName = user.DisplayName,
             Role = user.Role.ToString(),
             PreferredLanguage = user.PreferredLanguage,
+            PrefersDarkMode = user.PrefersDarkMode,
             ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }
@@ -136,6 +138,11 @@ public class UsersController : ControllerBase
         {
             user.PreferredLanguage = request.PreferredLanguage;
         }
+
+        if (request.PrefersDarkMode.HasValue)
+        {
+            user.PrefersDarkMode = request.PrefersDarkMode.Value;
+        }
         
         if (request.RemoveProfileImage == true)
         {
@@ -172,6 +179,7 @@ public class UsersController : ControllerBase
             DisplayName = user.DisplayName,
             Role = user.Role.ToString(),
             PreferredLanguage = user.PreferredLanguage,
+            PrefersDarkMode = user.PrefersDarkMode,
             ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }

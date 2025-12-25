@@ -54,6 +54,7 @@ public class AuthController : ControllerBase
                 DisplayName = user.DisplayName,
                 Role = user.Role.ToString(),
                 PreferredLanguage = user.PreferredLanguage,
+                PrefersDarkMode = user.PrefersDarkMode,
                 ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
             }
         });
