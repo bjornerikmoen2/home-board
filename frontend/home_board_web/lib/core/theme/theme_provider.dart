@@ -40,9 +40,14 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
   
   Future<void> loadFromUser(bool prefersDarkMode) async {
-    state = prefersDarkMode ? ThemeMode.dark : ThemeMode.light;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_themeModeKey, prefersDarkMode);
+    // Only load from backend if no local preference exists
+    // This prevents overwriting newer local changes when the page refreshes
+    final localPreference = prefs.getBool(_themeModeKey);
+    if (localPreference == null) {
+      state = prefersDarkMode ? ThemeMode.dark : ThemeMode.light;
+      await prefs.setBool(_themeModeKey, prefersDarkMode);
+    }
   }
   
   void toggle() {
