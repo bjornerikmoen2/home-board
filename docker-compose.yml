@@ -34,7 +34,7 @@ services:
       # For production, uncomment and set specific origins:
       # Cors__AllowedOrigins: "https://yourdomain.com,https://www.yourdomain.com"
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -45,8 +45,10 @@ services:
       context: ./frontend/home_board_web
       dockerfile: Dockerfile
     container_name: home-board-web
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT:-8080}
     ports:
-      - "3001:80"
+      - "${FRONTEND_PORT:-3001}:80"
     depends_on:
       - api
     restart: unless-stopped
