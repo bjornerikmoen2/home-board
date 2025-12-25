@@ -11,6 +11,7 @@ class UserModel with _$UserModel {
     required String displayName,
     required String role,
     @Default('en') String preferredLanguage,
+    @Default(false) bool prefersDarkMode,
     String? profileImageUrl,
   }) = _UserModel;
 
