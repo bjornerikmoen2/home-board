@@ -17,6 +17,8 @@ public class HomeBoardDbContext : DbContext
     public DbSet<Reward> Rewards => Set<Reward>();
     public DbSet<RewardRedemption> RewardRedemptions => Set<RewardRedemption>();
     public DbSet<FamilySettings> FamilySettings => Set<FamilySettings>();
+    public DbSet<UserPayoutState> UserPayoutStates => Set<UserPayoutState>();
+    public DbSet<Payout> Payouts => Set<Payout>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -163,6 +165,44 @@ public class HomeBoardDbContext : DbContext
             entity.Property(e => e.Timezone).IsRequired().HasMaxLength(100);
             entity.Property(e => e.PointToMoneyRate).IsRequired().HasColumnType("decimal(18,2)");
             entity.Property(e => e.WeekStartsOn).IsRequired();
+        });
+
+        // UserPayoutState configuration
+        modelBuilder.Entity<UserPayoutState>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Payout configuration
+        modelBuilder.Entity<Payout>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PeriodStart).IsRequired();
+            entity.Property(e => e.PeriodEnd).IsRequired();
+            entity.Property(e => e.NetPoints).IsRequired();
+            entity.Property(e => e.PointToMoneyRate).IsRequired().HasColumnType("decimal(12,4)");
+            entity.Property(e => e.MoneyPaid).IsRequired().HasColumnType("decimal(12,2)");
+            entity.Property(e => e.PaidAt).IsRequired();
+            entity.Property(e => e.Note).HasMaxLength(500);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.PaidByUser)
+                .WithMany()
+                .HasForeignKey(e => e.PaidByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Index for efficient querying by user and date
+            entity.HasIndex(e => new { e.UserId, e.PaidAt });
         });
     }
 }

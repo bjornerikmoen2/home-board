@@ -1,0 +1,22 @@
+meta {
+  name: today
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:8080/api/User/dark-mode
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "prefersDarkMode": true
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

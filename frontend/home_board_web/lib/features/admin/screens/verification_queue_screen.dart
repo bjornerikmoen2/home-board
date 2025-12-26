@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/l10n/l10n_extensions.dart';
 import '../models/verification_queue_models.dart';
 import '../providers/verification_queue_provider.dart';
 
@@ -29,7 +30,7 @@ class _VerificationQueueScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verification Queue'),
+        title: Text(context.l10n.verificationQueue),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/admin'),
@@ -51,7 +52,7 @@ class _VerificationQueueScreenState
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Pending Task Verifications',
+                  context.l10n.pendingTaskVerifications,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 24),
@@ -59,20 +60,20 @@ class _VerificationQueueScreenState
                   child: queueAsync.when(
                     data: (items) {
                       if (items.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.verified, size: 64, color: Colors.grey),
-                              SizedBox(height: 16),
+                              const Icon(Icons.verified, size: 64, color: Colors.grey),
+                              const SizedBox(height: 16),
                               Text(
-                                'No tasks pending verification',
-                                style: TextStyle(fontSize: 18, color: Colors.grey),
+                                context.l10n.noTasksPendingVerification,
+                                style: const TextStyle(fontSize: 18, color: Colors.grey),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                'All task completions have been reviewed',
-                                style: TextStyle(color: Colors.grey),
+                                context.l10n.allTaskCompletionsReviewed,
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ],
                           ),
@@ -100,13 +101,13 @@ class _VerificationQueueScreenState
                             color: Colors.red,
                           ),
                           const SizedBox(height: 16),
-                          Text('Error: $error'),
+                          Text(context.l10n.errorMessage(error.toString())),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () => ref
                                 .read(verificationQueueProvider.notifier)
                                 .refresh(),
-                            child: const Text('Retry'),
+                            child: Text(context.l10n.retry),
                           ),
                         ],
                       ),
@@ -186,7 +187,7 @@ class _VerificationQueueScreenState
                 const Icon(Icons.person, size: 20, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  'Completed by: ${item.completedByUserName}',
+                  context.l10n.completedByUser(item.completedByUserName),
                   style: const TextStyle(fontSize: 15),
                 ),
               ],
@@ -213,13 +214,13 @@ class _VerificationQueueScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.note, size: 16),
-                        SizedBox(width: 4),
+                        const Icon(Icons.note, size: 16),
+                        const SizedBox(width: 4),
                         Text(
-                          'Notes:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          context.l10n.notes,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -242,13 +243,13 @@ class _VerificationQueueScreenState
                     return Container(
                       height: 200,
                       color: Colors.grey.shade200,
-                      child: const Center(
+                      child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                            SizedBox(height: 8),
-                            Text('Failed to load image'),
+                            const Icon(Icons.broken_image, size: 48, color: Colors.grey),
+                            const SizedBox(height: 8),
+                            Text(context.l10n.failedToLoadImage),
                           ],
                         ),
                       ),
@@ -264,9 +265,9 @@ class _VerificationQueueScreenState
                 OutlinedButton.icon(
                   onPressed: () => _showRejectDialog(item),
                   icon: const Icon(Icons.close, color: Colors.red),
-                  label: const Text(
-                    'Reject',
-                    style: TextStyle(color: Colors.red),
+                  label: Text(
+                    context.l10n.reject,
+                    style: const TextStyle(color: Colors.red),
                   ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Colors.red),
@@ -276,7 +277,7 @@ class _VerificationQueueScreenState
                 ElevatedButton.icon(
                   onPressed: () => _verifyTask(item),
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('Verify & Award Points'),
+                  label: Text(context.l10n.verifyAndAwardPoints),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
@@ -293,23 +294,23 @@ class _VerificationQueueScreenState
   void _verifyTask(VerificationQueueItemModel item) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Verify Task'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.verifyTask),
         content: Text(
-          'Award ${item.points} points to ${item.completedByUserName} for completing "${item.taskTitle}"?',
+          context.l10n.awardPointsConfirmation(item.points, item.completedByUserName, item.taskTitle),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Verify'),
+            child: Text(context.l10n.verify),
           ),
         ],
       ),
@@ -321,7 +322,7 @@ class _VerificationQueueScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Task verified! ${item.points} points awarded to ${item.completedByUserName}'),
+              content: Text(context.l10n.taskVerifiedPointsAwarded(item.points, item.completedByUserName)),
               backgroundColor: Colors.green,
             ),
           );
@@ -330,7 +331,7 @@ class _VerificationQueueScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error: $e'),
+              content: Text(context.l10n.errorMessage(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -345,18 +346,18 @@ class _VerificationQueueScreenState
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Reject Task'),
+        title: Text(context.l10n.rejectTask),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Reject "${item.taskTitle}" by ${item.completedByUserName}?'),
+            Text(context.l10n.rejectTaskConfirmation(item.taskTitle, item.completedByUserName)),
             const SizedBox(height: 16),
             TextField(
               controller: reasonController,
-              decoration: const InputDecoration(
-                labelText: 'Reason (optional)',
-                hintText: 'Why is this task being rejected?',
+              decoration: InputDecoration(
+                labelText: context.l10n.reasonOptional,
+                hintText: context.l10n.whyTaskRejected,
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -366,7 +367,7 @@ class _VerificationQueueScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -378,8 +379,8 @@ class _VerificationQueueScreenState
                     );
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Task rejected'),
+                    SnackBar(
+                      content: Text(context.l10n.taskRejected),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -388,7 +389,7 @@ class _VerificationQueueScreenState
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error: $e'),
+                      content: Text(context.l10n.errorMessage(e.toString())),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -399,7 +400,7 @@ class _VerificationQueueScreenState
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Reject'),
+            child: Text(context.l10n.reject),
           ),
         ],
       ),

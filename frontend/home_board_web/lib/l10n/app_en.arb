@@ -207,6 +207,82 @@
     "description": "User management screen title"
   },
   
+  "payout": "Payout",
+  "@payout": {
+    "description": "Payout screen title"
+  },
+  
+  "payoutManagement": "Payout Management",
+  "@payoutManagement": {
+    "description": "Payout management screen title"
+  },
+  
+  "lastPayout": "Last Payout",
+  "@lastPayout": {
+    "description": "Last payout date label"
+  },
+  
+  "never": "Never",
+  "@never": {
+    "description": "Never label for last payout"
+  },
+  
+  "netPoints": "Net Points",
+  "@netPoints": {
+    "description": "Net points since last payout label"
+  },
+  
+  "moneyToPay": "Money to Pay",
+  "@moneyToPay": {
+    "description": "Money to pay label"
+  },
+  
+  "totalToPay": "Total to Pay",
+  "@totalToPay": {
+    "description": "Total money to pay label"
+  },
+  
+  "executePayout": "Execute Payout",
+  "@executePayout": {
+    "description": "Execute payout button"
+  },
+  
+  "executePayoutConfirmation": "Are you sure you want to execute payout for {count} user(s) totaling {amount}?",
+  "@executePayoutConfirmation": {
+    "description": "Execute payout confirmation message",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "payoutExecutedSuccessfully": "Payout executed successfully! Processed {count} user(s), paid out {amount}",
+  "@payoutExecutedSuccessfully": {
+    "description": "Payout executed success message",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "noUsersForPayout": "No users have points to pay out",
+  "@noUsersForPayout": {
+    "description": "No users for payout message"
+  },
+  
+  "selectAll": "Select All",
+  "@selectAll": {
+    "description": "Select all checkbox label"
+  },
+  
   "name": "Name",
   "@name": {
     "description": "Name field label"
@@ -389,6 +465,38 @@
   "resetPassword": "Reset Password",
   "@resetPassword": {
     "description": "Reset password button"
+  },
+  
+  "resetPoints": "Reset Points",
+  "@resetPoints": {
+    "description": "Reset points button"
+  },
+  
+  "resetPointsFor": "Reset Points for {name}",
+  "@resetPointsFor": {
+    "description": "Reset points dialog title",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  
+  "resetPointsConfirmation": "Are you sure you want to reset all points for \"{name}\"? This will set their total points to zero. This action cannot be undone.",
+  "@resetPointsConfirmation": {
+    "description": "Confirmation message for resetting points",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  
+  "pointsResetSuccessfully": "Points reset successfully",
+  "@pointsResetSuccessfully": {
+    "description": "Success message after resetting points"
   },
   
   "createNewUser": "Create New User",
@@ -1182,9 +1290,9 @@
     "description": "Total points earned label"
   },
   
-  "totalRedeemed": "Total Redeemed",
-  "@totalRedeemed": {
-    "description": "Total points redeemed label"
+  "totalPaidOut": "Total Paid Out",
+  "@totalPaidOut": {
+    "description": "Total money paid out label"
   },
   
   "currentBalance": "Current Balance",
@@ -1202,14 +1310,19 @@
     "description": "Average label"
   },
   
-  "pointsEarnedVsRedeemed": "Points Earned vs Redeemed",
-  "@pointsEarnedVsRedeemed": {
+  "pointsEarnedVsMoneyPaidOut": "Points earned vs money paid out",
+  "@pointsEarnedVsMoneyPaidOut": {
     "description": "Points chart card title"
   },
   
   "earned": "Earned",
   "@earned": {
     "description": "Earned legend label"
+  },
+  
+  "paidOut": "Paid Out",
+  "@paidOut": {
+    "description": "Paid out legend label"
   },
   
   "redeemed": "Redeemed",
@@ -1220,5 +1333,132 @@
   "noData": "No data available",
   "@noData": {
     "description": "No data message"
+  },
+  
+  "pendingTaskVerifications": "Pending Task Verifications",
+  "@pendingTaskVerifications": {
+    "description": "Title for pending task verifications section"
+  },
+  
+  "noTasksPendingVerification": "No tasks pending verification",
+  "@noTasksPendingVerification": {
+    "description": "Message when no tasks need verification"
+  },
+  
+  "allTaskCompletionsReviewed": "All task completions have been reviewed",
+  "@allTaskCompletionsReviewed": {
+    "description": "Message when all task completions are reviewed"
+  },
+  
+  "completedByUser": "Completed by: {userName}",
+  "@completedByUser": {
+    "description": "Shows who completed the task",
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "notes": "Notes:",
+  "@notes": {
+    "description": "Label for notes section"
+  },
+  
+  "failedToLoadImage": "Failed to load image",
+  "@failedToLoadImage": {
+    "description": "Error message when image fails to load"
+  },
+  
+  "reject": "Reject",
+  "@reject": {
+    "description": "Reject button"
+  },
+  
+  "verifyAndAwardPoints": "Verify & Award Points",
+  "@verifyAndAwardPoints": {
+    "description": "Button to verify and award points"
+  },
+  
+  "verifyTask": "Verify Task",
+  "@verifyTask": {
+    "description": "Dialog title for verifying a task"
+  },
+  
+  "awardPointsConfirmation": "Award {points} points to {userName} for completing \"{taskTitle}\"?",
+  "@awardPointsConfirmation": {
+    "description": "Confirmation message for awarding points",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "userName": {
+        "type": "String"
+      },
+      "taskTitle": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "verify": "Verify",
+  "@verify": {
+    "description": "Verify button"
+  },
+  
+  "taskVerifiedPointsAwarded": "Task verified! {points} points awarded to {userName}",
+  "@taskVerifiedPointsAwarded": {
+    "description": "Success message after verifying task",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "rejectTask": "Reject Task",
+  "@rejectTask": {
+    "description": "Dialog title for rejecting a task"
+  },
+  
+  "rejectTaskConfirmation": "Reject \"{taskTitle}\" by {userName}?",
+  "@rejectTaskConfirmation": {
+    "description": "Confirmation message for rejecting task",
+    "placeholders": {
+      "taskTitle": {
+        "type": "String"
+      },
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "reasonOptional": "Reason (optional)",
+  "@reasonOptional": {
+    "description": "Label for optional reason field"
+  },
+  
+  "whyTaskRejected": "Why is this task being rejected?",
+  "@whyTaskRejected": {
+    "description": "Hint text for rejection reason"
+  },
+  
+  "taskRejected": "Task rejected",
+  "@taskRejected": {
+    "description": "Success message after rejecting task"
+  },
+  
+  "errorMessage": "Error: {error}",
+  "@errorMessage": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

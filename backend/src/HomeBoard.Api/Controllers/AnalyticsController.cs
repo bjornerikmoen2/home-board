@@ -23,11 +23,11 @@ public class AnalyticsController : ControllerBase
     public async Task<ActionResult<AnalyticsResponseModel>> GetAnalytics([FromQuery] int days = 30)
     {
         var startDate = DateTime.UtcNow.Date.AddDays(-days);
-        var endDate = DateTime.UtcNow.Date;
+        var endDate = DateTime.UtcNow.Date.AddDays(1); // Include today by going to start of tomorrow
 
         // Get completion rates over time
         var completions = await _context.TaskCompletions
-            .Where(tc => tc.CompletedAt >= startDate && tc.CompletedAt <= endDate)
+            .Where(tc => tc.CompletedAt >= startDate && tc.CompletedAt < endDate)
             .GroupBy(tc => tc.CompletedAt.Date)
             .Select(g => new
             {
@@ -43,7 +43,7 @@ public class AnalyticsController : ControllerBase
             .ToListAsync();
 
         var completionRates = new List<CompletionRateDataPoint>();
-        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        for (var date = startDate; date < endDate; date = date.AddDays(1))
         {
             var dayOfWeek = (int)date.DayOfWeek;
             var dayFlag = 1 << dayOfWeek;
@@ -66,9 +66,9 @@ public class AnalyticsController : ControllerBase
             });
         }
 
-        // Get points earned (from task completions)
+        // Get points earned (from task completions, bonuses, and adjustments that add points)
         var pointsEarned = await _context.PointsLedger
-            .Where(p => p.CreatedAt >= startDate && p.CreatedAt <= endDate && p.SourceType == PointSourceType.TaskVerified)
+            .Where(p => p.CreatedAt >= startDate && p.CreatedAt < endDate && p.PointsDelta > 0)
             .GroupBy(p => p.CreatedAt.Date)
             .Select(g => new PointsDataPoint
             {
@@ -78,26 +78,25 @@ public class AnalyticsController : ControllerBase
             .OrderBy(p => p.Date)
             .ToListAsync();
 
-        // Get points redeemed (from reward redemptions)
-        var pointsRedeemed = await _context.PointsLedger
-            .Where(p => p.CreatedAt >= startDate && p.CreatedAt <= endDate && p.SourceType == PointSourceType.RewardRedeemed)
-            .GroupBy(p => p.CreatedAt.Date)
-            .Select(g => new PointsDataPoint
+        // Get money paid out (from payouts)
+        var moneyPaidOut = await _context.Payouts
+            .Where(p => p.PaidAt >= startDate && p.PaidAt < endDate)
+            .GroupBy(p => p.PaidAt.Date)
+            .Select(g => new MoneyDataPoint
             {
                 Date = g.Key,
-                Amount = Math.Abs(g.Sum(p => p.PointsDelta)) // Make positive for display
+                Amount = g.Sum(p => p.MoneyPaid)
             })
             .OrderBy(p => p.Date)
             .ToListAsync();
 
         // Get totals
         var totalEarned = await _context.PointsLedger
-            .Where(p => p.SourceType == PointSourceType.TaskVerified)
+            .Where(p => p.PointsDelta > 0)
             .SumAsync(p => p.PointsDelta);
 
-        var totalRedeemed = await _context.PointsLedger
-            .Where(p => p.SourceType == PointSourceType.RewardRedeemed)
-            .SumAsync(p => Math.Abs(p.PointsDelta));
+        var totalPaidOut = await _context.Payouts
+            .SumAsync(p => (decimal?)p.MoneyPaid) ?? 0m;
 
         var currentBalance = await _context.PointsLedger
             .SumAsync(p => p.PointsDelta);
@@ -108,9 +107,9 @@ public class AnalyticsController : ControllerBase
             PointsAnalytics = new PointsAnalytics
             {
                 PointsEarned = pointsEarned,
-                PointsRedeemed = pointsRedeemed,
+                MoneyPaidOut = moneyPaidOut,
                 TotalEarned = totalEarned,
-                TotalRedeemed = totalRedeemed,
+                TotalPaidOut = totalPaidOut,
                 CurrentBalance = currentBalance
             }
         });

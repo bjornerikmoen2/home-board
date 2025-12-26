@@ -79,9 +79,32 @@ public class MeController : ControllerBase
 
         return Ok(new { preferredLanguage = user.PreferredLanguage });
     }
+
+    [HttpPatch("dark-mode")]
+    public async Task<IActionResult> UpdateDarkMode([FromBody] UpdateDarkModeRequest request)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.PrefersDarkMode = request.PrefersDarkMode;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { prefersDarkMode = user.PrefersDarkMode });
+    }
 }
 
 public class UpdateLanguageRequest
 {
     public required string PreferredLanguage { get; set; }
 }
+
+public class UpdateDarkModeRequest
+{
+    public required bool PrefersDarkMode { get; set; }
+}
+

@@ -193,6 +193,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                   case 'reset_password':
                     _showResetPasswordDialog(context, user);
                     break;
+                  case 'reset_points':
+                    _showResetPointsDialog(context, user);
+                    break;
                   case 'delete':
                     _showDeleteConfirmationDialog(context, user);
                     break;
@@ -216,6 +219,16 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                       const Icon(Icons.lock_reset),
                       const SizedBox(width: 8),
                       Text(context.l10n.resetPassword),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'reset_points',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.refresh),
+                      const SizedBox(width: 8),
+                      Text(context.l10n.resetPoints),
                     ],
                   ),
                 ),
@@ -800,6 +813,82 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(context.l10n.resetPassword),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showResetPointsDialog(
+      BuildContext context, UserManagementModel user) {
+    bool isLoading = false;
+    String? errorMessage;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(context.l10n.resetPointsFor(user.displayName)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.l10n.resetPointsConfirmation(user.displayName)),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
+              child: Text(context.l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      setState(() {
+                        isLoading = true;
+                        errorMessage = null;
+                      });
+
+                      try {
+                        await ref
+                            .read(userManagementProvider.notifier)
+                            .resetPoints(user.id);
+                        if (dialogContext.mounted) {
+                          Navigator.pop(dialogContext);
+                          ScaffoldMessenger.of(this.context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.l10n.pointsResetSuccessfully),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false;
+                          errorMessage = e.toString();
+                        });
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(context.l10n.resetPoints),
             ),
           ],
         ),

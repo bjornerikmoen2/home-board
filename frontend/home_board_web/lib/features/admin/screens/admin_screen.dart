@@ -68,6 +68,12 @@ class AdminScreen extends ConsumerWidget {
                           ),
                           _buildAdminCard(
                             context,
+                            title: context.l10n.payout,
+                            icon: Icons.payments,
+                            onTap: () => context.go('/admin/payout'),
+                          ),
+                          _buildAdminCard(
+                            context,
                             title: context.l10n.analytics,
                             icon: Icons.analytics,
                             onTap: () => context.go('/analytics'),

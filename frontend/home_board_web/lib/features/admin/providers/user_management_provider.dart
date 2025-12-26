@@ -65,4 +65,14 @@ class UserManagement extends _$UserManagement {
       rethrow;
     }
   }
+
+  Future<void> resetPoints(String userId) async {
+    try {
+      final repository = ref.read(userManagementRepositoryProvider);
+      await repository.resetPoints(userId);
+      await refresh();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

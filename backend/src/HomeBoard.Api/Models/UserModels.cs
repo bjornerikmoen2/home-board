@@ -16,6 +16,7 @@ public class UpdateUserRequest
     public bool? IsActive { get; set; }
     public UserRole? Role { get; set; }
     public string? PreferredLanguage { get; set; }
+    public bool? PrefersDarkMode { get; set; }
     public IFormFile? ProfileImage { get; set; }
     public bool? RemoveProfileImage { get; set; }
 }

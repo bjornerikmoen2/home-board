@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n_extensions.dart';
+import '../models/family_settings_models.dart';
 import '../models/task_assignment_models.dart';
 import '../models/task_definition_models.dart';
 import '../models/user_management_models.dart';
+import '../providers/family_settings_provider.dart';
 import '../providers/task_assignment_provider.dart';
 import '../providers/task_definition_provider.dart';
 import '../providers/user_management_provider.dart';
@@ -27,6 +29,7 @@ class _TaskAssignmentManagementScreenState
       ref.read(taskAssignmentManagementProvider.notifier).refresh();
       ref.read(taskDefinitionManagementProvider.notifier).refresh();
       ref.read(userManagementProvider.notifier).refresh();
+      ref.read(familySettingsNotifierProvider.notifier).refresh();
     });
   }
 
@@ -35,6 +38,8 @@ class _TaskAssignmentManagementScreenState
     final assignmentsAsync = ref.watch(taskAssignmentManagementProvider);
     final taskDefinitionsAsync = ref.watch(taskDefinitionManagementProvider);
     final usersAsync = ref.watch(userManagementProvider);
+    final settingsAsync = ref.watch(familySettingsNotifierProvider);
+    final weekStartsOn = settingsAsync.value?.weekStartsOn ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -52,7 +57,7 @@ class _TaskAssignmentManagementScreenState
         ],
       ),
       body: assignmentsAsync.when(
-        data: (assignments) => _buildAssignmentsList(assignments),
+        data: (assignments) => _buildAssignmentsList(assignments, weekStartsOn),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
           child: Column(
@@ -76,6 +81,7 @@ class _TaskAssignmentManagementScreenState
         onPressed: () => _showCreateAssignmentDialog(
           taskDefinitionsAsync.value ?? [],
           usersAsync.value ?? [],
+          weekStartsOn,
         ),
         icon: const Icon(Icons.add),
         label: Text(context.l10n.newAssignment),
@@ -83,7 +89,7 @@ class _TaskAssignmentManagementScreenState
     );
   }
 
-  Widget _buildAssignmentsList(List<TaskAssignmentModel> assignments) {
+  Widget _buildAssignmentsList(List<TaskAssignmentModel> assignments, int weekStartsOn) {
     if (assignments.isEmpty) {
       return Center(
         child: Column(
@@ -110,12 +116,12 @@ class _TaskAssignmentManagementScreenState
       itemCount: assignments.length,
       itemBuilder: (context, index) {
         final assignment = assignments[index];
-        return _buildAssignmentCard(assignment);
+        return _buildAssignmentCard(assignment, weekStartsOn);
       },
     );
   }
 
-  Widget _buildAssignmentCard(TaskAssignmentModel assignment) {
+  Widget _buildAssignmentCard(TaskAssignmentModel assignment, int weekStartsOn) {
     final scheduleTypeText = _getScheduleTypeText(assignment.scheduleType);
     final daysText = _getDaysOfWeekText(assignment.daysOfWeek);
 
@@ -159,7 +165,7 @@ class _TaskAssignmentManagementScreenState
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'edit') {
-                      _showEditAssignmentDialog(assignment);
+                      _showEditAssignmentDialog(assignment, weekStartsOn);
                     } else if (value == 'delete') {
                       _showDeleteConfirmationDialog(assignment);
                     }
@@ -283,6 +289,7 @@ class _TaskAssignmentManagementScreenState
   void _showCreateAssignmentDialog(
     List<TaskDefinitionManagementModel> taskDefinitions,
     List<UserManagementModel> users,
+    int weekStartsOn,
   ) {
     if (taskDefinitions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -384,6 +391,7 @@ class _TaskAssignmentManagementScreenState
                       selectedDays: selectedDays,
                       onChanged: (days) =>
                           setDialogState(() => selectedDays = days),
+                      weekStartsOn: weekStartsOn,
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -550,8 +558,9 @@ class _TaskAssignmentManagementScreenState
   Widget _buildDayPicker({
     required Set<int> selectedDays,
     required Function(Set<int>) onChanged,
+    required int weekStartsOn,
   }) {
-    final days = [
+    final allDays = [
       {'name': context.l10n.sun, 'value': 1},
       {'name': context.l10n.mon, 'value': 2},
       {'name': context.l10n.tue, 'value': 4},
@@ -560,6 +569,9 @@ class _TaskAssignmentManagementScreenState
       {'name': context.l10n.fri, 'value': 32},
       {'name': context.l10n.sat, 'value': 64},
     ];
+    
+    // Reorder days based on weekStartsOn setting
+    final days = [...allDays.sublist(weekStartsOn), ...allDays.sublist(0, weekStartsOn)];
 
     return Wrap(
       spacing: 8,
@@ -583,7 +595,7 @@ class _TaskAssignmentManagementScreenState
     );
   }
 
-  void _showEditAssignmentDialog(TaskAssignmentModel assignment) {
+  void _showEditAssignmentDialog(TaskAssignmentModel assignment, int weekStartsOn) {
     final taskDefinitionsAsync = ref.read(taskDefinitionManagementProvider);
     final usersAsync = ref.read(userManagementProvider);
 
@@ -706,6 +718,7 @@ class _TaskAssignmentManagementScreenState
                       selectedDays: selectedDays,
                       onChanged: (days) =>
                           setDialogState(() => selectedDays = days),
+                      weekStartsOn: weekStartsOn,
                     ),
                   ],
                   const SizedBox(height: 16),

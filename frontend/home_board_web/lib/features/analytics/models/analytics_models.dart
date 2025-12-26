@@ -31,9 +31,9 @@ class CompletionRateDataPoint with _$CompletionRateDataPoint {
 class PointsAnalytics with _$PointsAnalytics {
   const factory PointsAnalytics({
     required List<PointsDataPoint> pointsEarned,
-    required List<PointsDataPoint> pointsRedeemed,
+    required List<MoneyDataPoint> moneyPaidOut,
     required int totalEarned,
-    required int totalRedeemed,
+    required double totalPaidOut,
     required int currentBalance,
   }) = _PointsAnalytics;
 
@@ -50,4 +50,15 @@ class PointsDataPoint with _$PointsDataPoint {
 
   factory PointsDataPoint.fromJson(Map<String, dynamic> json) =>
       _$PointsDataPointFromJson(json);
+}
+
+@freezed
+class MoneyDataPoint with _$MoneyDataPoint {
+  const factory MoneyDataPoint({
+    required DateTime date,
+    required double amount,
+  }) = _MoneyDataPoint;
+
+  factory MoneyDataPoint.fromJson(Map<String, dynamic> json) =>
+      _$MoneyDataPointFromJson(json);
 }

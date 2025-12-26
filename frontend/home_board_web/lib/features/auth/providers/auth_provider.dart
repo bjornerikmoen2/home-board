@@ -4,6 +4,7 @@ import '../models/login_request.dart';
 import '../repositories/auth_repository.dart';
 import '../../../core/storage/storage_service.dart';
 import '../../../core/l10n/locale_provider.dart';
+import '../../../core/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 
 part 'auth_provider.g.dart';
@@ -15,9 +16,10 @@ class AuthNotifier extends _$AuthNotifier {
     // Check if user is already logged in
     final user = await ref.read(storageServiceProvider).getUser();
     
-    // Load language preference if user is logged in
+    // Load language and theme preferences if user is logged in
     if (user != null) {
       await ref.read(localeProvider.notifier).loadFromUser(user.preferredLanguage);
+      await ref.read(themeModeProvider.notifier).loadFromUser(user.prefersDarkMode);
     }
     
     return user;
@@ -36,8 +38,9 @@ class AuthNotifier extends _$AuthNotifier {
       await storage.saveRefreshToken(response.refreshToken);
       await storage.saveUser(response.user);
 
-      // Load user's preferred language
+      // Load user's preferred language and theme
       await ref.read(localeProvider.notifier).loadFromUser(response.user.preferredLanguage);
+      await ref.read(themeModeProvider.notifier).loadFromUser(response.user.prefersDarkMode);
 
       return response.user;
     });

@@ -3,6 +3,7 @@ using System;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomeBoard.Infrastructure.Migrations
 {
     [DbContext(typeof(HomeBoardDbContext))]
-    partial class HomeBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251226160239_AddPayouts")]
+    partial class AddPayouts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -345,9 +348,6 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.Property<string>("PreferredLanguage")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("PrefersDarkMode")
-                        .HasColumnType("boolean");
 
                     b.Property<byte[]>("ProfileImage")
                         .HasColumnType("bytea");

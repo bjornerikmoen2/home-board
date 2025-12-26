@@ -24,7 +24,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         title: Text(context.l10n.analytics),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/admin'),
         ),
         actions: [
           IconButton(
@@ -120,6 +120,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildPointsSummaryCard(BuildContext context, pointsAnalytics) {
+    final formatter = NumberFormat.currency(locale: 'nb_NO', symbol: 'kr', decimalDigits: 2);
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -143,10 +145,10 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                 ),
                 _buildStatColumn(
                   context,
-                  context.l10n.totalRedeemed,
-                  pointsAnalytics.totalRedeemed.toString(),
+                  context.l10n.totalPaidOut,
+                  formatter.format(pointsAnalytics.totalPaidOut),
                   Colors.orange,
-                  Icons.arrow_downward,
+                  Icons.payments,
                 ),
                 _buildStatColumn(
                   context,
@@ -275,25 +277,25 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildPointsChartCard(BuildContext context, pointsAnalytics) {
-    // Combine earned and redeemed data by date
-    final Map<DateTime, Map<String, int>> combinedData = {};
+    // Combine earned (as double) and paid out (money) data by date
+    final Map<DateTime, Map<String, double>> combinedData = {};
     
     for (final point in pointsAnalytics.pointsEarned) {
-      combinedData[point.date] = {'earned': point.amount, 'redeemed': 0};
+      combinedData[point.date] = {'earned': point.amount.toDouble(), 'paidOut': 0.0};
     }
     
-    for (final point in pointsAnalytics.pointsRedeemed) {
+    for (final point in pointsAnalytics.moneyPaidOut) {
       if (combinedData.containsKey(point.date)) {
-        combinedData[point.date]!['redeemed'] = point.amount;
+        combinedData[point.date]!['paidOut'] = point.amount;
       } else {
-        combinedData[point.date] = {'earned': 0, 'redeemed': point.amount};
+        combinedData[point.date] = {'earned': 0.0, 'paidOut': point.amount};
       }
     }
 
     final sortedDates = combinedData.keys.toList()..sort();
     final maxValue = combinedData.values
-        .map((d) => (d['earned']! > d['redeemed']!) ? d['earned']! : d['redeemed']!)
-        .fold(0, (prev, curr) => curr > prev ? curr : prev);
+        .map((d) => (d['earned']! > d['paidOut']!) ? d['earned']! : d['paidOut']!)
+        .fold(0.0, (prev, curr) => curr > prev ? curr : prev);
 
     return Card(
       child: Padding(
@@ -302,7 +304,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              context.l10n.pointsEarnedVsRedeemed,
+              context.l10n.pointsEarnedVsMoneyPaidOut,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -311,7 +313,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               children: [
                 _buildLegendItem(context, context.l10n.earned, Colors.green),
                 const SizedBox(width: 16),
-                _buildLegendItem(context, context.l10n.redeemed, Colors.orange),
+                _buildLegendItem(context, context.l10n.paidOut, Colors.orange),
               ],
             ),
             const SizedBox(height: 16),
@@ -328,8 +330,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         final earnedHeight = maxValue > 0
                             ? (data['earned']! / maxValue * 150).clamp(0.0, 150.0)
                             : 0.0;
-                        final redeemedHeight = maxValue > 0
-                            ? (data['redeemed']! / maxValue * 150).clamp(0.0, 150.0)
+                        final paidOutHeight = maxValue > 0
+                            ? (data['paidOut']! / maxValue * 150).clamp(0.0, 150.0)
                             : 0.0;
 
                         return Padding(
@@ -353,7 +355,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                                   const SizedBox(width: 4),
                                   Container(
                                     width: 20,
-                                    height: redeemedHeight,
+                                    height: paidOutHeight,
                                     decoration: const BoxDecoration(
                                       color: Colors.orange,
                                       borderRadius: BorderRadius.vertical(

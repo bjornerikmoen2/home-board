@@ -3,6 +3,7 @@ using System;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomeBoard.Infrastructure.Migrations
 {
     [DbContext(typeof(HomeBoardDbContext))]
-    partial class HomeBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251225211823_AddUserPrefersDarkMode")]
+    partial class AddUserPrefersDarkMode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,49 +45,6 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FamilySettings");
-                });
-
-            modelBuilder.Entity("HomeBoard.Domain.Entities.Payout", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("MoneyPaid")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<int>("NetPoints")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("PaidAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PaidByUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("PeriodEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("PointToMoneyRate")
-                        .HasColumnType("decimal(12,4)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaidByUserId");
-
-                    b.HasIndex("UserId", "PaidAt");
-
-                    b.ToTable("Payouts");
                 });
 
             modelBuilder.Entity("HomeBoard.Domain.Entities.PointsLedger", b =>
@@ -371,41 +331,6 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("HomeBoard.Domain.Entities.UserPayoutState", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("LastPayoutAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("UserPayoutStates");
-                });
-
-            modelBuilder.Entity("HomeBoard.Domain.Entities.Payout", b =>
-                {
-                    b.HasOne("HomeBoard.Domain.Entities.User", "PaidByUser")
-                        .WithMany()
-                        .HasForeignKey("PaidByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HomeBoard.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PaidByUser");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("HomeBoard.Domain.Entities.PointsLedger", b =>
                 {
                     b.HasOne("HomeBoard.Domain.Entities.User", "CreatedByUser")
@@ -509,17 +434,6 @@ namespace HomeBoard.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("HomeBoard.Domain.Entities.UserPayoutState", b =>
-                {
-                    b.HasOne("HomeBoard.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HomeBoard.Domain.Entities.Reward", b =>

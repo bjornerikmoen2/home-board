@@ -126,8 +126,14 @@ class TodayScreen extends ConsumerWidget {
     required bool isCompleted,
     required bool requiresVerification,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Card(
-      color: isCompleted ? Colors.green.shade50 : null,
+      color: isCompleted 
+          ? (isDarkMode 
+              ? Colors.green.shade900 
+              : Colors.green.shade50)
+          : null,
       child: InkWell(
         onTap: isCompleted
             ? null

@@ -17,9 +17,9 @@ public class CompletionRateDataPoint
 public class PointsAnalytics
 {
     public List<PointsDataPoint> PointsEarned { get; set; } = new();
-    public List<PointsDataPoint> PointsRedeemed { get; set; } = new();
+    public List<MoneyDataPoint> MoneyPaidOut { get; set; } = new();
     public int TotalEarned { get; set; }
-    public int TotalRedeemed { get; set; }
+    public decimal TotalPaidOut { get; set; }
     public int CurrentBalance { get; set; }
 }
 
@@ -27,4 +27,10 @@ public class PointsDataPoint
 {
     public DateTime Date { get; set; }
     public int Amount { get; set; }
+}
+
+public class MoneyDataPoint
+{
+    public DateTime Date { get; set; }
+    public decimal Amount { get; set; }
 }
