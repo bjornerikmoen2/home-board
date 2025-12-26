@@ -24,7 +24,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         title: Text(context.l10n.analytics),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/admin'),
         ),
         actions: [
           IconButton(

@@ -9,7 +9,7 @@ class AppLocalizationsNb extends AppLocalizations {
   AppLocalizationsNb([String locale = 'nb']) : super(locale);
 
   @override
-  String get appTitle => 'Emil og Emely\'s oppgaver';
+  String get appTitle => 'Home Board';
 
   @override
   String get login => 'Logg inn';

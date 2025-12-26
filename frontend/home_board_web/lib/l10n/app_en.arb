@@ -1209,5 +1209,132 @@
   "noData": "No data available",
   "@noData": {
     "description": "No data message"
+  },
+  
+  "pendingTaskVerifications": "Pending Task Verifications",
+  "@pendingTaskVerifications": {
+    "description": "Title for pending task verifications section"
+  },
+  
+  "noTasksPendingVerification": "No tasks pending verification",
+  "@noTasksPendingVerification": {
+    "description": "Message when no tasks need verification"
+  },
+  
+  "allTaskCompletionsReviewed": "All task completions have been reviewed",
+  "@allTaskCompletionsReviewed": {
+    "description": "Message when all task completions are reviewed"
+  },
+  
+  "completedByUser": "Completed by: {userName}",
+  "@completedByUser": {
+    "description": "Shows who completed the task",
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "notes": "Notes:",
+  "@notes": {
+    "description": "Label for notes section"
+  },
+  
+  "failedToLoadImage": "Failed to load image",
+  "@failedToLoadImage": {
+    "description": "Error message when image fails to load"
+  },
+  
+  "reject": "Reject",
+  "@reject": {
+    "description": "Reject button"
+  },
+  
+  "verifyAndAwardPoints": "Verify & Award Points",
+  "@verifyAndAwardPoints": {
+    "description": "Button to verify and award points"
+  },
+  
+  "verifyTask": "Verify Task",
+  "@verifyTask": {
+    "description": "Dialog title for verifying a task"
+  },
+  
+  "awardPointsConfirmation": "Award {points} points to {userName} for completing \"{taskTitle}\"?",
+  "@awardPointsConfirmation": {
+    "description": "Confirmation message for awarding points",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "userName": {
+        "type": "String"
+      },
+      "taskTitle": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "verify": "Verify",
+  "@verify": {
+    "description": "Verify button"
+  },
+  
+  "taskVerifiedPointsAwarded": "Task verified! {points} points awarded to {userName}",
+  "@taskVerifiedPointsAwarded": {
+    "description": "Success message after verifying task",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "rejectTask": "Reject Task",
+  "@rejectTask": {
+    "description": "Dialog title for rejecting a task"
+  },
+  
+  "rejectTaskConfirmation": "Reject \"{taskTitle}\" by {userName}?",
+  "@rejectTaskConfirmation": {
+    "description": "Confirmation message for rejecting task",
+    "placeholders": {
+      "taskTitle": {
+        "type": "String"
+      },
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "reasonOptional": "Reason (optional)",
+  "@reasonOptional": {
+    "description": "Label for optional reason field"
+  },
+  
+  "whyTaskRejected": "Why is this task being rejected?",
+  "@whyTaskRejected": {
+    "description": "Hint text for rejection reason"
+  },
+  
+  "taskRejected": "Task rejected",
+  "@taskRejected": {
+    "description": "Success message after rejecting task"
+  },
+  
+  "errorMessage": "Error: {error}",
+  "@errorMessage": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

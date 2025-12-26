@@ -1,6 +1,6 @@
 {
   "@@locale": "nb",
-  "appTitle": "Emil og Emely's oppgaver",
+  "appTitle": "Home-Board",
   "login": "Logg inn",
   "logout": "Logg ut",
   "username": "Brukernavn",
@@ -215,5 +215,20 @@
   "completionRates": "Fullføringsgrad",
   "average": "Gjennomsnitt",
   "pointsEarnedVsRedeemed": "Poeng opptjent vs innløst",
-  "earned": "Opptjent",  "redeemed": "Innl\u00f8st",  "noData": "Ingen data tilgjengelig"
+  "earned": "Opptjent",
+  "redeemed": "Innløst",
+  "noData": "Ingen data tilgjengelig",
+  
+  "pendingTaskVerifications": "Ventende oppgaveverifiseringer",
+  "noTasksPendingVerification": "Ingen oppgaver venter på verifisering",
+  "allTaskCompletionsReviewed": "Alle fullførte oppgaver er gjennomgått",
+  "completedByUser": "Fullført av: {userName}",
+  "notes": "Notater:",
+  "reasonOptional": "Årsak (valgfritt)",
+  "whyTaskRejected": "Hvorfor blir denne oppgaven avvist?",
+  "awardPointsConfirmation": "Gi {points} poeng til {userName} for å fullføre \"{taskTitle}\"?",
+  "taskVerifiedPointsAwarded": "Oppgave verifisert! {points} poeng gitt til {userName}",
+  "rejectTaskConfirmation": "Avvis \"{taskTitle}\" av {userName}?",
+  "errorMessage": "Feil: {error}"
 }
+
