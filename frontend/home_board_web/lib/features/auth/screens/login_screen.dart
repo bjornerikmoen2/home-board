@@ -130,7 +130,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 backgroundImage: user.profileImageUrl != null
                                     ? NetworkImage(user.profileImageUrl!)
                                     : null,
-                                child: user.profileImageUrl == null
+                                child: user.profileImageUrl == null && user.displayName.isNotEmpty
                                     ? Text(
                                         user.displayName[0].toUpperCase(),
                                         style: const TextStyle(
@@ -153,13 +153,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
                     Row(
-                      children: const [
-                        Expanded(child: Divider()),
+                      children: [
+                        const Expanded(child: Divider()),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('OR'),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(context.l10n.or),
                         ),
-                        Expanded(child: Divider()),
+                        const Expanded(child: Divider()),
                       ],
                     ),
                     const SizedBox(height: 24),

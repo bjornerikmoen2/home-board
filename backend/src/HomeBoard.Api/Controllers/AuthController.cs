@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
             else
             {
                 // If password provided, still verify it
-                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                if (!BCrypt.Net.BCrypt.Verify(request.Password!, user.PasswordHash))
                 {
                     return Unauthorized(new { message = "Invalid username or password" });
                 }
@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
         else
         {
             // Verify password using BCrypt
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(request.Password!, user.PasswordHash))
             {
                 return Unauthorized(new { message = "Invalid username or password" });
             }

@@ -26,6 +26,7 @@ public class UserDto
     public required string Role { get; set; }
     public string PreferredLanguage { get; set; } = "en";
     public bool PrefersDarkMode { get; set; } = false;
+    public bool NoPasswordRequired { get; set; } = false;
     public string? ProfileImageUrl { get; set; }
 }
 

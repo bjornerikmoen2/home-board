@@ -34,6 +34,7 @@ public class UsersController : ControllerBase
                 Role = u.Role.ToString(),
                 PreferredLanguage = u.PreferredLanguage,
                 PrefersDarkMode = u.PrefersDarkMode,
+                NoPasswordRequired = u.NoPasswordRequired,
                 ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
             })
             .ToListAsync();
@@ -111,6 +112,7 @@ public class UsersController : ControllerBase
             Role = user.Role.ToString(),
             PreferredLanguage = user.PreferredLanguage,
             PrefersDarkMode = user.PrefersDarkMode,
+            NoPasswordRequired = user.NoPasswordRequired,
             ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }
@@ -199,6 +201,7 @@ public class UsersController : ControllerBase
             Role = user.Role.ToString(),
             PreferredLanguage = user.PreferredLanguage,
             PrefersDarkMode = user.PrefersDarkMode,
+            NoPasswordRequired = user.NoPasswordRequired,
             ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
         });
     }
