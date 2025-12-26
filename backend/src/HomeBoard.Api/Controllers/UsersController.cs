@@ -50,6 +50,12 @@ public class UsersController : ControllerBase
             return Conflict(new { message = "Username already exists" });
         }
 
+        // Validate password requirements
+        if (!request.NoPasswordRequired && string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { message = "Password is required when 'No Password Required' is not enabled" });
+        }
+
         byte[]? profileImageData = null;
         string? contentType = null;
         
@@ -74,13 +80,19 @@ public class UsersController : ControllerBase
             contentType = request.ProfileImage.ContentType;
         }
 
+        // For no-password users, use a dummy hash (they won't use it)
+        var passwordHash = request.NoPasswordRequired 
+            ? BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()) 
+            : BCrypt.Net.BCrypt.HashPassword(request.Password!);
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Username = request.Username,
             DisplayName = request.DisplayName,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = passwordHash,
             Role = request.Role,
+            NoPasswordRequired = request.NoPasswordRequired,
             PreferredLanguage = request.PreferredLanguage ?? "en",
             ProfileImage = profileImageData,
             ProfileImageContentType = contentType,
@@ -144,6 +156,11 @@ public class UsersController : ControllerBase
         if (request.PrefersDarkMode.HasValue)
         {
             user.PrefersDarkMode = request.PrefersDarkMode.Value;
+        }
+
+        if (request.NoPasswordRequired.HasValue)
+        {
+            user.NoPasswordRequired = request.NoPasswordRequired.Value;
         }
         
         if (request.RemoveProfileImage == true)

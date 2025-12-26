@@ -36,10 +36,15 @@ class UserManagementRepository {
       final formData = FormData.fromMap({
         'username': request.username,
         'displayName': request.displayName,
-        'password': request.password,
         'role': roleValue,
+        'noPasswordRequired': request.noPasswordRequired,
         'preferredLanguage': request.preferredLanguage,
       });
+      
+      // Only include password if it's provided
+      if (request.password != null && request.password!.isNotEmpty) {
+        formData.fields.add(MapEntry('password', request.password!));
+      }
       
       if (request.profileImage != null && request.profileImageName != null) {
         formData.files.add(MapEntry(
@@ -81,6 +86,9 @@ class UserManagementRepository {
       }
       if (roleValue != null) {
         formData.fields.add(MapEntry('role', roleValue.toString()));
+      }
+      if (request.noPasswordRequired != null) {
+        formData.fields.add(MapEntry('noPasswordRequired', request.noPasswordRequired.toString()));
       }
       if (request.preferredLanguage != null) {
         formData.fields.add(MapEntry('preferredLanguage', request.preferredLanguage!));
