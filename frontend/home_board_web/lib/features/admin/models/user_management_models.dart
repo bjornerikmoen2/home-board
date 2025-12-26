@@ -12,6 +12,7 @@ class UserManagementModel with _$UserManagementModel {
     required String displayName,
     required String role,
     @Default('en') String preferredLanguage,
+    @Default(false) bool noPasswordRequired,
     String? profileImageUrl,
   }) = _UserManagementModel;
 
@@ -24,8 +25,9 @@ class CreateUserRequestModel with _$CreateUserRequestModel {
   const factory CreateUserRequestModel({
     required String username,
     required String displayName,
-    required String password,
+    String? password,
     required String role,
+    @Default(false) bool noPasswordRequired,
     @Default('en') String preferredLanguage,
     @JsonKey(includeFromJson: false, includeToJson: false) Uint8List? profileImage,
     @JsonKey(includeFromJson: false, includeToJson: false) String? profileImageName,
@@ -40,6 +42,7 @@ class UpdateUserRequestModel with _$UpdateUserRequestModel {
   const factory UpdateUserRequestModel({
     String? displayName,
     bool? isActive,
+    bool? noPasswordRequired,
     String? role,
     String? preferredLanguage,
     @JsonKey(includeFromJson: false, includeToJson: false) Uint8List? profileImage,

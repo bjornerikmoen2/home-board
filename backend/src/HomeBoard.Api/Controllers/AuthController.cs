@@ -30,10 +30,29 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Invalid username or password" });
         }
 
-        // Verify password using BCrypt
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        // For users with no password required, allow login with empty password
+        if (user.NoPasswordRequired)
         {
-            return Unauthorized(new { message = "Invalid username or password" });
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                // Allow passwordless login
+            }
+            else
+            {
+                // If password provided, still verify it
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                {
+                    return Unauthorized(new { message = "Invalid username or password" });
+                }
+            }
+        }
+        else
+        {
+            // Verify password using BCrypt
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return Unauthorized(new { message = "Invalid username or password" });
+            }
         }
 
         // Update last login
@@ -73,5 +92,22 @@ public class AuthController : ControllerBase
     {
         // In a production app, invalidate the refresh token here
         return Ok(new { message = "Logged out successfully" });
+    }
+
+    [HttpGet("no-password-users")]
+    public async Task<ActionResult<List<NoPasswordUserDto>>> GetNoPasswordUsers()
+    {
+        var users = await _context.Users
+            .Where(u => u.IsActive && u.NoPasswordRequired)
+            .Select(u => new NoPasswordUserDto
+            {
+                Id = u.Id,
+                Username = u.Username,
+                DisplayName = u.DisplayName,
+                ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
+            })
+            .ToListAsync();
+
+        return Ok(users);
     }
 }

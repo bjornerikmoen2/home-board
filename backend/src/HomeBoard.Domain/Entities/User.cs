@@ -10,6 +10,7 @@ public class User
     public required string PasswordHash { get; set; }
     public UserRole Role { get; set; }
     public bool IsActive { get; set; }
+    public bool NoPasswordRequired { get; set; } = false;
     public string PreferredLanguage { get; set; } = "en";
     public bool PrefersDarkMode { get; set; } = false;
     public byte[]? ProfileImage { get; set; }

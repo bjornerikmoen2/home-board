@@ -56,6 +56,16 @@
     "description": "Error message when login fails"
   },
   
+  "selectUser": "Select User",
+  "@selectUser": {
+    "description": "Label for selecting no-password user"
+  },
+  
+  "or": "OR",
+  "@or": {
+    "description": "Separator between options"
+  },
+  
   "todayTasks": "Today's Tasks",
   "@todayTasks": {
     "description": "Title for today's tasks screen"
@@ -533,6 +543,16 @@
   "optional": "optional",
   "@optional": {
     "description": "Optional field indicator"
+  },
+  
+  "noPasswordRequired": "No password required",
+  "@noPasswordRequired": {
+    "description": "Label for no password required checkbox"
+  },
+  
+  "noPasswordRequiredDescription": "Allow login without entering a password (for kids)",
+  "@noPasswordRequiredDescription": {
+    "description": "Description for no password required checkbox"
   },
   
   "createNewUser": "Create New User",

@@ -269,6 +269,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     final passwordController = TextEditingController();
     String selectedRole = 'User';
     String selectedLanguage = 'en';
+    bool noPasswordRequired = false;
     Uint8List? profileImageBytes;
     String? profileImageName;
     bool isLoading = false;
@@ -305,8 +306,19 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                   decoration: InputDecoration(
                     labelText: context.l10n.password,
                     prefixIcon: const Icon(Icons.lock),
+                    enabled: !noPasswordRequired,
                   ),
                   obscureText: true,
+                ),
+                const SizedBox(height: 8),
+                CheckboxListTile(
+                  title: Text(context.l10n.noPasswordRequired),
+                  subtitle: Text(context.l10n.noPasswordRequiredDescription),
+                  value: noPasswordRequired,
+                  onChanged: (value) {
+                    setState(() => noPasswordRequired = value ?? false);
+                  },
+                  contentPadding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -438,8 +450,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                               CreateUserRequestModel(
                                 username: usernameController.text,
                                 displayName: displayNameController.text,
-                                password: passwordController.text,
+                                password: noPasswordRequired ? null : passwordController.text,
                                 role: selectedRole,
+                                noPasswordRequired: noPasswordRequired,
                                 preferredLanguage: selectedLanguage,
                                 profileImage: profileImageBytes,
                                 profileImageName: profileImageName,
@@ -481,6 +494,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
         TextEditingController(text: user.displayName);
     String selectedRole = user.role;
     String selectedLanguage = user.preferredLanguage;
+    bool noPasswordRequired = user.noPasswordRequired;
     Uint8List? profileImageBytes;
     String? profileImageName;
     bool removeProfileImage = false;
@@ -542,6 +556,16 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                   onChanged: (value) {
                     setState(() => selectedLanguage = value!);
                   },
+                ),
+                const SizedBox(height: 8),
+                CheckboxListTile(
+                  title: Text(context.l10n.noPasswordRequired),
+                  subtitle: Text(context.l10n.noPasswordRequiredDescription),
+                  value: noPasswordRequired,
+                  onChanged: (value) {
+                    setState(() => noPasswordRequired = value ?? false);
+                  },
+                  contentPadding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 16),
                 InkWell(
@@ -710,6 +734,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
                               UpdateUserRequestModel(
                                 displayName: displayNameController.text,
                                 role: selectedRole,
+                                noPasswordRequired: noPasswordRequired != user.noPasswordRequired ? noPasswordRequired : null,
                                 preferredLanguage: selectedLanguage,
                                 profileImage: profileImageBytes,
                                 profileImageName: profileImageName,

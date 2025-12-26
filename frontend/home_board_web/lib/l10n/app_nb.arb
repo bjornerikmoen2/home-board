@@ -13,6 +13,8 @@
   "passwordRequired": "Vennligst skriv inn passord",
   
   "loginFailed": "Pålogging mislyktes. Vennligst sjekk påloggingsinformasjonen din.",
+  "selectUser": "Velg bruker",
+  "or": "ELLER",
   "todayTasks": "Dagens oppgaver",
   "myTasksForToday": "Mine oppgaver for i dag",
   "noTasksToday": "Ingen oppgaver i dag!",
@@ -96,6 +98,8 @@
   "pleaseEnterValidPoints": "Vennligst skriv inn et gyldig antall poeng (større enn 0)",
   "award": "Gi",
   "optional": "valgfritt",
+  "noPasswordRequired": "Ikke passord påkrevd",
+  "noPasswordRequiredDescription": "Tillat innlogging uten å skrive inn passord (for barn)",
   "createNewUser": "Opprett ny bruker",
   "displayName": "Visningsnavn",
   "user": "Bruker",
