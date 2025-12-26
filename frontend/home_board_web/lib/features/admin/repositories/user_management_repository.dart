@@ -130,4 +130,12 @@ class UserManagementRepository {
       rethrow;
     }
   }
+
+  Future<void> resetPoints(String userId) async {
+    try {
+      await _dio.post('/users/$userId/reset-points');
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

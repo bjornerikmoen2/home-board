@@ -380,6 +380,38 @@
     "description": "Reset password button"
   },
   
+  "resetPoints": "Reset Points",
+  "@resetPoints": {
+    "description": "Reset points button"
+  },
+  
+  "resetPointsFor": "Reset Points for {name}",
+  "@resetPointsFor": {
+    "description": "Reset points dialog title",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  
+  "resetPointsConfirmation": "Are you sure you want to reset all points for \"{name}\"? This will set their total points to zero. This action cannot be undone.",
+  "@resetPointsConfirmation": {
+    "description": "Confirmation message for resetting points",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  
+  "pointsResetSuccessfully": "Points reset successfully",
+  "@pointsResetSuccessfully": {
+    "description": "Success message after resetting points"
+  },
+  
   "createNewUser": "Create New User",
   "@createNewUser": {
     "description": "Create user dialog title"

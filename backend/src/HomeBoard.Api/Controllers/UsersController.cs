@@ -1,9 +1,11 @@
 using HomeBoard.Api.Models;
 using HomeBoard.Domain.Entities;
+using HomeBoard.Domain.Enums;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HomeBoard.Api.Controllers;
 
@@ -189,6 +191,49 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Password reset successfully" });
+    }
+
+    [HttpPost("{id}/reset-points")]
+    public async Task<IActionResult> ResetPoints(Guid id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Get current user ID (the admin performing the reset)
+        var adminUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(adminUserId))
+        {
+            return Unauthorized();
+        }
+
+        // Get the user's current total points
+        var currentPoints = await _context.PointsLedger
+            .Where(p => p.UserId == id)
+            .SumAsync(p => p.PointsDelta);
+
+        // If user has points, create an adjustment entry to zero them out
+        if (currentPoints != 0)
+        {
+            var adjustmentEntry = new PointsLedger
+            {
+                Id = Guid.NewGuid(),
+                UserId = id,
+                SourceType = PointSourceType.Adjustment,
+                SourceId = null,
+                PointsDelta = -currentPoints,
+                Note = "Points reset by admin",
+                CreatedByUserId = Guid.Parse(adminUserId),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.PointsLedger.Add(adjustmentEntry);
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new { message = "Points reset successfully", pointsReset = currentPoints });
     }
 
     [HttpGet("{id}/profile-image")]
