@@ -101,6 +101,12 @@ abstract class AppLocalizations {
   /// **'Home Board'**
   String get appTitle;
 
+  /// Personalized title showing the user's name
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s Tasks'**
+  String userTasksTitle(String name);
+
   /// Login button and screen title
   ///
   /// In en, this message translates to:
@@ -148,6 +154,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Login failed. Please check your credentials.'**
   String get loginFailed;
+
+  /// Label for selecting no-password user
+  ///
+  /// In en, this message translates to:
+  /// **'Select User'**
+  String get selectUser;
+
+  /// Separator between options
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get or;
 
   /// Title for today's tasks screen
   ///
@@ -323,6 +341,78 @@ abstract class AppLocalizations {
   /// **'User Management'**
   String get userManagement;
 
+  /// Payout screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Payout'**
+  String get payout;
+
+  /// Payout management screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Payout Management'**
+  String get payoutManagement;
+
+  /// Last payout date label
+  ///
+  /// In en, this message translates to:
+  /// **'Last Payout'**
+  String get lastPayout;
+
+  /// Never label for last payout
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get never;
+
+  /// Net points since last payout label
+  ///
+  /// In en, this message translates to:
+  /// **'Net Points'**
+  String get netPoints;
+
+  /// Money to pay label
+  ///
+  /// In en, this message translates to:
+  /// **'Money to Pay'**
+  String get moneyToPay;
+
+  /// Total money to pay label
+  ///
+  /// In en, this message translates to:
+  /// **'Total to Pay'**
+  String get totalToPay;
+
+  /// Execute payout button
+  ///
+  /// In en, this message translates to:
+  /// **'Execute Payout'**
+  String get executePayout;
+
+  /// Execute payout confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to execute payout for {count} user(s) totaling {amount}?'**
+  String executePayoutConfirmation(int count, String amount);
+
+  /// Payout executed success message
+  ///
+  /// In en, this message translates to:
+  /// **'Payout executed successfully! Processed {count} user(s), paid out {amount}'**
+  String payoutExecutedSuccessfully(int count, String amount);
+
+  /// No users for payout message
+  ///
+  /// In en, this message translates to:
+  /// **'No users have points to pay out'**
+  String get noUsersForPayout;
+
+  /// Select all checkbox label
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
   /// Name field label
   ///
   /// In en, this message translates to:
@@ -431,7 +521,7 @@ abstract class AppLocalizations {
   /// **'Admin Dashboard'**
   String get adminDashboard;
 
-  /// Analytics label
+  /// Analytics screen title
   ///
   /// In en, this message translates to:
   /// **'Analytics'**
@@ -502,6 +592,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset Password'**
   String get resetPassword;
+
+  /// Reset points button
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Points'**
+  String get resetPoints;
+
+  /// Reset points dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Points for {name}'**
+  String resetPointsFor(String name);
+
+  /// Confirmation message for resetting points
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reset all points for \"{name}\"? This will set their total points to zero. This action cannot be undone.'**
+  String resetPointsConfirmation(String name);
+
+  /// Success message after resetting points
+  ///
+  /// In en, this message translates to:
+  /// **'Points reset successfully'**
+  String get pointsResetSuccessfully;
+
+  /// Bonus points menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Points'**
+  String get bonusPoints;
+
+  /// Bonus points dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Award Bonus Points to {name}'**
+  String bonusPointsFor(String name);
+
+  /// Success message after awarding bonus points
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus points awarded successfully'**
+  String get bonusPointsAwarded;
+
+  /// Error message for invalid points input
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number of points (greater than 0)'**
+  String get pleaseEnterValidPoints;
+
+  /// Award button text
+  ///
+  /// In en, this message translates to:
+  /// **'Award'**
+  String get award;
+
+  /// Optional field indicator
+  ///
+  /// In en, this message translates to:
+  /// **'optional'**
+  String get optional;
+
+  /// Label for no password required checkbox
+  ///
+  /// In en, this message translates to:
+  /// **'No password required'**
+  String get noPasswordRequired;
+
+  /// Description for no password required checkbox
+  ///
+  /// In en, this message translates to:
+  /// **'Allow login without entering a password (for kids)'**
+  String get noPasswordRequiredDescription;
 
   /// Create user dialog title
   ///
@@ -592,6 +754,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Week'**
   String get week;
+
+  /// This week period label
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeek;
+
+  /// Previous week period label
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Week'**
+  String get previousWeek;
 
   /// Month time period
   ///
@@ -803,43 +977,43 @@ abstract class AppLocalizations {
   /// **'Update'**
   String get update;
 
-  /// Sunday abbreviation
+  /// Sunday short name
   ///
   /// In en, this message translates to:
   /// **'Sun'**
   String get sun;
 
-  /// Monday abbreviation
+  /// Monday short name
   ///
   /// In en, this message translates to:
   /// **'Mon'**
   String get mon;
 
-  /// Tuesday abbreviation
+  /// Tuesday short name
   ///
   /// In en, this message translates to:
   /// **'Tue'**
   String get tue;
 
-  /// Wednesday abbreviation
+  /// Wednesday short name
   ///
   /// In en, this message translates to:
   /// **'Wed'**
   String get wed;
 
-  /// Thursday abbreviation
+  /// Thursday short name
   ///
   /// In en, this message translates to:
   /// **'Thu'**
   String get thu;
 
-  /// Friday abbreviation
+  /// Friday short name
   ///
   /// In en, this message translates to:
   /// **'Fri'**
   String get fri;
 
-  /// Saturday abbreviation
+  /// Saturday short name
   ///
   /// In en, this message translates to:
   /// **'Sat'**
@@ -917,49 +1091,61 @@ abstract class AppLocalizations {
   /// **'Once'**
   String get once;
 
+  /// During week schedule type - task must be completed sometime during the week
+  ///
+  /// In en, this message translates to:
+  /// **'During Week'**
+  String get duringWeek;
+
+  /// During month schedule type - task must be completed sometime during the month
+  ///
+  /// In en, this message translates to:
+  /// **'During Month'**
+  String get duringMonth;
+
   /// Select days heading
   ///
   /// In en, this message translates to:
   /// **'Select Days'**
   String get selectDays;
 
-  /// Monday
+  /// Monday day name
   ///
   /// In en, this message translates to:
   /// **'Monday'**
   String get monday;
 
-  /// Tuesday
+  /// Tuesday day name
   ///
   /// In en, this message translates to:
   /// **'Tuesday'**
   String get tuesday;
 
-  /// Wednesday
+  /// Wednesday day name
   ///
   /// In en, this message translates to:
   /// **'Wednesday'**
   String get wednesday;
 
-  /// Thursday
+  /// Thursday day name
   ///
   /// In en, this message translates to:
   /// **'Thursday'**
   String get thursday;
 
-  /// Friday
+  /// Friday day name
   ///
   /// In en, this message translates to:
   /// **'Friday'**
   String get friday;
 
-  /// Saturday
+  /// Saturday day name
   ///
   /// In en, this message translates to:
   /// **'Saturday'**
   String get saturday;
 
-  /// Sunday
+  /// Sunday day name
   ///
   /// In en, this message translates to:
   /// **'Sunday'**
@@ -1043,7 +1229,7 @@ abstract class AppLocalizations {
   /// **'Failed to load image'**
   String get failedToLoadImage;
 
-  /// Verify button text
+  /// Button to verify and award points
   ///
   /// In en, this message translates to:
   /// **'Verify & Award Points'**
@@ -1055,7 +1241,7 @@ abstract class AppLocalizations {
   /// **'Reject'**
   String get reject;
 
-  /// Verify task dialog title
+  /// Dialog title for verifying a task
   ///
   /// In en, this message translates to:
   /// **'Verify Task'**
@@ -1079,23 +1265,245 @@ abstract class AppLocalizations {
   /// **'Task verified! {points} points awarded to {name}'**
   String taskVerifiedPoints(int points, String name);
 
-  /// Reject task dialog title
+  /// Dialog title for rejecting a task
   ///
   /// In en, this message translates to:
   /// **'Reject Task'**
   String get rejectTask;
 
-  /// Reject task confirmation message
+  /// Confirmation message for rejecting task
   ///
   /// In en, this message translates to:
-  /// **'Reject \"{task}\" by {name}?'**
-  String rejectTaskConfirmation(String task, String name);
+  /// **'Reject \"{taskTitle}\" by {userName}?'**
+  String rejectTaskConfirmation(String taskTitle, String userName);
 
   /// Success message after rejecting task
   ///
   /// In en, this message translates to:
   /// **'Task rejected'**
   String get taskRejected;
+
+  /// Calendar screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendar;
+
+  /// Calendar menu subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'View upcoming tasks and schedules'**
+  String get calendarSubtitle;
+
+  /// Message showing additional task count
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String moreTasksCount(int count);
+
+  /// Timezone setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Timezone'**
+  String get timezone;
+
+  /// Change timezone dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Change Timezone'**
+  String get changeTimezone;
+
+  /// Timezone input hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Europe/Oslo, America/New_York'**
+  String get timezoneHint;
+
+  /// Timezone input helper text
+  ///
+  /// In en, this message translates to:
+  /// **'IANA timezone identifier'**
+  String get timezoneHelper;
+
+  /// Point to money rate setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Point to Money Rate'**
+  String get pointToMoneyRate;
+
+  /// Change point to money rate dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Change Point to Money Rate'**
+  String get changePointToMoneyRate;
+
+  /// Rate field label
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get rate;
+
+  /// Rate input hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1.0, 0.5, 0.10'**
+  String get rateHint;
+
+  /// Rate input helper text
+  ///
+  /// In en, this message translates to:
+  /// **'Currency value per point'**
+  String get rateHelper;
+
+  /// Currency per point display
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} currency per point'**
+  String currencyPerPoint(String amount);
+
+  /// Week starts on setting label
+  ///
+  /// In en, this message translates to:
+  /// **'Week Starts On'**
+  String get weekStartsOn;
+
+  /// Analytics menu subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'View completion rates and points statistics'**
+  String get analyticsSubtitle;
+
+  /// Time period selector label
+  ///
+  /// In en, this message translates to:
+  /// **'Time Period:'**
+  String get timePeriod;
+
+  /// Number of days label
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Days'**
+  String days(int count);
+
+  /// Points summary card title
+  ///
+  /// In en, this message translates to:
+  /// **'Points Summary'**
+  String get pointsSummary;
+
+  /// Total points earned label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Earned'**
+  String get totalEarned;
+
+  /// Total money paid out label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Paid Out'**
+  String get totalPaidOut;
+
+  /// Current points balance label
+  ///
+  /// In en, this message translates to:
+  /// **'Current Balance'**
+  String get currentBalance;
+
+  /// Completion rates card title
+  ///
+  /// In en, this message translates to:
+  /// **'Completion Rates'**
+  String get completionRates;
+
+  /// Average label
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// Points chart card title
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned vs money paid out'**
+  String get pointsEarnedVsMoneyPaidOut;
+
+  /// Earned legend label
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get earned;
+
+  /// Paid out legend label
+  ///
+  /// In en, this message translates to:
+  /// **'Paid Out'**
+  String get paidOut;
+
+  /// Redeemed legend label
+  ///
+  /// In en, this message translates to:
+  /// **'Redeemed'**
+  String get redeemed;
+
+  /// No data message
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get noData;
+
+  /// Title for pending task verifications section
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Task Verifications'**
+  String get pendingTaskVerifications;
+
+  /// Message when no tasks need verification
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks pending verification'**
+  String get noTasksPendingVerification;
+
+  /// Message when all task completions are reviewed
+  ///
+  /// In en, this message translates to:
+  /// **'All task completions have been reviewed'**
+  String get allTaskCompletionsReviewed;
+
+  /// Shows who completed the task
+  ///
+  /// In en, this message translates to:
+  /// **'Completed by: {userName}'**
+  String completedByUser(String userName);
+
+  /// Label for notes section
+  ///
+  /// In en, this message translates to:
+  /// **'Notes:'**
+  String get notes;
+
+  /// Confirmation message for awarding points
+  ///
+  /// In en, this message translates to:
+  /// **'Award {points} points to {userName} for completing \"{taskTitle}\"?'**
+  String awardPointsConfirmation(int points, String userName, String taskTitle);
+
+  /// Success message after verifying task
+  ///
+  /// In en, this message translates to:
+  /// **'Task verified! {points} points awarded to {userName}'**
+  String taskVerifiedPointsAwarded(int points, String userName);
+
+  /// Label for optional reason field
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get reasonOptional;
+
+  /// Hint text for rejection reason
+  ///
+  /// In en, this message translates to:
+  /// **'Why is this task being rejected?'**
+  String get whyTaskRejected;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

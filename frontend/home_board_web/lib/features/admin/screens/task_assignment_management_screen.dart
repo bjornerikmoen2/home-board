@@ -269,6 +269,10 @@ class _TaskAssignmentManagementScreenState
         return context.l10n.weekly;
       case 2:
         return context.l10n.once;
+      case 3:
+        return context.l10n.duringWeek;
+      case 4:
+        return context.l10n.duringMonth;
       default:
         return context.l10n.unknown;
     }
@@ -364,20 +368,23 @@ class _TaskAssignmentManagementScreenState
                         setDialogState(() => selectedUserId = value),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    context.l10n.scheduleType,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  SegmentedButton<int>(
-                    segments: [
-                      ButtonSegment(value: 0, label: Text(context.l10n.daily)),
-                      ButtonSegment(value: 1, label: Text(context.l10n.weekly)),
-                      ButtonSegment(value: 2, label: Text(context.l10n.once)),
+                  DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      labelText: context.l10n.scheduleType,
+                      border: const OutlineInputBorder(),
+                    ),
+                    value: scheduleType,
+                    items: [
+                      DropdownMenuItem(value: 0, child: Text(context.l10n.daily)),
+                      DropdownMenuItem(value: 1, child: Text(context.l10n.weekly)),
+                      DropdownMenuItem(value: 2, child: Text(context.l10n.once)),
+                      DropdownMenuItem(value: 3, child: Text(context.l10n.duringWeek)),
+                      DropdownMenuItem(value: 4, child: Text(context.l10n.duringMonth)),
                     ],
-                    selected: {scheduleType},
-                    onSelectionChanged: (Set<int> newSelection) {
-                      setDialogState(() => scheduleType = newSelection.first);
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => scheduleType = value);
+                      }
                     },
                   ),
                   if (scheduleType == 1) ...[
@@ -691,20 +698,23 @@ class _TaskAssignmentManagementScreenState
                     },
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    context.l10n.scheduleType,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  SegmentedButton<int>(
-                    segments: [
-                      ButtonSegment(value: 0, label: Text(context.l10n.daily)),
-                      ButtonSegment(value: 1, label: Text(context.l10n.weekly)),
-                      ButtonSegment(value: 2, label: Text(context.l10n.once)),
+                  DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      labelText: context.l10n.scheduleType,
+                      border: const OutlineInputBorder(),
+                    ),
+                    value: scheduleType,
+                    items: [
+                      DropdownMenuItem(value: 0, child: Text(context.l10n.daily)),
+                      DropdownMenuItem(value: 1, child: Text(context.l10n.weekly)),
+                      DropdownMenuItem(value: 2, child: Text(context.l10n.once)),
+                      DropdownMenuItem(value: 3, child: Text(context.l10n.duringWeek)),
+                      DropdownMenuItem(value: 4, child: Text(context.l10n.duringMonth)),
                     ],
-                    selected: {scheduleType},
-                    onSelectionChanged: (Set<int> newSelection) {
-                      setDialogState(() => scheduleType = newSelection.first);
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => scheduleType = value);
+                      }
                     },
                   ),
                   if (scheduleType == 1) ...[

@@ -339,20 +339,51 @@ public class TasksController : ControllerBase
 
             foreach (var assignment in assignments)
             {
-                // Check if task is scheduled for this date
-                bool isScheduledForDate = assignment.ScheduleType switch
-                {
-                    ScheduleType.Daily => ((int)assignment.DaysOfWeek & dayFlag) != 0,
-                    ScheduleType.Weekly => ((int)assignment.DaysOfWeek & dayFlag) != 0,
-                    ScheduleType.Once => assignment.StartDate == date,
-                    _ => false
-                };
-
                 // Check date range constraints
                 if (assignment.StartDate.HasValue && date < assignment.StartDate.Value)
                     continue;
                 if (assignment.EndDate.HasValue && date > assignment.EndDate.Value)
                     continue;
+
+                bool isScheduledForDate = false;
+
+                // Check if task is scheduled for this date based on schedule type
+                switch (assignment.ScheduleType)
+                {
+                    case ScheduleType.Daily:
+                        isScheduledForDate = ((int)assignment.DaysOfWeek & dayFlag) != 0;
+                        break;
+                    
+                    case ScheduleType.Weekly:
+                        isScheduledForDate = ((int)assignment.DaysOfWeek & dayFlag) != 0;
+                        break;
+                    
+                    case ScheduleType.Once:
+                        isScheduledForDate = assignment.StartDate == date;
+                        break;
+                    
+                    case ScheduleType.DuringWeek:
+                        // Show on Monday (or first day of week) and every day until completed
+                        var weekStart = GetStartOfWeek(date);
+                        var weekEnd = weekStart.AddDays(6);
+                        var completionThisWeek = completions.FirstOrDefault(
+                            c => c.TaskAssignmentId == assignment.Id && 
+                                 c.Date >= weekStart && c.Date <= weekEnd);
+                        // Show if not completed this week and date is on or after Monday
+                        isScheduledForDate = completionThisWeek == null && date >= weekStart;
+                        break;
+                    
+                    case ScheduleType.DuringMonth:
+                        // Show on first day of month and every day until completed
+                        var monthStart = new DateOnly(date.Year, date.Month, 1);
+                        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                        var completionThisMonth = completions.FirstOrDefault(
+                            c => c.TaskAssignmentId == assignment.Id && 
+                                 c.Date >= monthStart && c.Date <= monthEnd);
+                        // Show if not completed this month and date is on or after 1st
+                        isScheduledForDate = completionThisMonth == null && date >= monthStart;
+                        break;
+                }
 
                 if (isScheduledForDate)
                 {
@@ -378,5 +409,13 @@ public class TasksController : ControllerBase
         }
 
         return Ok(calendarTasks.OrderBy(t => t.Date).ThenBy(t => t.DueTime).ToList());
+    }
+
+    private static DateOnly GetStartOfWeek(DateOnly date)
+    {
+        // Get Monday of the current week
+        var dayOfWeek = (int)date.DayOfWeek;
+        var daysToSubtract = dayOfWeek == 0 ? 6 : dayOfWeek - 1; // Sunday is 0, Monday is 1
+        return date.AddDays(-daysToSubtract);
     }
 }

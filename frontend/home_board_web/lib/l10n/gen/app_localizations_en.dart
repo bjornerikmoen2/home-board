@@ -12,6 +12,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Home Board';
 
   @override
+  String userTasksTitle(String name) {
+    return '$name\'s Tasks';
+  }
+
+  @override
   String get login => 'Login';
 
   @override
@@ -34,6 +39,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginFailed => 'Login failed. Please check your credentials.';
+
+  @override
+  String get selectUser => 'Select User';
+
+  @override
+  String get or => 'OR';
 
   @override
   String get todayTasks => 'Today\'s Tasks';
@@ -123,6 +134,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get userManagement => 'User Management';
+
+  @override
+  String get payout => 'Payout';
+
+  @override
+  String get payoutManagement => 'Payout Management';
+
+  @override
+  String get lastPayout => 'Last Payout';
+
+  @override
+  String get never => 'Never';
+
+  @override
+  String get netPoints => 'Net Points';
+
+  @override
+  String get moneyToPay => 'Money to Pay';
+
+  @override
+  String get totalToPay => 'Total to Pay';
+
+  @override
+  String get executePayout => 'Execute Payout';
+
+  @override
+  String executePayoutConfirmation(int count, String amount) {
+    return 'Are you sure you want to execute payout for $count user(s) totaling $amount?';
+  }
+
+  @override
+  String payoutExecutedSuccessfully(int count, String amount) {
+    return 'Payout executed successfully! Processed $count user(s), paid out $amount';
+  }
+
+  @override
+  String get noUsersForPayout => 'No users have points to pay out';
+
+  @override
+  String get selectAll => 'Select All';
 
   @override
   String get name => 'Name';
@@ -223,6 +274,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resetPassword => 'Reset Password';
 
   @override
+  String get resetPoints => 'Reset Points';
+
+  @override
+  String resetPointsFor(String name) {
+    return 'Reset Points for $name';
+  }
+
+  @override
+  String resetPointsConfirmation(String name) {
+    return 'Are you sure you want to reset all points for \"$name\"? This will set their total points to zero. This action cannot be undone.';
+  }
+
+  @override
+  String get pointsResetSuccessfully => 'Points reset successfully';
+
+  @override
+  String get bonusPoints => 'Bonus Points';
+
+  @override
+  String bonusPointsFor(String name) {
+    return 'Award Bonus Points to $name';
+  }
+
+  @override
+  String get bonusPointsAwarded => 'Bonus points awarded successfully';
+
+  @override
+  String get pleaseEnterValidPoints => 'Please enter a valid number of points (greater than 0)';
+
+  @override
+  String get award => 'Award';
+
+  @override
+  String get optional => 'optional';
+
+  @override
+  String get noPasswordRequired => 'No password required';
+
+  @override
+  String get noPasswordRequiredDescription => 'Allow login without entering a password (for kids)';
+
+  @override
   String get createNewUser => 'Create New User';
 
   @override
@@ -270,6 +363,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get week => 'Week';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get previousWeek => 'Previous Week';
 
   @override
   String get month => 'Month';
@@ -444,6 +543,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get once => 'Once';
 
   @override
+  String get duringWeek => 'During Week';
+
+  @override
+  String get duringMonth => 'During Month';
+
+  @override
   String get selectDays => 'Select Days';
 
   @override
@@ -536,10 +641,133 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rejectTask => 'Reject Task';
 
   @override
-  String rejectTaskConfirmation(String task, String name) {
-    return 'Reject \"$task\" by $name?';
+  String rejectTaskConfirmation(String taskTitle, String userName) {
+    return 'Reject \"$taskTitle\" by $userName?';
   }
 
   @override
   String get taskRejected => 'Task rejected';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get calendarSubtitle => 'View upcoming tasks and schedules';
+
+  @override
+  String moreTasksCount(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get timezone => 'Timezone';
+
+  @override
+  String get changeTimezone => 'Change Timezone';
+
+  @override
+  String get timezoneHint => 'e.g., Europe/Oslo, America/New_York';
+
+  @override
+  String get timezoneHelper => 'IANA timezone identifier';
+
+  @override
+  String get pointToMoneyRate => 'Point to Money Rate';
+
+  @override
+  String get changePointToMoneyRate => 'Change Point to Money Rate';
+
+  @override
+  String get rate => 'Rate';
+
+  @override
+  String get rateHint => 'e.g., 1.0, 0.5, 0.10';
+
+  @override
+  String get rateHelper => 'Currency value per point';
+
+  @override
+  String currencyPerPoint(String amount) {
+    return '$amount currency per point';
+  }
+
+  @override
+  String get weekStartsOn => 'Week Starts On';
+
+  @override
+  String get analyticsSubtitle => 'View completion rates and points statistics';
+
+  @override
+  String get timePeriod => 'Time Period:';
+
+  @override
+  String days(int count) {
+    return '$count Days';
+  }
+
+  @override
+  String get pointsSummary => 'Points Summary';
+
+  @override
+  String get totalEarned => 'Total Earned';
+
+  @override
+  String get totalPaidOut => 'Total Paid Out';
+
+  @override
+  String get currentBalance => 'Current Balance';
+
+  @override
+  String get completionRates => 'Completion Rates';
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get pointsEarnedVsMoneyPaidOut => 'Points earned vs money paid out';
+
+  @override
+  String get earned => 'Earned';
+
+  @override
+  String get paidOut => 'Paid Out';
+
+  @override
+  String get redeemed => 'Redeemed';
+
+  @override
+  String get noData => 'No data available';
+
+  @override
+  String get pendingTaskVerifications => 'Pending Task Verifications';
+
+  @override
+  String get noTasksPendingVerification => 'No tasks pending verification';
+
+  @override
+  String get allTaskCompletionsReviewed => 'All task completions have been reviewed';
+
+  @override
+  String completedByUser(String userName) {
+    return 'Completed by: $userName';
+  }
+
+  @override
+  String get notes => 'Notes:';
+
+  @override
+  String awardPointsConfirmation(int points, String userName, String taskTitle) {
+    return 'Award $points points to $userName for completing \"$taskTitle\"?';
+  }
+
+  @override
+  String taskVerifiedPointsAwarded(int points, String userName) {
+    return 'Task verified! $points points awarded to $userName';
+  }
+
+  @override
+  String get reasonOptional => 'Reason (optional)';
+
+  @override
+  String get whyTaskRejected => 'Why is this task being rejected?';
 }

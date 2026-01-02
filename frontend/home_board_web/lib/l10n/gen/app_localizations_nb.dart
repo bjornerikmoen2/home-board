@@ -12,6 +12,11 @@ class AppLocalizationsNb extends AppLocalizations {
   String get appTitle => 'Familieoppgaver';
 
   @override
+  String userTasksTitle(String name) {
+    return '${name}s oppgaver';
+  }
+
+  @override
   String get login => 'Logg inn';
 
   @override
@@ -34,6 +39,12 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get loginFailed => 'Pålogging mislyktes. Vennligst sjekk påloggingsinformasjonen din.';
+
+  @override
+  String get selectUser => 'Velg bruker';
+
+  @override
+  String get or => 'ELLER';
 
   @override
   String get todayTasks => 'Dagens oppgaver';
@@ -123,6 +134,46 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get userManagement => 'Brukeradministrasjon';
+
+  @override
+  String get payout => 'Utbetaling';
+
+  @override
+  String get payoutManagement => 'Utbetalingsadministrasjon';
+
+  @override
+  String get lastPayout => 'Siste utbetaling';
+
+  @override
+  String get never => 'Aldri';
+
+  @override
+  String get netPoints => 'Netto poeng';
+
+  @override
+  String get moneyToPay => 'Beløp å betale';
+
+  @override
+  String get totalToPay => 'Totalt å betale';
+
+  @override
+  String get executePayout => 'Utfør utbetaling';
+
+  @override
+  String executePayoutConfirmation(int count, String amount) {
+    return 'Er du sikker på at du vil utføre utbetaling for $count bruker(e) på til sammen $amount?';
+  }
+
+  @override
+  String payoutExecutedSuccessfully(int count, String amount) {
+    return 'Utbetaling utført! Behandlet $count bruker(e), utbetalt $amount';
+  }
+
+  @override
+  String get noUsersForPayout => 'Ingen brukere har poeng å betale ut';
+
+  @override
+  String get selectAll => 'Velg alle';
 
   @override
   String get name => 'Navn';
@@ -223,6 +274,48 @@ class AppLocalizationsNb extends AppLocalizations {
   String get resetPassword => 'Tilbakestill passord';
 
   @override
+  String get resetPoints => 'Tilbakestill poeng';
+
+  @override
+  String resetPointsFor(String name) {
+    return 'Tilbakestill poeng for $name';
+  }
+
+  @override
+  String resetPointsConfirmation(String name) {
+    return 'Er du sikker på at du vil tilbakestille alle poeng for \"$name\"? Dette vil sette deres totale poeng til null. Denne handlingen kan ikke angres.';
+  }
+
+  @override
+  String get pointsResetSuccessfully => 'Poeng tilbakestilt';
+
+  @override
+  String get bonusPoints => 'Bonuspoeng';
+
+  @override
+  String bonusPointsFor(String name) {
+    return 'Gi bonuspoeng til $name';
+  }
+
+  @override
+  String get bonusPointsAwarded => 'Bonuspoeng gitt';
+
+  @override
+  String get pleaseEnterValidPoints => 'Vennligst skriv inn et gyldig antall poeng (større enn 0)';
+
+  @override
+  String get award => 'Gi';
+
+  @override
+  String get optional => 'valgfritt';
+
+  @override
+  String get noPasswordRequired => 'Ikke passord påkrevd';
+
+  @override
+  String get noPasswordRequiredDescription => 'Tillat innlogging uten å skrive inn passord (for barn)';
+
+  @override
   String get createNewUser => 'Opprett ny bruker';
 
   @override
@@ -270,6 +363,12 @@ class AppLocalizationsNb extends AppLocalizations {
 
   @override
   String get week => 'Uke';
+
+  @override
+  String get thisWeek => 'Denne uken';
+
+  @override
+  String get previousWeek => 'Forrige uke';
 
   @override
   String get month => 'Måned';
@@ -444,6 +543,12 @@ class AppLocalizationsNb extends AppLocalizations {
   String get once => 'En gang';
 
   @override
+  String get duringWeek => 'I løpet av uken';
+
+  @override
+  String get duringMonth => 'I løpet av måneden';
+
+  @override
   String get selectDays => 'Velg dager';
 
   @override
@@ -536,10 +641,133 @@ class AppLocalizationsNb extends AppLocalizations {
   String get rejectTask => 'Avvis oppgave';
 
   @override
-  String rejectTaskConfirmation(String task, String name) {
-    return 'Avvis \"$task\" av $name?';
+  String rejectTaskConfirmation(String taskTitle, String userName) {
+    return 'Avvis \"$taskTitle\" av $userName?';
   }
 
   @override
   String get taskRejected => 'Oppgave avvist';
+
+  @override
+  String get calendar => 'Kalender';
+
+  @override
+  String get calendarSubtitle => 'Se kommende oppgaver og tidsplaner';
+
+  @override
+  String moreTasksCount(int count) {
+    return '+$count flere';
+  }
+
+  @override
+  String get timezone => 'Tidssone';
+
+  @override
+  String get changeTimezone => 'Endre tidssone';
+
+  @override
+  String get timezoneHint => 'f.eks., Europe/Oslo, America/New_York';
+
+  @override
+  String get timezoneHelper => 'IANA tidssone-identifikator';
+
+  @override
+  String get pointToMoneyRate => 'Poeng til pengesats';
+
+  @override
+  String get changePointToMoneyRate => 'Endre poeng til pengesats';
+
+  @override
+  String get rate => 'Sats';
+
+  @override
+  String get rateHint => 'f.eks., 1.0, 0.5, 0.10';
+
+  @override
+  String get rateHelper => 'Valutaverdi per poeng';
+
+  @override
+  String currencyPerPoint(String amount) {
+    return '$amount valuta per poeng';
+  }
+
+  @override
+  String get weekStartsOn => 'Uken starter på';
+
+  @override
+  String get analyticsSubtitle => 'Se fullføringsgrad og poengstatistikk';
+
+  @override
+  String get timePeriod => 'Tidsperiode:';
+
+  @override
+  String days(int count) {
+    return '$count dager';
+  }
+
+  @override
+  String get pointsSummary => 'Poengoversikt';
+
+  @override
+  String get totalEarned => 'Totalt opptjent';
+
+  @override
+  String get totalPaidOut => 'Totalt utbetalt';
+
+  @override
+  String get currentBalance => 'Nåværende saldo';
+
+  @override
+  String get completionRates => 'Fullføringsgrad';
+
+  @override
+  String get average => 'Gjennomsnitt';
+
+  @override
+  String get pointsEarnedVsMoneyPaidOut => 'Poeng opptjent vs penger utbetalt';
+
+  @override
+  String get earned => 'Opptjent';
+
+  @override
+  String get paidOut => 'Utbetalt';
+
+  @override
+  String get redeemed => 'Innløst';
+
+  @override
+  String get noData => 'Ingen data tilgjengelig';
+
+  @override
+  String get pendingTaskVerifications => 'Ventende oppgaveverifiseringer';
+
+  @override
+  String get noTasksPendingVerification => 'Ingen oppgaver venter på verifisering';
+
+  @override
+  String get allTaskCompletionsReviewed => 'Alle fullførte oppgaver er gjennomgått';
+
+  @override
+  String completedByUser(String userName) {
+    return 'Fullført av: $userName';
+  }
+
+  @override
+  String get notes => 'Notater:';
+
+  @override
+  String awardPointsConfirmation(int points, String userName, String taskTitle) {
+    return 'Gi $points poeng til $userName for å fullføre \"$taskTitle\"?';
+  }
+
+  @override
+  String taskVerifiedPointsAwarded(int points, String userName) {
+    return 'Oppgave verifisert! $points poeng gitt til $userName';
+  }
+
+  @override
+  String get reasonOptional => 'Årsak (valgfritt)';
+
+  @override
+  String get whyTaskRejected => 'Hvorfor blir denne oppgaven avvist?';
 }

@@ -173,6 +173,8 @@
   "daily": "Daglig",
   "weekly": "Ukentlig",
   "once": "En gang",
+  "duringWeek": "I løpet av uken",
+  "duringMonth": "I løpet av måneden",
   "selectDays": "Velg dager",
   "monday": "Mandag",
   "tuesday": "Tirsdag",

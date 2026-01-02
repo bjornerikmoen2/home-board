@@ -966,6 +966,16 @@
     "description": "Once schedule type"
   },
   
+  "duringWeek": "During Week",
+  "@duringWeek": {
+    "description": "During week schedule type - task must be completed sometime during the week"
+  },
+  
+  "duringMonth": "During Month",
+  "@duringMonth": {
+    "description": "During month schedule type - task must be completed sometime during the month"
+  },
+  
   "selectDays": "Select Days",
   "@selectDays": {
     "description": "Select days heading"
