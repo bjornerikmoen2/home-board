@@ -27,6 +27,10 @@ public class MeController : ControllerBase
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
 
+        // Get family settings for week start configuration
+        var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
+        var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
+
         // Get active assignments for this user
         var assignments = await _context.TaskAssignments
             .Include(a => a.TaskDefinition)
@@ -36,7 +40,7 @@ public class MeController : ControllerBase
             .ToListAsync();
 
         // Get the start of week and month for "During" schedule types
-        var weekStart = GetStartOfWeek(today);
+        var weekStart = GetStartOfWeek(today, weekStartsOn);
         var weekEnd = weekStart.AddDays(6);
         var monthStart = new DateOnly(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
@@ -112,11 +116,13 @@ public class MeController : ControllerBase
         return Ok(result);
     }
 
-    private static DateOnly GetStartOfWeek(DateOnly date)
+    private static DateOnly GetStartOfWeek(DateOnly date, DayOfWeek weekStartsOn)
     {
-        // Get Monday of the current week
-        var dayOfWeek = (int)date.DayOfWeek;
-        var daysToSubtract = dayOfWeek == 0 ? 6 : dayOfWeek - 1; // Sunday is 0, Monday is 1
+        var currentDayOfWeek = (int)date.DayOfWeek;
+        var targetStartDay = (int)weekStartsOn;
+        
+        // Calculate days to subtract to get to the start of the week
+        var daysToSubtract = (currentDayOfWeek - targetStartDay + 7) % 7;
         return date.AddDays(-daysToSubtract);
     }
 

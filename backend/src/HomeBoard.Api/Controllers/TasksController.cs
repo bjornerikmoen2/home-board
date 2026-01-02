@@ -311,6 +311,10 @@ public class TasksController : ControllerBase
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var isAdmin = User.IsInRole("Admin");
 
+        // Get family settings for week start configuration
+        var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
+        var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
+
         // Get all active assignments for the user (or all if admin)
         var assignmentsQuery = _context.TaskAssignments
             .Include(a => a.TaskDefinition)
@@ -363,8 +367,8 @@ public class TasksController : ControllerBase
                         break;
                     
                     case ScheduleType.DuringWeek:
-                        // Show on Monday (or first day of week) and every day until completed
-                        var weekStart = GetStartOfWeek(date);
+                        // Show on first day of week and every day until completed
+                        var weekStart = GetStartOfWeek(date, weekStartsOn);
                         var weekEnd = weekStart.AddDays(6);
                         var completionThisWeek = completions.FirstOrDefault(
                             c => c.TaskAssignmentId == assignment.Id && 
@@ -411,11 +415,13 @@ public class TasksController : ControllerBase
         return Ok(calendarTasks.OrderBy(t => t.Date).ThenBy(t => t.DueTime).ToList());
     }
 
-    private static DateOnly GetStartOfWeek(DateOnly date)
+    private static DateOnly GetStartOfWeek(DateOnly date, DayOfWeek weekStartsOn)
     {
-        // Get Monday of the current week
-        var dayOfWeek = (int)date.DayOfWeek;
-        var daysToSubtract = dayOfWeek == 0 ? 6 : dayOfWeek - 1; // Sunday is 0, Monday is 1
+        var currentDayOfWeek = (int)date.DayOfWeek;
+        var targetStartDay = (int)weekStartsOn;
+        
+        // Calculate days to subtract to get to the start of the week
+        var daysToSubtract = (currentDayOfWeek - targetStartDay + 7) % 7;
         return date.AddDays(-daysToSubtract);
     }
 }
