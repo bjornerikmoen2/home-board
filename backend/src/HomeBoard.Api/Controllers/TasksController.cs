@@ -384,7 +384,7 @@ public class TasksController : ControllerBase
                         var completionThisMonth = completions.FirstOrDefault(
                             c => c.TaskAssignmentId == assignment.Id && 
                                  c.Date >= monthStart && c.Date <= monthEnd);
-                        // Show if not completed this month and date is on or after 1st
+                        // Show if not completed this month
                         isScheduledForDate = completionThisMonth == null && date >= monthStart;
                         break;
                 }
