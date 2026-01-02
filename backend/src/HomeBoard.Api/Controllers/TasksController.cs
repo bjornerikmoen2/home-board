@@ -373,7 +373,7 @@ public class TasksController : ControllerBase
                         var completionThisWeek = completions.FirstOrDefault(
                             c => c.TaskAssignmentId == assignment.Id && 
                                  c.Date >= weekStart && c.Date <= weekEnd);
-                        // Show if not completed this week and date is on or after Monday
+                        // Show if not completed this week and date is on or after the week start day
                         isScheduledForDate = completionThisWeek == null && date >= weekStart;
                         break;
                     
