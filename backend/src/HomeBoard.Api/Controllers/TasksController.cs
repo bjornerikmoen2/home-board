@@ -233,8 +233,8 @@ public class TasksController : ControllerBase
         }
 
         // Determine the target assignment and validate that either user or group is assigned, but not both
-        int? targetUserId;
-        UserGroup? targetGroup;
+        Guid? targetUserId;
+        int? targetGroup;
 
         if (request.AssignedToUserId.HasValue)
         {
@@ -265,7 +265,7 @@ public class TasksController : ControllerBase
         }
 
         // Validate AssignedToGroup contains a valid UserRole enum value
-        if (newGroup.HasValue && !Enum.IsDefined(typeof(UserRole), newGroup.Value))
+        if (targetGroup.HasValue && !Enum.IsDefined(typeof(UserRole), targetGroup.Value))
         {
             return BadRequest(new { message = $"Invalid AssignedToGroup value. Must be {(int)UserRole.Admin} (Admin) or {(int)UserRole.User} (User)" });
         }
