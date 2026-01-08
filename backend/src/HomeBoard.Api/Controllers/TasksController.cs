@@ -226,22 +226,42 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
-        // Validate that either user or group is assigned, but not both
-        var newUserId = request.AssignedToUserId ?? assignment.AssignedToUserId;
-        var newGroup = request.AssignedToGroup ?? assignment.AssignedToGroup;
-        if (newUserId.HasValue && newGroup.HasValue)
+        // Determine the target assignment and validate that either user or group is assigned, but not both
+        int? targetUserId;
+        UserGroup? targetGroup;
+
+        if (request.AssignedToUserId.HasValue)
+        {
+            // Explicitly assign to a specific user and clear any group assignment
+            targetUserId = request.AssignedToUserId;
+            targetGroup = null;
+        }
+        else if (request.AssignedToGroup.HasValue)
+        {
+            // Explicitly assign to a user group and clear any user assignment
+            targetUserId = null;
+            targetGroup = request.AssignedToGroup;
+        }
+        else
+        {
+            // No change requested; keep existing assignment
+            targetUserId = assignment.AssignedToUserId;
+            targetGroup = assignment.AssignedToGroup;
+        }
+
+        if (targetUserId.HasValue && targetGroup.HasValue)
         {
             return BadRequest(new { message = "Cannot assign to both a specific user and a user group" });
         }
-        if (!newUserId.HasValue && !newGroup.HasValue)
+        if (!targetUserId.HasValue && !targetGroup.HasValue)
         {
             return BadRequest(new { message = "Must assign to either a specific user or a user group" });
         }
 
         // Update required fields (always sent from frontend)
         assignment.TaskDefinitionId = request.TaskDefinitionId ?? assignment.TaskDefinitionId;
-        assignment.AssignedToUserId = request.AssignedToUserId ?? assignment.AssignedToUserId;
-        assignment.AssignedToGroup = request.AssignedToGroup ?? assignment.AssignedToGroup;
+        assignment.AssignedToUserId = targetUserId;
+        assignment.AssignedToGroup = targetGroup;
         assignment.ScheduleType = request.ScheduleType ?? assignment.ScheduleType;
         assignment.DaysOfWeek = request.DaysOfWeek ?? assignment.DaysOfWeek;
         assignment.IsActive = request.IsActive ?? assignment.IsActive;
