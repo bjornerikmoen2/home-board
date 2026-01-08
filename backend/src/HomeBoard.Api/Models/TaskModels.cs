@@ -21,7 +21,7 @@ public class CreateTaskAssignmentRequest
 {
     public Guid TaskDefinitionId { get; set; }
     public Guid? AssignedToUserId { get; set; }
-    public int? AssignedToGroup { get; set; } // UserRole enum value (1001=Admin, 1002=User)
+    public int? AssignedToGroup { get; set; }
     public ScheduleType ScheduleType { get; set; }
     public DayOfWeekFlag DaysOfWeek { get; set; }
     public DateOnly? StartDate { get; set; }
@@ -33,7 +33,7 @@ public class UpdateTaskAssignmentRequest
 {
     public Guid? TaskDefinitionId { get; set; }
     public Guid? AssignedToUserId { get; set; }
-    public int? AssignedToGroup { get; set; } // UserRole enum value (1001=Admin, 1002=User)
+    public int? AssignedToGroup { get; set; }
     public ScheduleType? ScheduleType { get; set; }
     public DayOfWeekFlag? DaysOfWeek { get; set; }
     public DateOnly? StartDate { get; set; }
@@ -58,7 +58,7 @@ public class TaskAssignmentDto
     public required string TaskTitle { get; set; }
     public Guid? AssignedToUserId { get; set; }
     public string? AssignedToName { get; set; }
-    public int? AssignedToGroup { get; set; } // UserRole enum value (1001=Admin, 1002=User)
+    public int? AssignedToGroup { get; set; }
     public ScheduleType ScheduleType { get; set; }
     public DayOfWeekFlag DaysOfWeek { get; set; }
     public DateOnly? StartDate { get; set; }
@@ -94,7 +94,7 @@ public class CalendarTaskDto
     public string? Description { get; set; }
     public Guid? AssignedToUserId { get; set; }
     public string? AssignedToName { get; set; }
-    public int? AssignedToGroup { get; set; } // UserRole enum value (1001=Admin, 1002=User)
+    public int? AssignedToGroup { get; set; }
     public TimeOnly? DueTime { get; set; }
     public int DefaultPoints { get; set; }
     public bool IsCompleted { get; set; }

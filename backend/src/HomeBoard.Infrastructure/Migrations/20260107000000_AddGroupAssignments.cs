@@ -14,16 +14,16 @@ namespace HomeBoard.Infrastructure.Migrations
             migrationBuilder.AlterColumn<Guid>(
                 name: "AssignedToUserId",
                 table: "TaskAssignments",
-                type: "uniqueidentifier",
+                type: "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid),
-                oldType: "uniqueidentifier");
+                oldType: "uuid");
 
             // Add AssignedToGroup column
             migrationBuilder.AddColumn<int>(
                 name: "AssignedToGroup",
                 table: "TaskAssignments",
-                type: "int",
+                type: "integer",
                 nullable: true);
         }
 
@@ -39,11 +39,11 @@ namespace HomeBoard.Infrastructure.Migrations
             migrationBuilder.AlterColumn<Guid>(
                 name: "AssignedToUserId",
                 table: "TaskAssignments",
-                type: "uniqueidentifier",
+                type: "uuid",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
                 oldClrType: typeof(Guid),
-                oldType: "uniqueidentifier",
+                oldType: "uuid",
                 oldNullable: true);
         }
     }

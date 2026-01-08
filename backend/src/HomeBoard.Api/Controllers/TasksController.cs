@@ -170,6 +170,12 @@ public class TasksController : ControllerBase
             return BadRequest(new { message = "Must assign to either a specific user or a user group" });
         }
 
+        // Validate AssignedToGroup contains a valid UserRole enum value
+        if (request.AssignedToGroup.HasValue && !Enum.IsDefined(typeof(UserRole), request.AssignedToGroup.Value))
+        {
+            return BadRequest(new { message = $"Invalid AssignedToGroup value. Must be {(int)UserRole.Admin} (Admin) or {(int)UserRole.User} (User)" });
+        }
+
         var assignment = new TaskAssignment
         {
             Id = Guid.NewGuid(),
@@ -236,6 +242,12 @@ public class TasksController : ControllerBase
         if (!newUserId.HasValue && !newGroup.HasValue)
         {
             return BadRequest(new { message = "Must assign to either a specific user or a user group" });
+        }
+
+        // Validate AssignedToGroup contains a valid UserRole enum value
+        if (newGroup.HasValue && !Enum.IsDefined(typeof(UserRole), newGroup.Value))
+        {
+            return BadRequest(new { message = $"Invalid AssignedToGroup value. Must be {(int)UserRole.Admin} (Admin) or {(int)UserRole.User} (User)" });
         }
 
         // Update required fields (always sent from frontend)

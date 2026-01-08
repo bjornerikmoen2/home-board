@@ -7,7 +7,7 @@ public class TaskAssignment
     public Guid Id { get; set; }
     public Guid TaskDefinitionId { get; set; }
     public Guid? AssignedToUserId { get; set; }
-    public int? AssignedToGroup { get; set; } // UserRole enum value (1001=Admin, 1002=User)
+    public int? AssignedToGroup { get; set; }
     public ScheduleType ScheduleType { get; set; }
     public DayOfWeekFlag DaysOfWeek { get; set; }
     public DateOnly? StartDate { get; set; }
