@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -10,7 +11,6 @@ namespace HomeBoard.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Make AssignedToUserId nullable
             migrationBuilder.AlterColumn<Guid>(
                 name: "AssignedToUserId",
                 table: "TaskAssignments",
@@ -19,7 +19,6 @@ namespace HomeBoard.Infrastructure.Migrations
                 oldClrType: typeof(Guid),
                 oldType: "uuid");
 
-            // Add AssignedToGroup column
             migrationBuilder.AddColumn<int>(
                 name: "AssignedToGroup",
                 table: "TaskAssignments",
@@ -30,12 +29,10 @@ namespace HomeBoard.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // Remove AssignedToGroup column
             migrationBuilder.DropColumn(
                 name: "AssignedToGroup",
                 table: "TaskAssignments");
 
-            // Make AssignedToUserId non-nullable again
             migrationBuilder.AlterColumn<Guid>(
                 name: "AssignedToUserId",
                 table: "TaskAssignments",
