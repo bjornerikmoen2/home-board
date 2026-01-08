@@ -27,14 +27,21 @@ public class MeController : ControllerBase
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
 
+        // Get current user to check their role
+        var currentUser = await _context.Users.FindAsync(userId);
+        if (currentUser == null)
+        {
+            return NotFound();
+        }
+
         // Get family settings for week start configuration
         var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
         var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
 
-        // Get active assignments for this user
+        // Get active assignments for this user or their role group
         var assignments = await _context.TaskAssignments
             .Include(a => a.TaskDefinition)
-            .Where(a => a.AssignedToUserId == userId && a.IsActive)
+            .Where(a => (a.AssignedToUserId == userId || a.AssignedToGroup == (int)currentUser.Role) && a.IsActive)
             .Where(a => a.StartDate == null || a.StartDate <= today)
             .Where(a => a.EndDate == null || a.EndDate >= today)
             .ToListAsync();
@@ -45,20 +52,28 @@ public class MeController : ControllerBase
         var monthStart = new DateOnly(today.Year, today.Month, 1);
         var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-        // Get completions for this week and month
+        // Get completions for this week and month (for "During" schedule types)
         var assignmentIds = assignments.Select(a => a.Id).ToList();
         var completionsThisWeek = await _context.TaskCompletions
+            .Include(c => c.CompletedByUser)
             .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && 
                        c.Date >= weekStart && c.Date <= weekEnd)
             .ToListAsync();
         
         var completionsThisMonth = await _context.TaskCompletions
+            .Include(c => c.CompletedByUser)
             .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && 
                        c.Date >= monthStart && c.Date <= monthEnd)
             .ToListAsync();
 
-        // Filter by schedule
-        var todayAssignments = new List<Domain.Entities.TaskAssignment>();
+        // Get completions for today
+        var todayCompletions = await _context.TaskCompletions
+            .Include(c => c.CompletedByUser)
+            .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && c.Date == today)
+            .ToDictionaryAsync(c => c.TaskAssignmentId, c => c);
+
+        // Filter by schedule and build result
+        var result = new List<TodayTaskDto>();
         foreach (var a in assignments)
         {
             bool shouldShow = false;
@@ -78,40 +93,52 @@ public class MeController : ControllerBase
                     break;
                     
                 case Domain.Enums.ScheduleType.DuringWeek:
-                    // Show if not completed this week
-                    var completedThisWeek = completionsThisWeek.Any(c => c.TaskAssignmentId == a.Id);
-                    shouldShow = !completedThisWeek;
+                    // Show if not completed this week, OR completed today
+                    var weekCompletion = completionsThisWeek.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
+                    if (weekCompletion == null)
+                    {
+                        shouldShow = true;
+                    }
+                    else if (weekCompletion.Date == today)
+                    {
+                        shouldShow = true; // Show on completion day
+                    }
                     break;
                     
                 case Domain.Enums.ScheduleType.DuringMonth:
-                    // Show if not completed this month
-                    var completedThisMonth = completionsThisMonth.Any(c => c.TaskAssignmentId == a.Id);
-                    shouldShow = !completedThisMonth;
+                    // Show if not completed this month, OR completed today
+                    var monthCompletion = completionsThisMonth.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
+                    if (monthCompletion == null)
+                    {
+                        shouldShow = true;
+                    }
+                    else if (monthCompletion.Date == today)
+                    {
+                        shouldShow = true; // Show on completion day
+                    }
                     break;
             }
             
             if (shouldShow)
             {
-                todayAssignments.Add(a);
+                var completion = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id] : null;
+                
+                result.Add(new TodayTaskDto
+                {
+                    AssignmentId = a.Id,
+                    Title = a.TaskDefinition!.Title,
+                    Description = a.TaskDefinition.Description,
+                    Points = a.TaskDefinition.DefaultPoints,
+                    DueTime = a.DueTime,
+                    IsCompleted = completion != null,
+                    CompletionId = completion?.Id,
+                    Status = completion?.Status,
+                    CompletedByName = completion != null && a.AssignedToGroup.HasValue 
+                        ? completion.CompletedByUser?.DisplayName 
+                        : null
+                });
             }
         }
-
-        // Get completions for today
-        var todayCompletions = await _context.TaskCompletions
-            .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && c.Date == today)
-            .ToDictionaryAsync(c => c.TaskAssignmentId, c => c);
-
-        var result = todayAssignments.Select(a => new TodayTaskDto
-        {
-            AssignmentId = a.Id,
-            Title = a.TaskDefinition!.Title,
-            Description = a.TaskDefinition.Description,
-            Points = a.TaskDefinition.DefaultPoints,
-            DueTime = a.DueTime,
-            IsCompleted = todayCompletions.ContainsKey(a.Id),
-            CompletionId = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id].Id : null,
-            Status = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id].Status : null
-        }).ToList();
 
         return Ok(result);
     }

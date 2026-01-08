@@ -71,6 +71,7 @@ class TodayScreen extends ConsumerWidget {
                       description: task.description ?? '',
                       points: task.points,
                       isCompleted: task.isCompleted,
+                      completedByName: task.completedByName,
                       requiresVerification: false,
                     );
                   },
@@ -124,6 +125,7 @@ class TodayScreen extends ConsumerWidget {
     required String description,
     required int points,
     required bool isCompleted,
+    String? completedByName,
     required bool requiresVerification,
   }) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -238,7 +240,11 @@ class TodayScreen extends ConsumerWidget {
               ),
               if (isCompleted)
                 Chip(
-                  label: Text(context.l10n.completed),
+                  label: Text(
+                    completedByName != null
+                        ? context.l10n.completedBy(completedByName)
+                        : context.l10n.completed,
+                  ),
                   backgroundColor: Colors.green,
                   labelStyle: const TextStyle(color: Colors.white),
                 ),

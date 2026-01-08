@@ -47,6 +47,7 @@ class TodayTaskModel with _$TodayTaskModel {
     required bool isCompleted,
     String? completionId,
     int? status,
+    String? completedByName,
   }) = _TodayTaskModel;
 
   factory TodayTaskModel.fromJson(Map<String, dynamic> json) =>
