@@ -199,7 +199,10 @@ namespace HomeBoard.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AssignedToUserId")
+                    b.Property<int?>("AssignedToGroup")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("AssignedToUserId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -463,8 +466,7 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.HasOne("HomeBoard.Domain.Entities.User", "AssignedToUser")
                         .WithMany("AssignedTasks")
                         .HasForeignKey("AssignedToUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("HomeBoard.Domain.Entities.TaskDefinition", "TaskDefinition")
                         .WithMany("Assignments")

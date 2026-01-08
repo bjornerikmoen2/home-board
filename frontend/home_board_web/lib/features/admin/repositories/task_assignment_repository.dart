@@ -35,6 +35,7 @@ class TaskAssignmentRepository {
         data: {
           'taskDefinitionId': request.taskDefinitionId,
           'assignedToUserId': request.assignedToUserId,
+          'assignedToGroup': request.assignedToGroup,
           'scheduleType': request.scheduleType,
           'daysOfWeek': request.daysOfWeek,
           if (request.startDate != null) 'startDate': request.startDate,
@@ -58,6 +59,7 @@ class TaskAssignmentRepository {
         data: {
           if (request.taskDefinitionId != null) 'taskDefinitionId': request.taskDefinitionId,
           if (request.assignedToUserId != null) 'assignedToUserId': request.assignedToUserId,
+          if (request.assignedToGroup != null) 'assignedToGroup': request.assignedToGroup,
           if (request.scheduleType != null) 'scheduleType': request.scheduleType,
           if (request.daysOfWeek != null) 'daysOfWeek': request.daysOfWeek,
           'startDate': request.startDate,  // Include even if null to allow clearing
