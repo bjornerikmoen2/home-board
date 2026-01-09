@@ -21,9 +21,7 @@ services:
     restart: unless-stopped
 
   api:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/bjornerikmoen2/home-board/backend
     container_name: home-board-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -43,9 +41,7 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: ./frontend/home_board_web
-      dockerfile: Dockerfile
+    image: ghcr.io/bjornerikmoen2/home-board/frontend
     container_name: home-board-web
     environment:
       BACKEND_PORT: ${BACKEND_PORT:-8080}
@@ -58,3 +54,4 @@ services:
 volumes:
   home-board-db-data:
     name: home-board-db-data
+
