@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: ghcr.io/bjornerikmoen2/home-board/backend:develop
+    image: ghcr.io/bjornerikmoen2/home-board/backend
     container_name: home-board-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -41,7 +41,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ghcr.io/bjornerikmoen2/home-board/frontend:develop
+    image: ghcr.io/bjornerikmoen2/home-board/frontend
     container_name: home-board-web
     environment:
       BACKEND_PORT: ${BACKEND_PORT:-8080}
