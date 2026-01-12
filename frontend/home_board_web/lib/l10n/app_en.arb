@@ -1355,6 +1355,16 @@
     "description": "Week starts on setting label"
   },
   
+  "includeAdminsInAssignments": "Include Admins in Task Assignments",
+  "@includeAdminsInAssignments": {
+    "description": "Setting to control whether admins appear in task assignment lists"
+  },
+  
+  "includeAdminsInAssignmentsDescription": "When enabled, admins will appear in the 'Assign To' list when creating or editing task assignments",
+  "@includeAdminsInAssignmentsDescription": {
+    "description": "Description for admin inclusion setting"
+  },
+  
   "analytics": "Analytics",
   "@analytics": {
     "description": "Analytics screen title"

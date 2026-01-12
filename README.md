@@ -71,9 +71,17 @@ A family chores and rewards management system designed for families with childre
    ```bash
    docker-compose up -d
    ```
+   
+   The compose file will:
+   - Pull pre-built images from GitHub Container Registry
+   - Start PostgreSQL with health checks
+   - Wait for database to be healthy before starting the API
+   - Automatically run database migrations
+   - Configure automatic restarts on failure
 
 4. **Wait for services to start**:
    The database needs to initialize and the API will run migrations automatically.
+   The database healthcheck ensures services start in the correct order.
    Wait about 30-60 seconds for everything to be ready.
 
 5. **Access the application**:
@@ -253,6 +261,8 @@ POST to `/api/tasks/assignments`:
 
 ### Production Deployment
 
+The docker-compose.yml file uses pre-built images from GitHub Container Registry, making deployment straightforward.
+
 1. **Set environment variables** on your server:
    ```bash
    # Create .env file with production values
@@ -266,14 +276,22 @@ POST to `/api/tasks/assignments`:
 
 2. **Update docker-compose.yml** for production:
    - Change `ASPNETCORE_ENVIRONMENT` to `Production` in the `api` service
-   - Set up proper SSL/TLS termination (reverse proxy)
+   - Configure specific CORS origins (uncomment and set in docker-compose.yml)
+   - Set `App__Timezone` if different from default `Europe/Oslo`
+   - Set up proper SSL/TLS termination (reverse proxy recommended)
    - Configure ports via `.env` if different from defaults
 
 3. **Deploy**:
    ```bash
-   docker-compose build
+   docker-compose pull  # Pull latest images
    docker-compose up -d
    ```
+   
+   Services will:
+   - Start with automatic restart on failure
+   - Wait for database health checks before starting API
+   - Run migrations automatically
+   - Recover from failures without manual intervention
 
 4. **First-time setup**:
    - Database tables are created automatically via migrations
@@ -298,6 +316,7 @@ Optional environment variables:
 | `BACKEND_PORT` | Port for the backend API | `8080` | `8080` |
 | `FRONTEND_PORT` | Port for the frontend web application | `3001` | `3001` |
 | `Cors__AllowedOrigins` | Comma-separated allowed CORS origins | `*` (all) | `https://yourdomain.com,https://www.yourdomain.com` |
+| `App__Timezone` | Application timezone for date calculations | `Europe/Oslo` | `America/New_York` |
 
 **Port Configuration:**
 - Both `BACKEND_PORT` and `FRONTEND_PORT` are optional
@@ -307,9 +326,19 @@ Optional environment variables:
 
 **CORS Configuration:**
 - Default (`*`) allows all origins - suitable for development or flexible deployments
-- For production, set specific origins: `Cors__AllowedOrigins=https://yourdomain.com,https://www.yourdomain.com`
-- Can be configured in appsettings.json or via environment variable
+- For production, set specific origins in docker-compose.yml:
+  ```yaml
+  environment:
+    Cors__AllowedOrigins: "https://yourdomain.com,https://www.yourdomain.com"
+  ```
+- Can also be configured in appsettings.json or via `.env` file
 - Multiple origins separated by commas
+
+**Service Reliability:**
+- All services are configured with `restart: unless-stopped` for automatic recovery
+- Database has built-in health checks to ensure availability
+- API waits for database health check before starting
+- Ensures proper startup order and automatic failure recovery
 
 ## API Documentation
 
@@ -337,6 +366,8 @@ docker-compose ps
 docker-compose logs db
 ```
 
+The database has built-in health checks. If the API won't start, verify the database passes its health check before troubleshooting further.
+
 ### API not starting
 
 Check API logs for migration errors:
@@ -354,11 +385,13 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ### Port conflicts
 
-If ports 8080 or 3001 are in use, modify `docker-compose.yml`:
-```yaml
-ports:
-  - "8081:8080"  # Change 8081 to any available port
+If ports 8080 or 3001 are in use, configure them in your `.env` file:
+```bash
+BACKEND_PORT=8081
+FRONTEND_PORT=3002
 ```
+
+No need to modify docker-compose.yml - the ports are configured via environment variables.
 
 ### Fresh start
 

@@ -240,6 +240,8 @@
   "rateHelper": "Valutaverdi per poeng",
   "currencyPerPoint": "{amount} valuta per poeng",
   "weekStartsOn": "Uken starter på",
+  "includeAdminsInAssignments": "Inkluder administratorer i oppgavetildelinger",
+  "includeAdminsInAssignmentsDescription": "Når aktivert, vil administratorer vises i 'Tildel til'-listen når du oppretter eller redigerer oppgavetildelinger",
   "analytics": "Analyse",
   "analyticsSubtitle": "Se fullføringsgrad og poengstatistikk",
   "timePeriod": "Tidsperiode:",

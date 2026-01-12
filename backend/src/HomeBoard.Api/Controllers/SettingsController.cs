@@ -33,7 +33,8 @@ public class SettingsController : ControllerBase
             Id = settings.Id,
             Timezone = settings.Timezone,
             PointToMoneyRate = settings.PointToMoneyRate,
-            WeekStartsOn = settings.WeekStartsOn
+            WeekStartsOn = settings.WeekStartsOn,
+            IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
         });
     }
 
@@ -65,6 +66,11 @@ public class SettingsController : ControllerBase
             settings.WeekStartsOn = request.WeekStartsOn.Value;
         }
 
+        if (request.IncludeAdminsInAssignments.HasValue)
+        {
+            settings.IncludeAdminsInAssignments = request.IncludeAdminsInAssignments.Value;
+        }
+
         await _context.SaveChangesAsync();
 
         return Ok(new FamilySettingsResponseModel
@@ -72,7 +78,8 @@ public class SettingsController : ControllerBase
             Id = settings.Id,
             Timezone = settings.Timezone,
             PointToMoneyRate = settings.PointToMoneyRate,
-            WeekStartsOn = settings.WeekStartsOn
+            WeekStartsOn = settings.WeekStartsOn,
+            IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
         });
     }
 }

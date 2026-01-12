@@ -10,6 +10,7 @@ class FamilySettingsModel with _$FamilySettingsModel {
     required String timezone,
     required double pointToMoneyRate,
     required int weekStartsOn,
+    required bool includeAdminsInAssignments,
   }) = _FamilySettingsModel;
 
   factory FamilySettingsModel.fromJson(Map<String, dynamic> json) =>
@@ -22,6 +23,7 @@ class UpdateFamilySettingsRequest with _$UpdateFamilySettingsRequest {
     String? timezone,
     double? pointToMoneyRate,
     int? weekStartsOn,
+    bool? includeAdminsInAssignments,
   }) = _UpdateFamilySettingsRequest;
 
   factory UpdateFamilySettingsRequest.fromJson(Map<String, dynamic> json) =>

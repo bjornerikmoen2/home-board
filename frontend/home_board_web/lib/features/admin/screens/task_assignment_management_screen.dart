@@ -333,6 +333,15 @@ class _TaskAssignmentManagementScreenState
       return;
     }
 
+    // Get settings to check if admins should be included
+    final settingsAsync = ref.read(familySettingsNotifierProvider);
+    final includeAdmins = settingsAsync.value?.includeAdminsInAssignments ?? true;
+    
+    // Filter users based on setting
+    final filteredUsers = includeAdmins
+        ? users
+        : users.where((user) => user.role != 'Admin').toList();
+
     String? selectedTaskId;
     String? selectedAssignee; // Can be userId or 'ALL_USERS'
     int scheduleType = 0; // Daily
@@ -387,7 +396,7 @@ class _TaskAssignmentManagementScreenState
                           ],
                         ),
                       ),
-                      ...users.map((user) => DropdownMenuItem(
+                      ...filteredUsers.map((user) => DropdownMenuItem(
                         value: user.id,
                         child: Text(user.displayName),
                       )),
@@ -660,6 +669,15 @@ class _TaskAssignmentManagementScreenState
       return;
     }
 
+    // Get settings to check if admins should be included
+    final settingsAsync = ref.read(familySettingsNotifierProvider);
+    final includeAdmins = settingsAsync.value?.includeAdminsInAssignments ?? true;
+    
+    // Filter users based on setting
+    final filteredUsers = includeAdmins
+        ? users
+        : users.where((user) => user.role != 'Admin').toList();
+
     String selectedTaskId = assignment.taskDefinitionId;
     String? selectedAssignee = assignment.assignedToGroup == 1 
         ? 'ALL_USERS' 
@@ -729,7 +747,7 @@ class _TaskAssignmentManagementScreenState
                           ],
                         ),
                       ),
-                      ...users.map((user) => DropdownMenuItem(
+                      ...filteredUsers.map((user) => DropdownMenuItem(
                         value: user.id,
                         child: Text(user.displayName),
                       )),
