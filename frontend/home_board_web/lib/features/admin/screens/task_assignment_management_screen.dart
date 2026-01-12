@@ -1045,14 +1045,11 @@ class _TaskAssignmentManagementScreenState
       initialValue: TextEditingValue(text: initialText),
       displayStringForOption: (task) => task.title,
       optionsBuilder: (textEditingValue) {
-        // Don't show options if the field is untouched (empty and not focused)
-        // Only show options when user starts typing
-        if (textEditingValue.text.isEmpty && selectedTaskId == null) {
-          return const Iterable<TaskDefinitionManagementModel>.empty();
-        }
+        // Always show all tasks when field is empty (for both create and edit)
         if (textEditingValue.text.isEmpty) {
           return activeTasks;
         }
+        // Filter tasks based on user input
         return activeTasks.where((task) {
           return task.title
               .toLowerCase()
@@ -1068,19 +1065,9 @@ class _TaskAssignmentManagementScreenState
             labelText: context.l10n.task,
             border: const OutlineInputBorder(),
             suffixIcon: const Icon(Icons.arrow_drop_down),
+            hintText: selectedTaskId == null ? 'Click to select or type to search' : null,
           ),
           onFieldSubmitted: (value) => onFieldSubmitted(),
-          onTap: () {
-            // Show all tasks when clicking the field if it's empty
-            if (controller.text.isEmpty && selectedTaskId == null) {
-              controller.text = ' ';
-              controller.selection = TextSelection.collapsed(offset: 1);
-              Future.microtask(() {
-                controller.text = '';
-                controller.selection = TextSelection.collapsed(offset: 0);
-              });
-            }
-          },
         );
       },
       optionsViewBuilder: (context, onSelected, options) {
