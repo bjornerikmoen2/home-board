@@ -362,21 +362,12 @@ class _TaskAssignmentManagementScreenState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: context.l10n.task,
-                      border: const OutlineInputBorder(),
-                    ),
-                    value: selectedTaskId,
-                    items: taskDefinitions
-                        .where((t) => t.isActive)
-                        .map((task) => DropdownMenuItem(
-                              value: task.id,
-                              child: Text(task.title),
-                            ))
-                        .toList(),
-                    onChanged: (value) =>
-                        setDialogState(() => selectedTaskId = value),
+                  _buildTaskSearchField(
+                    taskDefinitions: taskDefinitions,
+                    selectedTaskId: selectedTaskId,
+                    onTaskSelected: (taskId) {
+                      setDialogState(() => selectedTaskId = taskId);
+                    },
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
@@ -710,22 +701,12 @@ class _TaskAssignmentManagementScreenState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: context.l10n.task,
-                      border: const OutlineInputBorder(),
-                    ),
-                    value: selectedTaskId,
-                    items: taskDefinitions
-                        .where((t) => t.isActive)
-                        .map((task) => DropdownMenuItem(
-                              value: task.id,
-                              child: Text(task.title),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedTaskId = value);
+                  _buildTaskSearchField(
+                    taskDefinitions: taskDefinitions,
+                    selectedTaskId: selectedTaskId,
+                    onTaskSelected: (taskId) {
+                      if (taskId != null) {
+                        setDialogState(() => selectedTaskId = taskId);
                       }
                     },
                   ),
@@ -1036,6 +1017,102 @@ class _TaskAssignmentManagementScreenState
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTaskSearchField({
+    required List<TaskDefinitionManagementModel> taskDefinitions,
+    required String? selectedTaskId,
+    required Function(String?) onTaskSelected,
+  }) {
+    final activeTasks = taskDefinitions.where((t) => t.isActive).toList();
+    
+    // Only prefill if a task is already selected (for edit mode)
+    final initialText = selectedTaskId != null
+        ? activeTasks.firstWhere(
+            (t) => t.id == selectedTaskId,
+            orElse: () => const TaskDefinitionManagementModel(
+              id: '',
+              title: '',
+              description: null,
+              defaultPoints: 0,
+              isActive: false,
+            ),
+          ).title
+        : '';
+
+    return Autocomplete<TaskDefinitionManagementModel>(
+      initialValue: TextEditingValue(text: initialText),
+      displayStringForOption: (task) => task.title,
+      optionsBuilder: (textEditingValue) {
+        // Don't show options if the field is untouched (empty and not focused)
+        // Only show options when user starts typing
+        if (textEditingValue.text.isEmpty && selectedTaskId == null) {
+          return const Iterable<TaskDefinitionManagementModel>.empty();
+        }
+        if (textEditingValue.text.isEmpty) {
+          return activeTasks;
+        }
+        return activeTasks.where((task) {
+          return task.title
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: (task) => onTaskSelected(task.id),
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: context.l10n.task,
+            border: const OutlineInputBorder(),
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+          ),
+          onFieldSubmitted: (value) => onFieldSubmitted(),
+          onTap: () {
+            // Show all tasks when clicking the field if it's empty
+            if (controller.text.isEmpty && selectedTaskId == null) {
+              controller.text = ' ';
+              controller.selection = TextSelection.collapsed(offset: 1);
+              Future.microtask(() {
+                controller.text = '';
+                controller.selection = TextSelection.collapsed(offset: 0);
+              });
+            }
+          },
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200, maxWidth: 500),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final task = options.elementAt(index);
+                  return ListTile(
+                    title: Text(task.title),
+                    subtitle: task.description != null && task.description!.isNotEmpty
+                        ? Text(
+                            task.description!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : null,
+                    onTap: () => onSelected(task),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
