@@ -3,6 +3,7 @@ using System;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomeBoard.Infrastructure.Migrations
 {
     [DbContext(typeof(HomeBoardDbContext))]
-    partial class HomeBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113142048_AddEnableScoreboardToFamilySettings")]
+    partial class AddEnableScoreboardToFamilySettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
