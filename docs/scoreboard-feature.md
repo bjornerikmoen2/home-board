@@ -27,10 +27,10 @@ Create a public scoreboard page that displays all users with their points and pe
 - [x] Create EF migration for the new field
 - [x] Apply migration (Migration: 20260113142048_AddEnableScoreboardToFamilySettings - Applied)
 
-### Step 2: Backend - Settings API
-- [ ] Update `FamilySettingsModels.cs` to include `EnableScoreboard` property
-- [ ] Update `SettingsController.cs` GET endpoint to return the new setting
-- [ ] Update `SettingsController.cs` PUT endpoint to accept and save the new setting
+### Step 2: Backend - Settings API ✅
+- [x] Update `FamilySettingsModels.cs` to include `EnableScoreboard` property
+- [x] Update `SettingsController.cs` GET endpoint to return the new setting
+- [x] Update `SettingsController.cs` PATCH endpoint to accept and save the new setting
 
 ### Step 3: Backend - Scoreboard API
 - [ ] Create `ScoreboardModels.cs` with DTOs:
