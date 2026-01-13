@@ -97,6 +97,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _showWeekStartsDialog(context, settings),
               ),
+              const Divider(height: 1),
+              SwitchListTile(
+                secondary: const Icon(Icons.leaderboard),
+                title: const Text('Enable Scoreboard'),
+                subtitle: const Text('Allow public access to scoreboard page'),
+                value: settings.enableScoreboard,
+                onChanged: (bool value) async {
+                  await ref
+                      .read(familySettingsNotifierProvider.notifier)
+                      .updateSettings(
+                        UpdateFamilySettingsRequest(enableScoreboard: value),
+                      );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.l10n.success)),
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),
