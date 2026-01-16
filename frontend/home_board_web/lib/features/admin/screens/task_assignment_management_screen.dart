@@ -124,6 +124,18 @@ class _TaskAssignmentManagementScreenState
   Widget _buildAssignmentCard(TaskAssignmentModel assignment, int weekStartsOn) {
     final scheduleTypeText = _getScheduleTypeText(assignment.scheduleType);
     final daysText = _getDaysOfWeekText(assignment.daysOfWeek);
+    
+    // Determine assigned to text
+    String assignedToText;
+    if (assignment.assignedToGroup != null) {
+      assignedToText = assignment.assignedToGroup == 1
+          ? context.l10n.allUsers 
+          : (assignment.assignedToGroup == 0 
+              ? context.l10n.adminGroup 
+              : context.l10n.userGroup);
+    } else {
+      assignedToText = assignment.assignedToName ?? 'Unknown';
+    }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -148,10 +160,16 @@ class _TaskAssignmentManagementScreenState
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.person, size: 16, color: Colors.grey),
+                          Icon(
+                            assignment.assignedToGroup != null 
+                                ? Icons.group 
+                                : Icons.person, 
+                            size: 16, 
+                            color: Colors.grey
+                          ),
                           const SizedBox(width: 4),
                           Text(
-                            assignment.assignedToName,
+                            assignedToText,
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.grey,
@@ -315,8 +333,17 @@ class _TaskAssignmentManagementScreenState
       return;
     }
 
+    // Get settings to check if admins should be included
+    final settingsAsync = ref.read(familySettingsNotifierProvider);
+    final includeAdmins = settingsAsync.value?.includeAdminsInAssignments ?? true;
+    
+    // Filter users based on setting
+    final filteredUsers = includeAdmins
+        ? users
+        : users.where((user) => user.role != 'Admin').toList();
+
     String? selectedTaskId;
-    String? selectedUserId;
+    String? selectedAssignee; // Can be userId or 'ALL_USERS'
     int scheduleType = 0; // Daily
     Set<int> selectedDays = {1, 2, 4, 8, 16, 32, 64}; // All days
     DateTime? startDate;
@@ -335,21 +362,12 @@ class _TaskAssignmentManagementScreenState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: context.l10n.task,
-                      border: const OutlineInputBorder(),
-                    ),
-                    value: selectedTaskId,
-                    items: taskDefinitions
-                        .where((t) => t.isActive)
-                        .map((task) => DropdownMenuItem(
-                              value: task.id,
-                              child: Text(task.title),
-                            ))
-                        .toList(),
-                    onChanged: (value) =>
-                        setDialogState(() => selectedTaskId = value),
+                  _buildTaskSearchField(
+                    taskDefinitions: taskDefinitions,
+                    selectedTaskId: selectedTaskId,
+                    onTaskSelected: (taskId) {
+                      setDialogState(() => selectedTaskId = taskId);
+                    },
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
@@ -357,15 +375,25 @@ class _TaskAssignmentManagementScreenState
                       labelText: context.l10n.assignTo,
                       border: const OutlineInputBorder(),
                     ),
-                    value: selectedUserId,
-                    items: users
-                        .map((user) => DropdownMenuItem(
-                              value: user.id,
-                              child: Text(user.displayName),
-                            ))
-                        .toList(),
+                    value: selectedAssignee,
+                    items: [
+                      DropdownMenuItem(
+                        value: 'ALL_USERS',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.people, size: 18),
+                            const SizedBox(width: 8),
+                            Text(context.l10n.allUsers),
+                          ],
+                        ),
+                      ),
+                      ...filteredUsers.map((user) => DropdownMenuItem(
+                        value: user.id,
+                        child: Text(user.displayName),
+                      )),
+                    ],
                     onChanged: (value) =>
-                        setDialogState(() => selectedUserId = value),
+                        setDialogState(() => selectedAssignee = value),
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
@@ -506,7 +534,7 @@ class _TaskAssignmentManagementScreenState
               child: Text(context.l10n.cancel),
             ),
             ElevatedButton(
-              onPressed: selectedTaskId == null || selectedUserId == null
+              onPressed: selectedTaskId == null || selectedAssignee == null
                   ? null
                   : () async {
                       try {
@@ -514,9 +542,12 @@ class _TaskAssignmentManagementScreenState
                             ? selectedDays.fold(0, (sum, day) => sum | day)
                             : 127; // All days for daily/once
 
+                        final bool isAllUsers = selectedAssignee == 'ALL_USERS';
+                        
                         final request = CreateTaskAssignmentRequest(
                           taskDefinitionId: selectedTaskId!,
-                          assignedToUserId: selectedUserId!,
+                          assignedToUserId: isAllUsers ? null : selectedAssignee,
+                          assignedToGroup: isAllUsers ? 1 : null,
                           scheduleType: scheduleType,
                           daysOfWeek: daysOfWeek,
                           startDate: startDate != null
@@ -629,8 +660,19 @@ class _TaskAssignmentManagementScreenState
       return;
     }
 
+    // Get settings to check if admins should be included
+    final settingsAsync = ref.read(familySettingsNotifierProvider);
+    final includeAdmins = settingsAsync.value?.includeAdminsInAssignments ?? true;
+    
+    // Filter users based on setting
+    final filteredUsers = includeAdmins
+        ? users
+        : users.where((user) => user.role != 'Admin').toList();
+
     String selectedTaskId = assignment.taskDefinitionId;
-    String selectedUserId = assignment.assignedToUserId;
+    String? selectedAssignee = assignment.assignedToGroup == 1 
+        ? 'ALL_USERS' 
+        : assignment.assignedToUserId;
     int scheduleType = assignment.scheduleType;
     Set<int> selectedDays = _getDaysFromBitmask(assignment.daysOfWeek);
     DateTime? startDate = assignment.startDate != null
@@ -659,22 +701,12 @@ class _TaskAssignmentManagementScreenState
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      labelText: context.l10n.task,
-                      border: const OutlineInputBorder(),
-                    ),
-                    value: selectedTaskId,
-                    items: taskDefinitions
-                        .where((t) => t.isActive)
-                        .map((task) => DropdownMenuItem(
-                              value: task.id,
-                              child: Text(task.title),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedTaskId = value);
+                  _buildTaskSearchField(
+                    taskDefinitions: taskDefinitions,
+                    selectedTaskId: selectedTaskId,
+                    onTaskSelected: (taskId) {
+                      if (taskId != null) {
+                        setDialogState(() => selectedTaskId = taskId);
                       }
                     },
                   ),
@@ -684,16 +716,26 @@ class _TaskAssignmentManagementScreenState
                       labelText: context.l10n.assignTo,
                       border: const OutlineInputBorder(),
                     ),
-                    value: selectedUserId,
-                    items: users
-                        .map((user) => DropdownMenuItem(
-                              value: user.id,
-                              child: Text(user.displayName),
-                            ))
-                        .toList(),
+                    value: selectedAssignee,
+                    items: [
+                      DropdownMenuItem(
+                        value: 'ALL_USERS',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.people, size: 18),
+                            const SizedBox(width: 8),
+                            Text(context.l10n.allUsers),
+                          ],
+                        ),
+                      ),
+                      ...filteredUsers.map((user) => DropdownMenuItem(
+                        value: user.id,
+                        child: Text(user.displayName),
+                      )),
+                    ],
                     onChanged: (value) {
                       if (value != null) {
-                        setDialogState(() => selectedUserId = value);
+                        setDialogState(() => selectedAssignee = value);
                       }
                     },
                   ),
@@ -848,10 +890,13 @@ class _TaskAssignmentManagementScreenState
                       ? selectedDays.fold(0, (sum, day) => sum | day)
                       : 127; // All days for daily/once
 
+                  final bool isAllUsers = selectedAssignee == 'ALL_USERS';
+
                   // Create request with explicit JSON to ensure all fields are sent
                   final requestJson = {
                     'taskDefinitionId': selectedTaskId,
-                    'assignedToUserId': selectedUserId,
+                    'assignedToUserId': isAllUsers ? null : selectedAssignee,
+                    'assignedToGroup': isAllUsers ? 1 : null,
                     'scheduleType': scheduleType,
                     'daysOfWeek': daysOfWeek,
                     'startDate': startDate != null
@@ -913,12 +958,24 @@ class _TaskAssignmentManagementScreenState
   }
 
   void _showDeleteConfirmationDialog(TaskAssignmentModel assignment) {
+    // Determine assigned to text for display
+    String assignedToText;
+    if (assignment.assignedToGroup != null) {
+      assignedToText = assignment.assignedToGroup == 1
+          ? context.l10n.allUsers 
+          : (assignment.assignedToGroup == 0 
+              ? context.l10n.adminGroup 
+              : context.l10n.userGroup);
+    } else {
+      assignedToText = assignment.assignedToName ?? 'Unknown';
+    }
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.deleteAssignment),
         content: Text(
-          context.l10n.deleteAssignmentQuestion(assignment.taskTitle, assignment.assignedToName),
+          context.l10n.deleteAssignmentQuestion(assignment.taskTitle, assignedToText),
         ),
         actions: [
           TextButton(
@@ -960,6 +1017,89 @@ class _TaskAssignmentManagementScreenState
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTaskSearchField({
+    required List<TaskDefinitionManagementModel> taskDefinitions,
+    required String? selectedTaskId,
+    required Function(String?) onTaskSelected,
+  }) {
+    final activeTasks = taskDefinitions.where((t) => t.isActive).toList();
+    
+    // Only prefill if a task is already selected (for edit mode)
+    final initialText = selectedTaskId != null
+        ? activeTasks.firstWhere(
+            (t) => t.id == selectedTaskId,
+            orElse: () => const TaskDefinitionManagementModel(
+              id: '',
+              title: '',
+              description: null,
+              defaultPoints: 0,
+              isActive: false,
+            ),
+          ).title
+        : '';
+
+    return Autocomplete<TaskDefinitionManagementModel>(
+      initialValue: TextEditingValue(text: initialText),
+      displayStringForOption: (task) => task.title,
+      optionsBuilder: (textEditingValue) {
+        // Always show all tasks when field is empty (for both create and edit)
+        if (textEditingValue.text.isEmpty) {
+          return activeTasks;
+        }
+        // Filter tasks based on user input
+        return activeTasks.where((task) {
+          return task.title
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: (task) => onTaskSelected(task.id),
+      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+        return TextFormField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            labelText: context.l10n.task,
+            border: const OutlineInputBorder(),
+            suffixIcon: const Icon(Icons.arrow_drop_down),
+            hintText: selectedTaskId == null ? 'Click to select or type to search' : null,
+          ),
+          onFieldSubmitted: (value) => onFieldSubmitted(),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200, maxWidth: 500),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final task = options.elementAt(index);
+                  return ListTile(
+                    title: Text(task.title),
+                    subtitle: task.description != null && task.description!.isNotEmpty
+                        ? Text(
+                            task.description!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : null,
+                    onTap: () => onSelected(task),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

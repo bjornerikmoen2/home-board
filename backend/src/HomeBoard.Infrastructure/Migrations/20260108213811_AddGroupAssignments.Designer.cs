@@ -3,6 +3,7 @@ using System;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomeBoard.Infrastructure.Migrations
 {
     [DbContext(typeof(HomeBoardDbContext))]
-    partial class HomeBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260108213811_AddGroupAssignments")]
+    partial class AddGroupAssignments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,12 +30,6 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<bool>("EnableScoreboard")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IncludeAdminsInAssignments")
-                        .HasColumnType("boolean");
 
                     b.Property<decimal>("PointToMoneyRate")
                         .HasColumnType("decimal(18,2)");

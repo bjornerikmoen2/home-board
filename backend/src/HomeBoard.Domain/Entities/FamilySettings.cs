@@ -7,4 +7,5 @@ public class FamilySettings
     public decimal PointToMoneyRate { get; set; }
     public DayOfWeek WeekStartsOn { get; set; }
     public bool EnableScoreboard { get; set; }
+    public bool IncludeAdminsInAssignments { get; set; }
 }

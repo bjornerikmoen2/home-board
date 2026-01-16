@@ -53,7 +53,8 @@ public class TasksController : ControllerBase
                 TaskDefinitionId = a.TaskDefinitionId,
                 TaskTitle = a.TaskDefinition!.Title,
                 AssignedToUserId = a.AssignedToUserId,
-                AssignedToName = a.AssignedToUser!.DisplayName,
+                AssignedToName = a.AssignedToUser != null ? a.AssignedToUser.DisplayName : null,
+                AssignedToGroup = a.AssignedToGroup,
                 ScheduleType = a.ScheduleType,
                 DaysOfWeek = a.DaysOfWeek,
                 StartDate = a.StartDate,
@@ -159,11 +160,28 @@ public class TasksController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<TaskAssignmentDto>> CreateTaskAssignment([FromBody] CreateTaskAssignmentRequest request)
     {
+        // Validate that either user or group is assigned, but not both
+        if (request.AssignedToUserId.HasValue && request.AssignedToGroup.HasValue)
+        {
+            return BadRequest(new { message = "Cannot assign to both a specific user and a user group" });
+        }
+        if (!request.AssignedToUserId.HasValue && !request.AssignedToGroup.HasValue)
+        {
+            return BadRequest(new { message = "Must assign to either a specific user or a user group" });
+        }
+
+        // Validate AssignedToGroup contains a valid UserRole enum value
+        if (request.AssignedToGroup.HasValue && !Enum.IsDefined(typeof(UserRole), request.AssignedToGroup.Value))
+        {
+            return BadRequest(new { message = $"Invalid AssignedToGroup value. Must be {(int)UserRole.Admin} (Admin) or {(int)UserRole.User} (User)" });
+        }
+
         var assignment = new TaskAssignment
         {
             Id = Guid.NewGuid(),
             TaskDefinitionId = request.TaskDefinitionId,
             AssignedToUserId = request.AssignedToUserId,
+            AssignedToGroup = request.AssignedToGroup,
             ScheduleType = request.ScheduleType,
             DaysOfWeek = request.DaysOfWeek,
             StartDate = request.StartDate,
@@ -178,7 +196,10 @@ public class TasksController : ControllerBase
 
         // Load related data for response
         await _context.Entry(assignment).Reference(a => a.TaskDefinition).LoadAsync();
-        await _context.Entry(assignment).Reference(a => a.AssignedToUser).LoadAsync();
+        if (assignment.AssignedToUserId.HasValue)
+        {
+            await _context.Entry(assignment).Reference(a => a.AssignedToUser).LoadAsync();
+        }
 
         return CreatedAtAction(nameof(GetTaskDefinitions), new { id = assignment.Id }, new TaskAssignmentDto
         {
@@ -186,7 +207,8 @@ public class TasksController : ControllerBase
             TaskDefinitionId = assignment.TaskDefinitionId,
             TaskTitle = assignment.TaskDefinition!.Title,
             AssignedToUserId = assignment.AssignedToUserId,
-            AssignedToName = assignment.AssignedToUser!.DisplayName,
+            AssignedToName = assignment.AssignedToUser?.DisplayName,
+            AssignedToGroup = assignment.AssignedToGroup,
             ScheduleType = assignment.ScheduleType,
             DaysOfWeek = assignment.DaysOfWeek,
             StartDate = assignment.StartDate,
@@ -210,9 +232,48 @@ public class TasksController : ControllerBase
             return NotFound();
         }
 
+        // Determine the target assignment and validate that either user or group is assigned, but not both
+        Guid? targetUserId;
+        int? targetGroup;
+
+        if (request.AssignedToUserId.HasValue)
+        {
+            // Explicitly assign to a specific user and clear any group assignment
+            targetUserId = request.AssignedToUserId;
+            targetGroup = null;
+        }
+        else if (request.AssignedToGroup.HasValue)
+        {
+            // Explicitly assign to a user group and clear any user assignment
+            targetUserId = null;
+            targetGroup = request.AssignedToGroup;
+        }
+        else
+        {
+            // No change requested; keep existing assignment
+            targetUserId = assignment.AssignedToUserId;
+            targetGroup = assignment.AssignedToGroup;
+        }
+
+        if (targetUserId.HasValue && targetGroup.HasValue)
+        {
+            return BadRequest(new { message = "Cannot assign to both a specific user and a user group" });
+        }
+        if (!targetUserId.HasValue && !targetGroup.HasValue)
+        {
+            return BadRequest(new { message = "Must assign to either a specific user or a user group" });
+        }
+
+        // Validate AssignedToGroup contains a valid UserRole enum value
+        if (targetGroup.HasValue && !Enum.IsDefined(typeof(UserRole), targetGroup.Value))
+        {
+            return BadRequest(new { message = $"Invalid AssignedToGroup value. Must be {(int)UserRole.Admin} (Admin) or {(int)UserRole.User} (User)" });
+        }
+
         // Update required fields (always sent from frontend)
         assignment.TaskDefinitionId = request.TaskDefinitionId ?? assignment.TaskDefinitionId;
-        assignment.AssignedToUserId = request.AssignedToUserId ?? assignment.AssignedToUserId;
+        assignment.AssignedToUserId = targetUserId;
+        assignment.AssignedToGroup = targetGroup;
         assignment.ScheduleType = request.ScheduleType ?? assignment.ScheduleType;
         assignment.DaysOfWeek = request.DaysOfWeek ?? assignment.DaysOfWeek;
         assignment.IsActive = request.IsActive ?? assignment.IsActive;
@@ -226,7 +287,10 @@ public class TasksController : ControllerBase
 
         // Reload related data
         await _context.Entry(assignment).Reference(a => a.TaskDefinition).LoadAsync();
-        await _context.Entry(assignment).Reference(a => a.AssignedToUser).LoadAsync();
+        if (assignment.AssignedToUserId.HasValue)
+        {
+            await _context.Entry(assignment).Reference(a => a.AssignedToUser).LoadAsync();
+        }
 
         return Ok(new TaskAssignmentDto
         {
@@ -234,7 +298,8 @@ public class TasksController : ControllerBase
             TaskDefinitionId = assignment.TaskDefinitionId,
             TaskTitle = assignment.TaskDefinition!.Title,
             AssignedToUserId = assignment.AssignedToUserId,
-            AssignedToName = assignment.AssignedToUser!.DisplayName,
+            AssignedToName = assignment.AssignedToUser?.DisplayName,
+            AssignedToGroup = assignment.AssignedToGroup,
             ScheduleType = assignment.ScheduleType,
             DaysOfWeek = assignment.DaysOfWeek,
             StartDate = assignment.StartDate,
@@ -267,13 +332,37 @@ public class TasksController : ControllerBase
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
+        // Get current user to check their role
+        var currentUser = await _context.Users.FindAsync(userId);
+        if (currentUser == null)
+        {
+            return NotFound(new { message = "User not found" });
+        }
+
         var assignment = await _context.TaskAssignments
             .Include(a => a.TaskDefinition)
-            .FirstOrDefaultAsync(a => a.Id == assignmentId && a.AssignedToUserId == userId && a.IsActive);
+            .FirstOrDefaultAsync(a => a.Id == assignmentId && a.IsActive);
 
         if (assignment == null)
         {
             return NotFound(new { message = "Task assignment not found" });
+        }
+
+        // Check if user can complete this task
+        bool canComplete = false;
+        if (assignment.AssignedToUserId.HasValue && assignment.AssignedToUserId.Value == userId)
+        {
+            canComplete = true;
+        }
+        else if (assignment.AssignedToGroup.HasValue && assignment.AssignedToGroup.Value == (int)currentUser.Role)
+        {
+            // Task assigned to user's role group - user can complete
+            canComplete = true;
+        }
+
+        if (!canComplete)
+        {
+            return Forbid();
         }
 
         // Check if already completed today
@@ -311,6 +400,13 @@ public class TasksController : ControllerBase
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var isAdmin = User.IsInRole("Admin");
 
+        // Get current user to check their role
+        var currentUser = await _context.Users.FindAsync(userId);
+        if (currentUser == null)
+        {
+            return NotFound();
+        }
+
         // Get family settings for week start configuration
         var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
         var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
@@ -323,7 +419,10 @@ public class TasksController : ControllerBase
 
         if (!isAdmin)
         {
-            assignmentsQuery = assignmentsQuery.Where(a => a.AssignedToUserId == userId);
+            // Include assignments where user is directly assigned OR assigned to their role group
+            assignmentsQuery = assignmentsQuery.Where(a => 
+                a.AssignedToUserId == userId || 
+                a.AssignedToGroup == (int)currentUser.Role);
         }
 
         var assignments = await assignmentsQuery.ToListAsync();
@@ -401,7 +500,8 @@ public class TasksController : ControllerBase
                         Title = assignment.TaskDefinition.Title,
                         Description = assignment.TaskDefinition.Description,
                         AssignedToUserId = assignment.AssignedToUserId,
-                        AssignedToName = assignment.AssignedToUser.DisplayName,
+                        AssignedToName = assignment.AssignedToUser?.DisplayName,
+                        AssignedToGroup = assignment.AssignedToGroup,
                         DueTime = assignment.DueTime,
                         DefaultPoints = assignment.TaskDefinition.DefaultPoints,
                         IsCompleted = completion != null,

@@ -7,6 +7,7 @@ public record FamilySettingsResponseModel
     public decimal PointToMoneyRate { get; init; }
     public DayOfWeek WeekStartsOn { get; init; }
     public bool EnableScoreboard { get; init; }
+    public bool IncludeAdminsInAssignments { get; init; }
 }
 
 public record UpdateFamilySettingsRequestModel
@@ -15,4 +16,5 @@ public record UpdateFamilySettingsRequestModel
     public decimal? PointToMoneyRate { get; init; }
     public DayOfWeek? WeekStartsOn { get; init; }
     public bool? EnableScoreboard { get; init; }
+    public bool? IncludeAdminsInAssignments { get; init; }
 }

@@ -116,6 +116,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   }
                 },
               ),
+              const Divider(height: 1),
+              SwitchListTile(
+                secondary: const Icon(Icons.admin_panel_settings),
+                title: Text(context.l10n.includeAdminsInAssignments),
+                subtitle: Text(context.l10n.includeAdminsInAssignmentsDescription),
+                value: settings.includeAdminsInAssignments,
+                onChanged: (value) async {
+                  await ref
+                      .read(familySettingsNotifierProvider.notifier)
+                      .updateSettings(
+                        UpdateFamilySettingsRequest(
+                            includeAdminsInAssignments: value),
+                      );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.l10n.success)),
+                    );
+                  }
+                },
+              ),
             ],
           ),
         ),

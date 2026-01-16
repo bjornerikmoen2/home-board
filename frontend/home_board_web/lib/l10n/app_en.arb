@@ -951,6 +951,41 @@
     "description": "Assign to field label"
   },
   
+  "allUsers": "All Users",
+  "@allUsers": {
+    "description": "Option to assign task to all users"
+  },
+  
+  "assignmentType": "Assignment Type",
+  "@assignmentType": {
+    "description": "Assignment type field label"
+  },
+  
+  "specificUser": "Specific User",
+  "@specificUser": {
+    "description": "Option for assigning to a specific user"
+  },
+  
+  "userGroupRole": "User Group (Role)",
+  "@userGroupRole": {
+    "description": "Option for assigning to a user group based on role"
+  },
+  
+  "assignToGroup": "Assign to Group",
+  "@assignToGroup": {
+    "description": "Label for group assignment field"
+  },
+  
+  "adminGroup": "Admin",
+  "@adminGroup": {
+    "description": "Admin user group"
+  },
+  
+  "userGroup": "User",
+  "@userGroup": {
+    "description": "Regular user group"
+  },
+  
   "daily": "Daily",
   "@daily": {
     "description": "Daily schedule type"
@@ -1318,6 +1353,16 @@
   "weekStartsOn": "Week Starts On",
   "@weekStartsOn": {
     "description": "Week starts on setting label"
+  },
+  
+  "includeAdminsInAssignments": "Include Admins in Task Assignments",
+  "@includeAdminsInAssignments": {
+    "description": "Setting to control whether admins appear in task assignment lists"
+  },
+  
+  "includeAdminsInAssignmentsDescription": "When enabled, admins will appear in the 'Assign To' list when creating or editing task assignments",
+  "@includeAdminsInAssignmentsDescription": {
+    "description": "Description for admin inclusion setting"
   },
   
   "analytics": "Analytics",

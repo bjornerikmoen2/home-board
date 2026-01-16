@@ -41,11 +41,6 @@ public class HomeBoardDbContext : DbContext
                 .HasForeignKey(e => e.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasMany(e => e.AssignedTasks)
-                .WithOne(e => e.AssignedToUser)
-                .HasForeignKey(e => e.AssignedToUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             entity.HasMany(e => e.CompletedTasks)
                 .WithOne(e => e.CompletedByUser)
                 .HasForeignKey(e => e.CompletedByUserId)
@@ -86,6 +81,12 @@ public class HomeBoardDbContext : DbContext
                 .WithMany(e => e.Assignments)
                 .HasForeignKey(e => e.TaskDefinitionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.AssignedToUser)
+                .WithMany(e => e.AssignedTasks)
+                .HasForeignKey(e => e.AssignedToUserId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
         });
 
         // TaskCompletion configuration

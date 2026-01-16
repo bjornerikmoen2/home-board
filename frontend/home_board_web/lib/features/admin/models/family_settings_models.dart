@@ -11,6 +11,7 @@ class FamilySettingsModel with _$FamilySettingsModel {
     required double pointToMoneyRate,
     required int weekStartsOn,
     required bool enableScoreboard,
+    required bool includeAdminsInAssignments,
   }) = _FamilySettingsModel;
 
   factory FamilySettingsModel.fromJson(Map<String, dynamic> json) =>
@@ -24,6 +25,7 @@ class UpdateFamilySettingsRequest with _$UpdateFamilySettingsRequest {
     double? pointToMoneyRate,
     int? weekStartsOn,
     bool? enableScoreboard,
+    bool? includeAdminsInAssignments,
   }) = _UpdateFamilySettingsRequest;
 
   factory UpdateFamilySettingsRequest.fromJson(Map<String, dynamic> json) =>
