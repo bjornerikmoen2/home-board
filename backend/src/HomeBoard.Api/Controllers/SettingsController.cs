@@ -18,6 +18,20 @@ public class SettingsController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("scoreboard-enabled")]
+    [AllowAnonymous]
+    public async Task<ActionResult<bool>> GetScoreboardEnabled()
+    {
+        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
+        
+        if (settings == null)
+        {
+            return Ok(false);
+        }
+
+        return Ok(settings.EnableScoreboard);
+    }
+
     [HttpGet]
     public async Task<ActionResult<FamilySettingsResponseModel>> GetFamilySettings()
     {
