@@ -7,6 +7,9 @@ part 'scoreboard_models.g.dart';
 class ScoreboardResponse with _$ScoreboardResponse {
   const factory ScoreboardResponse({
     required List<UserScoreboard> users,
+    required List<ScoreboardTask> allUsersTasks,
+    required bool adminPrefersDarkMode,
+    required String adminPreferredLanguage,
   }) = _ScoreboardResponse;
 
   factory ScoreboardResponse.fromJson(Map<String, dynamic> json) =>
@@ -32,6 +35,7 @@ class ScoreboardTask with _$ScoreboardTask {
     required String id,
     required String title,
     required int points,
+    required bool isAllUsersTask,
   }) = _ScoreboardTask;
 
   factory ScoreboardTask.fromJson(Map<String, dynamic> json) =>

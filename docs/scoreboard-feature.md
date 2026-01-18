@@ -50,17 +50,18 @@ Create a public scoreboard page that displays all users with their points and pe
 - [x] Update `SettingsController.cs` PATCH endpoint to accept and save the new setting
 - [x] Add public `GET /api/settings/scoreboard-enabled` endpoint (no auth required)
 
-### Step 3: Backend - Scoreboard API
-- [x] Create `ScoreboardModels.cs` with DTOs (frontend models created)
+### Step 3: Backend - Scoreboard API ✅
+- [x] Create `ScoreboardModels.cs` with DTOs
   - `ScoreboardResponse` - contains list of user scoreboards
   - `UserScoreboard` - user info, points, and tasks
-  - `ScoreboardTask` - task details for display
-- [ ] Create `ScoreboardController.cs` with GET endpoint:
-  - Check if scoreboard is enabled (return 404 or 403 if not)
-  - Fetch all users with their current points
-  - Fetch pending tasks for today (user-specific + all-users tasks)
-  - Map to response DTOs
-  - **Important**: This endpoint should NOT require authentication
+  - `ScoreboardTask` - task details for display (includes isAllUsersTask flag)
+- [x] Create `ScoreboardController.cs` with GET endpoint:
+  - Checks if scoreboard is enabled (returns 404 if not)
+  - Fetches all active users sorted by points (descending)
+  - Fetches pending tasks for today (user-specific + all-users tasks)
+  - Filters out completed tasks for today
+  - Maps to response DTOs
+  - Uses `[AllowAnonymous]` for public access
 
 ### Step 4: Backend - Authentication Bypass ✅
 - [x] Added `[AllowAnonymous]` attribute to scoreboard-enabled endpoint
@@ -75,13 +76,26 @@ Create a public scoreboard page that displays all users with their points and pe
 ### Step 6: Frontend - Scoreboard Page ✅
 - [x] Created `scoreboard_screen.dart` in features/scoreboard folder
 - [x] Created `scoreboard_repository.dart` for API calls
-- [x] Created `scoreboard_models.dart` for data models
+- [x] Created `scoreboard_models.dart` for data models (with isAllUsersTask field)
 - [x] Created `scoreboard_provider.dart` for state management
-- [x] Implemented basic UI:
+- [x] Implemented complete UI:
   - Shows "Scoreboard is disabled" message when feature is off
-  - Shows "Scoreboard" heading when feature is on (ready for data display)
+  - Displays all users in cards sorted by points
+  - Shows user name with avatar (first letter)
+  - Displays total points with star icon
+  - Lists pending tasks for each user
+  - Differentiates between personal and "all users" tasks with icons
+  - Shows "No pending tasks" message when user has no tasks
   - Handles loading and error states
   - Includes debug logging for troubleshooting
+  - Responsive design with card-based layout
+- [x] Implemented theme and language settings:
+  - Backend includes admin user's PrefersDarkMode and PreferredLanguage in API response
+  - Frontend automatically applies admin's theme (dark/light mode) when scoreboard loads
+  - Frontend automatically applies admin's language preference when scoreboard loads
+  - Settings applied without saving to backend (temporary for scoreboard view only)
+  - All UI text is fully localized (English and Norwegian translations)
+  - Localization strings: scoreboard, scoreboardDisabled, scoreboardDisabledMessage, noUsersFound, errorLoadingScoreboardData, errorLoadingScoreboard, noSharedTasks, allUsersTasks, noPendingTasks
 
 ### Step 7: Frontend - Routing ✅
 - [x] Added `/scoreboard` route to app routing configuration
@@ -102,16 +116,19 @@ Create a public scoreboard page that displays all users with their points and pe
 - [x] Test unauthenticated access (works without login)
 - [x] Test admin toggle persists correctly
 - [x] Test Bruno API endpoint for scoreboard-enabled
-- [ ] Test with multiple users (pending backend implementation)
-- [ ] Test with users having no tasks (pending backend implementation)
-- [ ] Test with tasks assigned to "all users" (pending backend implementation)
-- [ ] Test with mix of pending and completed tasks (pending backend implementation)
-- [ ] Test in both light and dark mode
+- [x] Test theme and language settings applied from admin user
+- [ ] Test with multiple users (ready to test after rebuild)
+- [ ] Test with users having no tasks (ready to test after rebuild)
+- [ ] Test with tasks assigned to "all users" (ready to test after rebuild)
+- [ ] Test with mix of pending and completed tasks (ready to test after rebuild)
+- [ ] Test Bruno API endpoint for full scoreboard data
+- [ ] Test points display accuracy
+- [ ] Test task filtering (only pending tasks shown)
+- [ ] Test dark mode changes when admin toggles their theme preference
+- [ ] Test language changes when admin changes their language preference
 - [ ] Test on mobile and desktop views
 
 ### Step 10: Documentation
-- [x] Created `scoreboard-setup.md` with setup and troubleshooting guide
-- [x] Created `scoreboard-testing.md` with detailed testing instructions
 - [x] Create Bruno API test file for scoreboard-enabled endpoint
 - [x] Added rebuild scripts (rebuild-scoreboard.ps1, test-scoreboard.ps1)
 - [ ] Update README.md with scoreboard feature information
@@ -138,13 +155,24 @@ Create a public scoreboard page that displays all users with their points and pe
 5. Should the page show a timestamp of when data was loaded? *(To be decided)*
 
 ## Current Status
-**Phase 1 Complete:** Basic scoreboard infrastructure is working! ✅
+**Phase 2 Complete:** Full scoreboard with data display is implemented! ✅
 - Admin can toggle the feature on/off
 - Public scoreboard page is accessible without authentication
-- Page shows enabled/disabled state correctly
+- Backend API fetches all users with their points and pending tasks
+- Frontend displays users in cards with:
+  - User name and avatar
+  - Total points with star icon
+  - List of pending tasks (both personal and "all users" tasks)
+  - Visual distinction between personal and group tasks
+  - "No pending tasks" message when applicable
 - Navigation integrated into home screen
+- Comprehensive error handling and loading states
 
-**Next Step:** Implement backend API to fetch actual scoreboard data (Step 3)
+**Next Steps:** Testing and refinement
+- Test with actual data (multiple users, various task scenarios)
+- Consider adding refresh functionality
+- Add timestamp of when data was loaded (optional)
+- Polish UI and add animations (optional)
 
 ## Notes
 - **Hash Routing:** Flutter web uses hash routing - URLs must include `#` (e.g., `http://localhost:3001/#/scoreboard`)
@@ -161,20 +189,16 @@ Create a public scoreboard page that displays all users with their points and pe
 - `HomeBoard.Domain/Entities/FamilySettings.cs` - Added `EnableScoreboard` property
 - `HomeBoard.Infrastructure/Migrations/20260113142048_AddEnableScoreboardToFamilySettings.cs` - Migration
 - `HomeBoard.Api/Models/FamilySettingsModels.cs` - Updated models
+- `HomeBoard.Api/Models/ScoreboardModels.cs` - Created (ScoreboardResponse, UserScoreboard, ScoreboardTask) + Added AdminPrefersDarkMode and AdminPreferredLanguage
 - `HomeBoard.Api/Controllers/SettingsController.cs` - Added public endpoint
+- `HomeBoard.Api/Controllers/ScoreboardController.cs` - Created (GET /api/scoreboard with [AllowAnonymous]) + Fetches admin theme/language settings
 
 ### Frontend
-- `lib/features/scoreboard/models/scoreboard_models.dart` - Created
+- `lib/features/scoreboard/models/scoreboard_models.dart` - Created (with isAllUsersTask field) + Added adminPrefersDarkMode and adminPreferredLanguage
 - `lib/features/scoreboard/repositories/scoreboard_repository.dart` - Created
 - `lib/features/scoreboard/providers/scoreboard_provider.dart` - Created
-- `lib/features/scoreboard/screens/scoreboard_screen.dart` - Created
+- `lib/features/scoreboard/screens/scoreboard_screen.dart` - Created (complete UI with cards) + Applies admin theme and language settings
 - `lib/core/router/app_router.dart` - Updated with scoreboard route and improved auth logic
 - `lib/features/home/screens/home_screen.dart` - Added scoreboard navigation menu item
 
-### Documentation
-- `docs/scoreboard-setup.md` - Setup and troubleshooting guide
-- `docs/scoreboard-testing.md` - Detailed testing instructions
-- `bruno/home-board/scoreboard-enabled.bru` - API test file
-- `rebuild-scoreboard.ps1` - PowerShell rebuild script
-- `test-scoreboard.ps1` - Quick test script
 

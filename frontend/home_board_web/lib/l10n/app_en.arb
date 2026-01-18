@@ -1571,5 +1571,50 @@
         "type": "String"
       }
     }
+  },
+  
+  "scoreboard": "Scoreboard",
+  "@scoreboard": {
+    "description": "Scoreboard page title"
+  },
+  
+  "scoreboardDisabled": "Scoreboard is disabled",
+  "@scoreboardDisabled": {
+    "description": "Message when scoreboard feature is disabled"
+  },
+  
+  "scoreboardDisabledMessage": "The scoreboard feature is currently disabled. Please contact an admin to enable it in settings.",
+  "@scoreboardDisabledMessage": {
+    "description": "Detailed message when scoreboard is disabled"
+  },
+  
+  "noUsersFound": "No users found",
+  "@noUsersFound": {
+    "description": "Message when no users exist"
+  },
+  
+  "errorLoadingScoreboardData": "Error loading scoreboard data",
+  "@errorLoadingScoreboardData": {
+    "description": "Error message when scoreboard data fails to load"
+  },
+  
+  "errorLoadingScoreboard": "Error loading scoreboard",
+  "@errorLoadingScoreboard": {
+    "description": "General error message for scoreboard"
+  },
+  
+  "noSharedTasks": "No shared tasks",
+  "@noSharedTasks": {
+    "description": "Message when there are no shared tasks for all users"
+  },
+  
+  "allUsersTasks": "All Users Tasks",
+  "@allUsersTasks": {
+    "description": "Title for shared tasks section"
+  },
+  
+  "noPendingTasks": "No pending tasks",
+  "@noPendingTasks": {
+    "description": "Message when user has no pending tasks"
   }
 }
