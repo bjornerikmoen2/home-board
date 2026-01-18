@@ -143,7 +143,8 @@ public class ScoreboardController : ControllerBase
                 Id = user.Id,
                 Name = user.DisplayName,
                 Points = totalPoints,
-                Tasks = tasks
+                Tasks = tasks,
+                ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
             });
         }
 

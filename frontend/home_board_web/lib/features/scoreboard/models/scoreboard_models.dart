@@ -23,6 +23,7 @@ class UserScoreboard with _$UserScoreboard {
     required String name,
     required int points,
     required List<ScoreboardTask> tasks,
+    String? profileImageUrl,
   }) = _UserScoreboard;
 
   factory UserScoreboard.fromJson(Map<String, dynamic> json) =>

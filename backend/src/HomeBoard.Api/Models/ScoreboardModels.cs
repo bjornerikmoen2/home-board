@@ -14,6 +14,7 @@ public record UserScoreboardModel
     public required string Name { get; init; }
     public int Points { get; init; }
     public required List<ScoreboardTaskModel> Tasks { get; init; }
+    public string? ProfileImageUrl { get; init; }
 }
 
 public record ScoreboardTaskModel

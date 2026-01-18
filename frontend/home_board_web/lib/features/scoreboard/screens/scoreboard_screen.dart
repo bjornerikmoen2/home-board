@@ -448,13 +448,18 @@ class _UserScoreboardCard extends StatelessWidget {
                 CircleAvatar(
                   backgroundColor:
                       Theme.of(context).colorScheme.primaryContainer,
-                  child: Text(
-                    user.name.substring(0, 1).toUpperCase(),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  backgroundImage: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
+                      ? NetworkImage(user.profileImageUrl!)
+                      : null,
+                  child: user.profileImageUrl == null || user.profileImageUrl!.isEmpty
+                      ? Text(
+                          user.name.substring(0, 1).toUpperCase(),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
