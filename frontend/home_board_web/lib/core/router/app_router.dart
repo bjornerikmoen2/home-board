@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../features/auth/providers/auth_provider.dart';
@@ -15,27 +16,60 @@ import '../../features/admin/screens/verification_queue_screen.dart';
 import '../../features/admin/screens/settings_screen.dart';
 import '../../features/admin/screens/payout_screen.dart';
 import '../../features/leaderboard/screens/leaderboard_screen.dart';
+import '../../features/scoreboard/screens/scoreboard_screen.dart';
 
 part 'app_router.g.dart';
 
 @riverpod
 GoRouter router(RouterRef ref) {
-  final authNotifier = ref.watch(authNotifierProvider);
+  final authState = ref.watch(authNotifierProvider);
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
-      final isAuthenticated = authNotifier.value != null;
-      final isLoggingIn = state.matchedLocation == '/login';
+      final location = state.uri.path;
+      final isLoggingIn = location == '/login';
+      final isScoreboard = location == '/scoreboard';
+
+      if (kDebugMode) {
+        print('Router redirect: location=$location, isScoreboard=$isScoreboard, isLoggingIn=$isLoggingIn, authLoading=${authState.isLoading}, authValue=${authState.value}');
+      }
+
+      // Allow access to scoreboard without authentication
+      if (isScoreboard) {
+        if (kDebugMode) {
+          print('Router: Allowing access to scoreboard');
+        }
+        return null;
+      }
+
+      // While auth is loading, don't redirect (except for scoreboard which is handled above)
+      if (authState.isLoading) {
+        if (kDebugMode) {
+          print('Router: Auth is loading, not redirecting');
+        }
+        return null;
+      }
+
+      final isAuthenticated = authState.value != null;
 
       if (!isAuthenticated && !isLoggingIn) {
+        if (kDebugMode) {
+          print('Router: Not authenticated and not logging in, redirecting to /login');
+        }
         return '/login';
       }
 
       if (isAuthenticated && isLoggingIn) {
+        if (kDebugMode) {
+          print('Router: Authenticated and on login page, redirecting to /');
+        }
         return '/';
       }
 
+      if (kDebugMode) {
+        print('Router: No redirect needed');
+      }
       return null;
     },
     routes: [
@@ -103,6 +137,11 @@ GoRouter router(RouterRef ref) {
         path: '/leaderboard',
         name: 'leaderboard',
         builder: (context, state) => const LeaderboardScreen(),
+      ),
+      GoRoute(
+        path: '/scoreboard',
+        name: 'scoreboard',
+        builder: (context, state) => const ScoreboardScreen(),
       ),
     ],
   );

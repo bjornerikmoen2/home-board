@@ -18,6 +18,20 @@ public class SettingsController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("scoreboard-enabled")]
+    [AllowAnonymous]
+    public async Task<ActionResult<bool>> GetScoreboardEnabled()
+    {
+        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
+        
+        if (settings == null)
+        {
+            return Ok(false);
+        }
+
+        return Ok(settings.EnableScoreboard);
+    }
+
     [HttpGet]
     public async Task<ActionResult<FamilySettingsResponseModel>> GetFamilySettings()
     {
@@ -34,6 +48,7 @@ public class SettingsController : ControllerBase
             Timezone = settings.Timezone,
             PointToMoneyRate = settings.PointToMoneyRate,
             WeekStartsOn = settings.WeekStartsOn,
+            EnableScoreboard = settings.EnableScoreboard,
             IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
         });
     }
@@ -66,6 +81,11 @@ public class SettingsController : ControllerBase
             settings.WeekStartsOn = request.WeekStartsOn.Value;
         }
 
+        if (request.EnableScoreboard.HasValue)
+        {
+            settings.EnableScoreboard = request.EnableScoreboard.Value;
+        }
+
         if (request.IncludeAdminsInAssignments.HasValue)
         {
             settings.IncludeAdminsInAssignments = request.IncludeAdminsInAssignments.Value;
@@ -79,6 +99,7 @@ public class SettingsController : ControllerBase
             Timezone = settings.Timezone,
             PointToMoneyRate = settings.PointToMoneyRate,
             WeekStartsOn = settings.WeekStartsOn,
+            EnableScoreboard = settings.EnableScoreboard,
             IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
         });
     }

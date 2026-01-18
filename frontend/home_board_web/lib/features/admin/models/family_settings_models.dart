@@ -10,6 +10,7 @@ class FamilySettingsModel with _$FamilySettingsModel {
     required String timezone,
     required double pointToMoneyRate,
     required int weekStartsOn,
+    required bool enableScoreboard,
     required bool includeAdminsInAssignments,
   }) = _FamilySettingsModel;
 
@@ -23,6 +24,7 @@ class UpdateFamilySettingsRequest with _$UpdateFamilySettingsRequest {
     String? timezone,
     double? pointToMoneyRate,
     int? weekStartsOn,
+    bool? enableScoreboard,
     bool? includeAdminsInAssignments,
   }) = _UpdateFamilySettingsRequest;
 
