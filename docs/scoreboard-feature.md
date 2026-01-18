@@ -82,8 +82,9 @@ Create a public scoreboard page that displays all users with their points and pe
   - Shows "Scoreboard is disabled" message when feature is off
   - Displays all users in cards sorted by points
   - Shows user name with avatar (first letter)
-  - Displays total points with star icon
+  - Displays total points with gold coin icon and gold background
   - Lists pending tasks for each user
+  - Task points displayed with gold coin icon
   - Differentiates between personal and "all users" tasks with icons
   - Shows "No pending tasks" message when user has no tasks
   - Handles loading and error states

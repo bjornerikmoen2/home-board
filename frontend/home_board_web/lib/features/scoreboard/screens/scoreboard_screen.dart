@@ -397,23 +397,22 @@ class _AllUsersTaskItem extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: const Color(0xFFFFE770), // Gold color
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.star,
+                  const Icon(
+                    Icons.toll, // Coin icon
                     size: 14,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: Color(0xFF1A1A1A), // Dark color for contrast
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${task.points}',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
+                          color: const Color(0xFF1A1A1A), // Dark text on gold
                           fontWeight: FontWeight.bold,
                         ),
                   ),
@@ -468,25 +467,23 @@ class _UserScoreboardCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
+                    color: const Color(0xFFFFD700), // Gold color
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.stars,
+                      const Icon(
+                        Icons.toll, // Coin icon
                         size: 18,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        color: Color(0xFF1A1A1A), // Dark color for contrast
                       ),
                       const SizedBox(width: 4),
                       Text(
                         '${user.points}',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
+                                  color: const Color(0xFF1A1A1A), // Dark text on gold
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
@@ -568,23 +565,22 @@ class _TaskItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondaryContainer,
+              color: const Color(0xFFFFD700), // Gold color
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.star,
+                const Icon(
+                  Icons.toll, // Coin icon
                   size: 14,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  color: Color(0xFF1A1A1A), // Dark color for contrast
                 ),
                 const SizedBox(width: 4),
                 Text(
                   '${task.points}',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: const Color(0xFF1A1A1A), // Dark text on gold
                         fontWeight: FontWeight.bold,
                       ),
                 ),
