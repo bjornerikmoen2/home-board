@@ -7,11 +7,14 @@ A family chores and rewards management system designed for families with childre
 - 📋 **Task Management** - Create and assign recurring or one-time tasks
 - ✅ **Task Verification** - Parents approve completed tasks before awarding points
 - 🏆 **Leaderboard** - Kids compete for top spots with weekly/monthly rankings
+- 📺 **Scoreboard Display** - Public read-only view perfect for family tablets showing current standings and pending tasks
 - 💰 **Points System** - Track earned points with complete audit history
 - 👥 **Multi-User** - Support for parents (admins) and children (users)
 - 🔒 **Secure** - JWT authentication with role-based authorization
 - 🌙 **Dark Mode** - User-specific theme preference with automatic sync across devices
 - 📱 **Tablet-First** - Optimized for family tablet usage
+- 🎯 **Group Tasks** - Assign tasks to all users at once
+- ⚙️ **Flexible Scheduling** - Daily, weekly, once, during-week, and during-month task types
 
 ## Tech Stack
 
@@ -256,6 +259,45 @@ POST to `/api/tasks/assignments`:
        "pointsAwarded": 10
      }
      ```
+
+### Scoreboard Display
+
+The scoreboard feature provides a public, read-only display perfect for showing on a shared family tablet or screen.
+
+**Key Features:**
+- **Public Access**: No login required - accessible via `/scoreboard` route
+- **Real-Time Updates**: Shows current standings and pending tasks for all family members
+- **Points Leaderboard**: Users ranked by total points earned
+- **Pending Tasks**: Displays today's incomplete tasks for each user
+- **Shared Tasks**: Shows tasks assigned to all users (group tasks)
+- **Theme Sync**: Automatically uses the admin's dark/light mode preference
+- **Language Sync**: Uses admin's preferred language (English/Norwegian)
+- **Profile Images**: Displays user profile pictures when available
+
+**How to Access:**
+1. Navigate to `http://localhost:3001/scoreboard` (or your domain)
+2. View is automatically updated when tasks are completed or points are awarded
+3. No authentication needed - perfect for display on a shared device
+
+**Enabling the Scoreboard:**
+The scoreboard can be enabled/disabled in the Family Settings:
+1. Login as admin
+2. Go to Settings
+3. Toggle "Enable Scoreboard" on/off
+
+**What's Displayed:**
+- **User Cards**: Each family member gets a card showing:
+  - Name and profile picture
+  - Total points earned
+  - Today's pending personal tasks
+- **Shared Tasks Section**: Tasks assigned to all users appear at the top
+- **Task Details**: Each task shows title and point value
+
+**Best Practices:**
+- Mount a tablet in a common area (kitchen, hallway) showing the scoreboard
+- Kids can see what tasks need to be done without logging in
+- Creates friendly competition and motivation
+- Parents can quickly see who's completed their tasks
 
 ## Deployment
 
