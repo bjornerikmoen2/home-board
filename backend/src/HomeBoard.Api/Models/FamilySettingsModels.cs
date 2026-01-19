@@ -6,6 +6,7 @@ public record FamilySettingsResponseModel
     public required string Timezone { get; init; }
     public decimal PointToMoneyRate { get; init; }
     public DayOfWeek WeekStartsOn { get; init; }
+    public bool EnableScoreboard { get; init; }
     public bool IncludeAdminsInAssignments { get; init; }
 }
 
@@ -14,5 +15,6 @@ public record UpdateFamilySettingsRequestModel
     public string? Timezone { get; init; }
     public decimal? PointToMoneyRate { get; init; }
     public DayOfWeek? WeekStartsOn { get; init; }
+    public bool? EnableScoreboard { get; init; }
     public bool? IncludeAdminsInAssignments { get; init; }
 }

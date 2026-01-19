@@ -118,6 +118,14 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildMenuCard(
                   context,
+                  title: 'Scoreboard',
+                  subtitle: 'View the family scoreboard',
+                  icon: Icons.scoreboard,
+                  onTap: () => context.go('/scoreboard'),
+                ),
+                const SizedBox(height: 16),
+                _buildMenuCard(
+                  context,
                   title: context.l10n.calendar,
                   subtitle: context.l10n.calendarSubtitle,
                   icon: Icons.calendar_month,

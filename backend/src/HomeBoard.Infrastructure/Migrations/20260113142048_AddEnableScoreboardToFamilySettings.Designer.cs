@@ -3,6 +3,7 @@ using System;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomeBoard.Infrastructure.Migrations
 {
     [DbContext(typeof(HomeBoardDbContext))]
-    partial class HomeBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113142048_AddEnableScoreboardToFamilySettings")]
+    partial class AddEnableScoreboardToFamilySettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,9 +32,6 @@ namespace HomeBoard.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("EnableScoreboard")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IncludeAdminsInAssignments")
                         .HasColumnType("boolean");
 
                     b.Property<decimal>("PointToMoneyRate")
@@ -205,10 +205,7 @@ namespace HomeBoard.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("AssignedToGroup")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("AssignedToUserId")
+                    b.Property<Guid>("AssignedToUserId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -472,7 +469,8 @@ namespace HomeBoard.Infrastructure.Migrations
                     b.HasOne("HomeBoard.Domain.Entities.User", "AssignedToUser")
                         .WithMany("AssignedTasks")
                         .HasForeignKey("AssignedToUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("HomeBoard.Domain.Entities.TaskDefinition", "TaskDefinition")
                         .WithMany("Assignments")
