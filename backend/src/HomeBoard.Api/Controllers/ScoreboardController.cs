@@ -91,10 +91,16 @@ public class ScoreboardController : ControllerBase
         var userScoreboards = new List<UserScoreboardModel>();
         foreach (var user in users)
         {
-            // Calculate total points for this user
-            var totalPoints = await _context.PointsLedger
+            // Calculate total points for this user (earned points minus payouts)
+            var totalPointsEarned = await _context.PointsLedger
                 .Where(p => p.UserId == user.Id)
                 .SumAsync(p => p.PointsDelta);
+            
+            var totalPointsPaid = await _context.Payouts
+                .Where(p => p.UserId == user.Id)
+                .SumAsync(p => p.NetPoints);
+            
+            var totalPoints = totalPointsEarned - totalPointsPaid;
 
             // Get active assignments for this specific user ONLY (not group assignments)
             var userAssignments = await _context.TaskAssignments
