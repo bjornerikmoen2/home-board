@@ -1,11 +1,8 @@
+using System.Security.Claims;
 using HomeBoard.Api.Models;
-using HomeBoard.Domain.Entities;
-using HomeBoard.Domain.Enums;
-using HomeBoard.Infrastructure.Data;
+using HomeBoard.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace HomeBoard.Api.Controllers;
 
@@ -14,332 +11,143 @@ namespace HomeBoard.Api.Controllers;
 [Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {
-    private readonly HomeBoardDbContext _context;
+    private readonly IUserService _userService;
 
-    public UsersController(HomeBoardDbContext context)
+    public UsersController(IUserService userService)
     {
-        _context = context;
+        _userService = userService;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> GetUsers()
     {
-        var users = await _context.Users
-            .Where(u => u.IsActive)
-            .Select(u => new UserDto
-            {
-                Id = u.Id,
-                Username = u.Username,
-                DisplayName = u.DisplayName,
-                Role = u.Role.ToString(),
-                PreferredLanguage = u.PreferredLanguage,
-                PrefersDarkMode = u.PrefersDarkMode,
-                NoPasswordRequired = u.NoPasswordRequired,
-                ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
-            })
-            .ToListAsync();
-
+        var users = await _userService.GetUsersAsync();
         return Ok(users);
     }
 
     [HttpPost]
     public async Task<ActionResult<UserDto>> CreateUser([FromForm] CreateUserRequest request)
     {
-        // Check if username already exists
-        if (await _context.Users.AnyAsync(u => u.Username == request.Username))
+        try
         {
-            return Conflict(new { message = "Username already exists" });
+            var user = await _userService.CreateUserAsync(request);
+            return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
         }
-
-        // Validate password requirements
-        if (!request.NoPasswordRequired && string.IsNullOrWhiteSpace(request.Password))
+        catch (InvalidOperationException ex)
         {
-            return BadRequest(new { message = "Password is required when 'No Password Required' is not enabled" });
-        }
-
-        byte[]? profileImageData = null;
-        string? contentType = null;
-        
-        if (request.ProfileImage != null)
-        {
-            // Validate image type
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
-            if (!allowedTypes.Contains(request.ProfileImage.ContentType))
+            if (ex.Message.Contains("already exists"))
             {
-                return BadRequest(new { message = "Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed." });
+                return Conflict(new { message = ex.Message });
             }
-            
-            // Validate size (max 5MB)
-            if (request.ProfileImage.Length > 5 * 1024 * 1024)
-            {
-                return BadRequest(new { message = "Image size must be less than 5MB." });
-            }
-            
-            using var memoryStream = new MemoryStream();
-            await request.ProfileImage.CopyToAsync(memoryStream);
-            profileImageData = memoryStream.ToArray();
-            contentType = request.ProfileImage.ContentType;
+            return BadRequest(new { message = ex.Message });
         }
-
-        // For no-password users, use a dummy hash (they won't use it)
-        var passwordHash = request.NoPasswordRequired 
-            ? BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()) 
-            : BCrypt.Net.BCrypt.HashPassword(request.Password!);
-
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            Username = request.Username,
-            DisplayName = request.DisplayName,
-            PasswordHash = passwordHash,
-            Role = request.Role,
-            NoPasswordRequired = request.NoPasswordRequired,
-            PreferredLanguage = request.PreferredLanguage ?? "en",
-            ProfileImage = profileImageData,
-            ProfileImageContentType = contentType,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, new UserDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            DisplayName = user.DisplayName,
-            Role = user.Role.ToString(),
-            PreferredLanguage = user.PreferredLanguage,
-            PrefersDarkMode = user.PrefersDarkMode,
-            NoPasswordRequired = user.NoPasswordRequired,
-            ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
-        });
     }
 
     [HttpPatch("{id}")]
     public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromForm] UpdateUserRequest request)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
+        try
+        {
+            var user = await _userService.UpdateUserAsync(id, request);
+            return Ok(user);
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        if (request.DisplayName != null)
+        catch (InvalidOperationException ex)
         {
-            user.DisplayName = request.DisplayName;
+            return BadRequest(new { message = ex.Message });
         }
-
-        if (request.IsActive.HasValue)
-        {
-            user.IsActive = request.IsActive.Value;
-        }
-
-        if (request.Role.HasValue)
-        {
-            // Prevent changing the last admin's role
-            if (user.Role == Domain.Enums.UserRole.Admin && request.Role.Value != Domain.Enums.UserRole.Admin)
-            {
-                var adminCount = await _context.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Admin && u.IsActive);
-                if (adminCount <= 1)
-                {
-                    return BadRequest(new { message = "Cannot change the last admin's role" });
-                }
-            }
-            user.Role = request.Role.Value;
-        }
-
-        if (request.PreferredLanguage != null)
-        {
-            user.PreferredLanguage = request.PreferredLanguage;
-        }
-
-        if (request.PrefersDarkMode.HasValue)
-        {
-            user.PrefersDarkMode = request.PrefersDarkMode.Value;
-        }
-
-        if (request.NoPasswordRequired.HasValue)
-        {
-            user.NoPasswordRequired = request.NoPasswordRequired.Value;
-        }
-        
-        if (request.RemoveProfileImage == true)
-        {
-            user.ProfileImage = null;
-            user.ProfileImageContentType = null;
-        }
-        else if (request.ProfileImage != null)
-        {
-            // Validate image type
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
-            if (!allowedTypes.Contains(request.ProfileImage.ContentType))
-            {
-                return BadRequest(new { message = "Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed." });
-            }
-            
-            // Validate size (max 5MB)
-            if (request.ProfileImage.Length > 5 * 1024 * 1024)
-            {
-                return BadRequest(new { message = "Image size must be less than 5MB." });
-            }
-            
-            using var memoryStream = new MemoryStream();
-            await request.ProfileImage.CopyToAsync(memoryStream);
-            user.ProfileImage = memoryStream.ToArray();
-            user.ProfileImageContentType = request.ProfileImage.ContentType;
-        }
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new UserDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            DisplayName = user.DisplayName,
-            Role = user.Role.ToString(),
-            PreferredLanguage = user.PreferredLanguage,
-            PrefersDarkMode = user.PrefersDarkMode,
-            NoPasswordRequired = user.NoPasswordRequired,
-            ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
-        });
     }
 
     [HttpPost("{id}/reset-password")]
     public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequest request)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
+        try
+        {
+            await _userService.ResetPasswordAsync(id, request.NewPassword);
+            return Ok(new { message = "Password reset successfully" });
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Password reset successfully" });
     }
 
     [HttpPost("{id}/reset-points")]
     public async Task<IActionResult> ResetPoints(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        // Get current user ID (the admin performing the reset)
         var adminUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(adminUserId))
         {
             return Unauthorized();
         }
 
-        // Get the user's current total points
-        var currentPoints = await _context.PointsLedger
-            .Where(p => p.UserId == id)
-            .SumAsync(p => p.PointsDelta);
-
-        // If user has points, create an adjustment entry to zero them out
-        if (currentPoints != 0)
+        try
         {
-            var adjustmentEntry = new PointsLedger
-            {
-                Id = Guid.NewGuid(),
-                UserId = id,
-                SourceType = PointSourceType.Adjustment,
-                SourceId = null,
-                PointsDelta = -currentPoints,
-                Note = "Points reset by admin",
-                CreatedByUserId = Guid.Parse(adminUserId),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.PointsLedger.Add(adjustmentEntry);
-            await _context.SaveChangesAsync();
+            var pointsReset = await _userService.ResetPointsAsync(id, Guid.Parse(adminUserId));
+            return Ok(new { message = "Points reset successfully", pointsReset });
         }
-
-        return Ok(new { message = "Points reset successfully", pointsReset = currentPoints });
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost("{id}/bonus-points")]
     public async Task<IActionResult> AwardBonusPoints(Guid id, [FromBody] BonusPointsRequest request)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        if (request.Points <= 0)
-        {
-            return BadRequest(new { message = "Points must be greater than zero" });
-        }
-
-        // Get current user ID (the admin awarding the bonus)
         var adminUserId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(adminUserId))
         {
             return Unauthorized();
         }
 
-        // Create a bonus points entry
-        var bonusEntry = new PointsLedger
+        try
         {
-            Id = Guid.NewGuid(),
-            UserId = id,
-            SourceType = PointSourceType.Bonus,
-            SourceId = null,
-            PointsDelta = request.Points,
-            Note = string.IsNullOrWhiteSpace(request.Description) ? "Bonus" : request.Description,
-            CreatedByUserId = Guid.Parse(adminUserId),
-            CreatedAt = DateTime.UtcNow
-        };
-
-        _context.PointsLedger.Add(bonusEntry);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Bonus points awarded successfully", pointsAwarded = request.Points });
+            var pointsAwarded = await _userService.AwardBonusPointsAsync(id, request.Points, request.Description, Guid.Parse(adminUserId));
+            return Ok(new { message = "Bonus points awarded successfully", pointsAwarded });
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpGet("{id}/profile-image")]
     [AllowAnonymous]
     public async Task<IActionResult> GetProfileImage(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null || user.ProfileImage == null)
+        var profileImage = await _userService.GetProfileImageAsync(id);
+        if (profileImage == null)
         {
             return NotFound();
         }
 
-        return File(user.ProfileImage, user.ProfileImageContentType ?? "image/jpeg");
+        var contentType = await _userService.GetProfileImageContentTypeAsync(id);
+        return File(profileImage, contentType ?? "image/jpeg");
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
-        if (user == null)
+        try
+        {
+            await _userService.DeleteUserAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        // Prevent deleting the last admin
-        if (user.Role == Domain.Enums.UserRole.Admin)
+        catch (InvalidOperationException ex)
         {
-            var adminCount = await _context.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Admin && u.IsActive);
-            if (adminCount <= 1)
-            {
-                return BadRequest(new { message = "Cannot delete the last admin user" });
-            }
+            return BadRequest(new { message = ex.Message });
         }
-
-        // Soft delete - just mark as inactive
-        user.IsActive = false;
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 }

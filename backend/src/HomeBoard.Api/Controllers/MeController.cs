@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using HomeBoard.Api.Models;
-using HomeBoard.Domain.Enums;
+using HomeBoard.Api.Services;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,153 +14,28 @@ namespace HomeBoard.Api.Controllers;
 public class MeController : ControllerBase
 {
     private readonly HomeBoardDbContext _context;
+    private readonly ITaskService _taskService;
 
-    public MeController(HomeBoardDbContext context)
+    public MeController(HomeBoardDbContext context, ITaskService taskService)
     {
         _context = context;
+        _taskService = taskService;
     }
 
     [HttpGet("today")]
     public async Task<ActionResult<List<TodayTaskDto>>> GetTodayTasks()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
-
-        // Get current user to check their role
-        var currentUser = await _context.Users.FindAsync(userId);
-        if (currentUser == null)
+        
+        try
+        {
+            var tasks = await _taskService.GetTodayTasksAsync(userId);
+            return Ok(tasks);
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        // Get family settings for week start configuration and timezone
-        var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
-        var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
-        var timezone = familySettings?.Timezone ?? "UTC";
-        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-        var currentTimeInZone = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
-        var currentTime = TimeOnly.FromDateTime(currentTimeInZone);
-
-        // Get active assignments for this user or their role group
-        var assignments = await _context.TaskAssignments
-            .Include(a => a.TaskDefinition)
-            .Where(a => (a.AssignedToUserId == userId || a.AssignedToGroup == (int)currentUser.Role) && a.IsActive)
-            .Where(a => a.StartDate == null || a.StartDate <= today)
-            .Where(a => a.EndDate == null || a.EndDate >= today)
-            .ToListAsync();
-
-        // Get the start of week and month for "During" schedule types
-        var weekStart = GetStartOfWeek(today, weekStartsOn);
-        var weekEnd = weekStart.AddDays(6);
-        var monthStart = new DateOnly(today.Year, today.Month, 1);
-        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-
-        // Get completions for this week and month (for "During" schedule types)
-        var assignmentIds = assignments.Select(a => a.Id).ToList();
-        var completionsThisWeek = await _context.TaskCompletions
-            .Include(c => c.CompletedByUser)
-            .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && 
-                       c.Date >= weekStart && c.Date <= weekEnd)
-            .ToListAsync();
-        
-        var completionsThisMonth = await _context.TaskCompletions
-            .Include(c => c.CompletedByUser)
-            .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && 
-                       c.Date >= monthStart && c.Date <= monthEnd)
-            .ToListAsync();
-
-        // Get completions for today
-        var todayCompletions = await _context.TaskCompletions
-            .Include(c => c.CompletedByUser)
-            .Where(c => assignmentIds.Contains(c.TaskAssignmentId) && c.Date == today)
-            .ToDictionaryAsync(c => c.TaskAssignmentId, c => c);
-
-        // Filter by schedule and build result
-        var result = new List<TodayTaskDto>();
-        foreach (var a in assignments)
-        {
-            bool shouldShow = false;
-            
-            switch (a.ScheduleType)
-            {
-                case Domain.Enums.ScheduleType.Daily:
-                    shouldShow = true;
-                    break;
-                    
-                case Domain.Enums.ScheduleType.Weekly:
-                    shouldShow = (a.DaysOfWeek & currentDayOfWeek) != 0;
-                    break;
-                    
-                case Domain.Enums.ScheduleType.Once:
-                    shouldShow = a.StartDate == today;
-                    break;
-                    
-                case Domain.Enums.ScheduleType.DuringWeek:
-                    // Show if not completed this week, OR completed today
-                    var weekCompletion = completionsThisWeek.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
-                    if (weekCompletion == null)
-                    {
-                        shouldShow = true;
-                    }
-                    else if (weekCompletion.Date == today)
-                    {
-                        shouldShow = true; // Show on completion day
-                    }
-                    break;
-                    
-                case Domain.Enums.ScheduleType.DuringMonth:
-                    // Show if not completed this month, OR completed today
-                    var monthCompletion = completionsThisMonth.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
-                    if (monthCompletion == null)
-                    {
-                        shouldShow = true;
-                    }
-                    else if (monthCompletion.Date == today)
-                    {
-                        shouldShow = true; // Show on completion day
-                    }
-                    break;
-            }
-            
-            if (shouldShow)
-            {
-                // Filter out tasks where the due time has passed
-                if (a.DueTime.HasValue && currentTime > a.DueTime.Value)
-                {
-                    continue;
-                }
-                
-                var completion = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id] : null;
-                
-                result.Add(new TodayTaskDto
-                {
-                    AssignmentId = a.Id,
-                    Title = a.TaskDefinition!.Title,
-                    Description = a.TaskDefinition.Description,
-                    Points = a.TaskDefinition.DefaultPoints,
-                    DueTime = a.DueTime,
-                    IsCompleted = completion != null,
-                    CompletionId = completion?.Id,
-                    Status = completion?.Status,
-                    CompletedByName = completion != null && a.AssignedToGroup.HasValue 
-                        ? completion.CompletedByUser?.DisplayName 
-                        : null
-                });
-            }
-        }
-
-        return Ok(result);
-    }
-
-    private static DateOnly GetStartOfWeek(DateOnly date, DayOfWeek weekStartsOn)
-    {
-        var currentDayOfWeek = (int)date.DayOfWeek;
-        var targetStartDay = (int)weekStartsOn;
-        
-        // Calculate days to subtract to get to the start of the week
-        var daysToSubtract = (currentDayOfWeek - targetStartDay + 7) % 7;
-        return date.AddDays(-daysToSubtract);
     }
 
     [HttpPatch("language")]

@@ -1,8 +1,7 @@
 using HomeBoard.Api.Models;
-using HomeBoard.Infrastructure.Data;
+using HomeBoard.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HomeBoard.Api.Controllers;
 
@@ -11,46 +10,33 @@ namespace HomeBoard.Api.Controllers;
 [Authorize]
 public class SettingsController : ControllerBase
 {
-    private readonly HomeBoardDbContext _context;
+    private readonly ISettingsService _settingsService;
 
-    public SettingsController(HomeBoardDbContext context)
+    public SettingsController(ISettingsService settingsService)
     {
-        _context = context;
+        _settingsService = settingsService;
     }
 
     [HttpGet("scoreboard-enabled")]
     [AllowAnonymous]
     public async Task<ActionResult<bool>> GetScoreboardEnabled()
     {
-        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
-        
-        if (settings == null)
-        {
-            return Ok(false);
-        }
-
-        return Ok(settings.EnableScoreboard);
+        var enabled = await _settingsService.GetScoreboardEnabledAsync();
+        return Ok(enabled);
     }
 
     [HttpGet]
     public async Task<ActionResult<FamilySettingsResponseModel>> GetFamilySettings()
     {
-        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
-        
-        if (settings == null)
+        try
         {
-            return NotFound(new { message = "Family settings not found" });
+            var settings = await _settingsService.GetFamilySettingsAsync();
+            return Ok(settings);
         }
-
-        return Ok(new FamilySettingsResponseModel
+        catch (KeyNotFoundException ex)
         {
-            Id = settings.Id,
-            Timezone = settings.Timezone,
-            PointToMoneyRate = settings.PointToMoneyRate,
-            WeekStartsOn = settings.WeekStartsOn,
-            EnableScoreboard = settings.EnableScoreboard,
-            IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
-        });
+            return NotFound(new { message = ex.Message });
+        }
     }
 
     [HttpPatch]
@@ -58,49 +44,14 @@ public class SettingsController : ControllerBase
     public async Task<ActionResult<FamilySettingsResponseModel>> UpdateFamilySettings(
         [FromBody] UpdateFamilySettingsRequestModel request)
     {
-        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
-        
-        if (settings == null)
+        try
         {
-            return NotFound(new { message = "Family settings not found" });
+            var settings = await _settingsService.UpdateFamilySettingsAsync(request);
+            return Ok(settings);
         }
-
-        // Update only provided fields
-        if (request.Timezone != null)
+        catch (KeyNotFoundException ex)
         {
-            settings.Timezone = request.Timezone;
+            return NotFound(new { message = ex.Message });
         }
-
-        if (request.PointToMoneyRate.HasValue)
-        {
-            settings.PointToMoneyRate = request.PointToMoneyRate.Value;
-        }
-
-        if (request.WeekStartsOn.HasValue)
-        {
-            settings.WeekStartsOn = request.WeekStartsOn.Value;
-        }
-
-        if (request.EnableScoreboard.HasValue)
-        {
-            settings.EnableScoreboard = request.EnableScoreboard.Value;
-        }
-
-        if (request.IncludeAdminsInAssignments.HasValue)
-        {
-            settings.IncludeAdminsInAssignments = request.IncludeAdminsInAssignments.Value;
-        }
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new FamilySettingsResponseModel
-        {
-            Id = settings.Id,
-            Timezone = settings.Timezone,
-            PointToMoneyRate = settings.PointToMoneyRate,
-            WeekStartsOn = settings.WeekStartsOn,
-            EnableScoreboard = settings.EnableScoreboard,
-            IncludeAdminsInAssignments = settings.IncludeAdminsInAssignments
-        });
     }
 }
