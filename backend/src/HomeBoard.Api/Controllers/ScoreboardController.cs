@@ -33,8 +33,12 @@ public class ScoreboardController : ControllerBase
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
 
-        // Get family settings for week start
+        // Get family settings for week start and timezone
         var weekStartsOn = settings.WeekStartsOn;
+        var timezone = settings.Timezone;
+        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+        var currentTimeInZone = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
+        var currentTime = TimeOnly.FromDateTime(currentTimeInZone);
         var weekStart = GetStartOfWeek(today, weekStartsOn);
         var weekEnd = weekStart.AddDays(6);
         var monthStart = new DateOnly(today.Year, today.Month, 1);
@@ -74,6 +78,12 @@ public class ScoreboardController : ControllerBase
         var allUsersTasks = new List<ScoreboardTaskModel>();
         foreach (var assignment in allUsersAssignments)
         {
+            // Filter out tasks where the due time has passed
+            if (assignment.DueTime.HasValue && currentTime > assignment.DueTime.Value)
+            {
+                continue;
+            }
+            
             if (ShouldShowTask(assignment, today, currentDayOfWeek, allUsersCompletionsThisWeek, allUsersCompletionsThisMonth) 
                 && !allUsersTodayCompletions.Contains(assignment.Id))
             {
@@ -131,6 +141,12 @@ public class ScoreboardController : ControllerBase
             var tasks = new List<ScoreboardTaskModel>();
             foreach (var assignment in userAssignments)
             {
+                // Filter out tasks where the due time has passed
+                if (assignment.DueTime.HasValue && currentTime > assignment.DueTime.Value)
+                {
+                    continue;
+                }
+                
                 if (ShouldShowTask(assignment, today, currentDayOfWeek, completionsThisWeek, completionsThisMonth)
                     && !todayCompletions.Contains(assignment.Id))
                 {

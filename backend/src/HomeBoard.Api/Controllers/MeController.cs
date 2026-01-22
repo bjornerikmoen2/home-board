@@ -34,9 +34,13 @@ public class MeController : ControllerBase
             return NotFound();
         }
 
-        // Get family settings for week start configuration
+        // Get family settings for week start configuration and timezone
         var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
         var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
+        var timezone = familySettings?.Timezone ?? "UTC";
+        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+        var currentTimeInZone = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
+        var currentTime = TimeOnly.FromDateTime(currentTimeInZone);
 
         // Get active assignments for this user or their role group
         var assignments = await _context.TaskAssignments
@@ -121,6 +125,12 @@ public class MeController : ControllerBase
             
             if (shouldShow)
             {
+                // Filter out tasks where the due time has passed
+                if (a.DueTime.HasValue && currentTime > a.DueTime.Value)
+                {
+                    continue;
+                }
+                
                 var completion = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id] : null;
                 
                 result.Add(new TodayTaskDto
