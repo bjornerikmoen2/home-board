@@ -90,15 +90,16 @@ public class AnalyticsService : IAnalyticsService
             .ToListAsync();
 
         // Get totals
-        var totalEarned = await _context.PointsLedger
-            .Where(p => p.PointsDelta > 0)
+        var totalPointsEarned = await _context.PointsLedger
             .SumAsync(p => p.PointsDelta);
 
-        var totalPaidOut = await _context.Payouts
+        var totalPointsPaidOut = await _context.Payouts
+            .SumAsync(p => (int?)p.NetPoints) ?? 0;
+
+        var totalMoneyPaidOut = await _context.Payouts
             .SumAsync(p => (decimal?)p.MoneyPaid) ?? 0m;
 
-        var currentBalance = await _context.PointsLedger
-            .SumAsync(p => p.PointsDelta);
+        var currentBalance = totalPointsEarned - totalPointsPaidOut;
 
         return new AnalyticsResponseModel
         {
@@ -107,8 +108,8 @@ public class AnalyticsService : IAnalyticsService
             {
                 PointsEarned = pointsEarned,
                 MoneyPaidOut = moneyPaidOut,
-                TotalEarned = totalEarned,
-                TotalPaidOut = totalPaidOut,
+                TotalEarned = totalPointsEarned,
+                TotalPaidOut = totalMoneyPaidOut,
                 CurrentBalance = currentBalance
             }
         };
