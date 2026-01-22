@@ -132,14 +132,41 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                   );
                 });
 
-                // Three-column grid layout
+                // Responsive layout - vertical on mobile, horizontal on tablet/desktop
                 return LayoutBuilder(
                   builder: (context, constraints) {
-                    // Calculate column width (each column is 1/3 of available width)
-                    final columnWidth =
-                        (constraints.maxWidth - 32) / 3; // 32px for gaps
+                    // Use vertical layout on mobile (width < 768px), horizontal on tablet/desktop
+                    final isMobile = constraints.maxWidth < 768;
 
-                    // Split users into two columns
+                    if (isMobile) {
+                      // Mobile: Vertical layout
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // All users
+                            ...scoreboard.users.map((user) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _UserScoreboardCard(user: user),
+                            )),
+                            
+                            // All Users Tasks section
+                            if (scoreboard.allUsersTasks.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              ...scoreboard.allUsersTasks.map((task) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: _AllUsersTaskItem(task: task),
+                              )),
+                            ] else ...[
+                              const SizedBox(height: 8),
+                              _EmptyColumn(message: l10n.noSharedTasks),
+                            ],
+                          ],
+                        ),
+                      );
+                    }
+
+                    // Tablet/Desktop: Three-column horizontal layout
                     final midPoint = (scoreboard.users.length / 2).ceil();
                     final firstColumnUsers =
                         scoreboard.users.take(midPoint).toList();
