@@ -20,8 +20,6 @@ public interface ITaskService
     Task<Guid> CompleteTaskAsync(Guid assignmentId, Guid userId, CompleteTaskRequest? request);
     Task<List<CalendarTaskDto>> GetCalendarTasksAsync(DateOnly startDate, DateOnly endDate, Guid userId, bool isAdmin);
     Task<List<TodayTaskDto>> GetTodayTasksAsync(Guid userId);
-    bool ShouldShowTask(TaskAssignment assignment, DateOnly today, DayOfWeekFlag currentDayOfWeek, 
-        List<TaskCompletion> completionsThisWeek, List<TaskCompletion> completionsThisMonth);
 }
 
 public class TaskService : ITaskService
@@ -552,57 +550,17 @@ public class TaskService : ITaskService
         var result = new List<TodayTaskDto>();
         foreach (var a in assignments)
         {
-            bool shouldShow = false;
-            
-            switch (a.ScheduleType)
-            {
-                case ScheduleType.Daily:
-                    shouldShow = true;
-                    break;
-                    
-                case ScheduleType.Weekly:
-                    shouldShow = (a.DaysOfWeek & currentDayOfWeek) != 0;
-                    break;
-                    
-                case ScheduleType.Once:
-                    shouldShow = a.StartDate == today;
-                    break;
-                    
-                case ScheduleType.DuringWeek:
-                    // Show if not completed this week, OR completed today
-                    var weekCompletion = completionsThisWeek.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
-                    if (weekCompletion == null)
-                    {
-                        shouldShow = true;
-                    }
-                    else if (weekCompletion.Date == today)
-                    {
-                        shouldShow = true; // Show on completion day
-                    }
-                    break;
-                    
-                case ScheduleType.DuringMonth:
-                    // Show if not completed this month, OR completed today
-                    var monthCompletion = completionsThisMonth.FirstOrDefault(c => c.TaskAssignmentId == a.Id);
-                    if (monthCompletion == null)
-                    {
-                        shouldShow = true;
-                    }
-                    else if (monthCompletion.Date == today)
-                    {
-                        shouldShow = true; // Show on completion day
-                    }
-                    break;
-            }
+            bool shouldShow = TaskScheduleHelper.ShouldShowTask(
+                a, 
+                today,
+                currentTime,
+                currentDayOfWeek, 
+                completionsThisWeek, 
+                completionsThisMonth, 
+                showCompletedTasks: true);
             
             if (shouldShow)
             {
-                // Filter out tasks where the due time has passed
-                if (a.DueTime.HasValue && currentTime > a.DueTime.Value)
-                {
-                    continue;
-                }
-                
                 var completion = todayCompletions.ContainsKey(a.Id) ? todayCompletions[a.Id] : null;
                 
                 result.Add(new TodayTaskDto
@@ -625,21 +583,4 @@ public class TaskService : ITaskService
         return result;
     }
 
-    public bool ShouldShowTask(
-        TaskAssignment assignment, 
-        DateOnly today, 
-        DayOfWeekFlag currentDayOfWeek,
-        List<TaskCompletion> completionsThisWeek,
-        List<TaskCompletion> completionsThisMonth)
-    {
-        return assignment.ScheduleType switch
-        {
-            ScheduleType.Daily => true,
-            ScheduleType.Weekly => (assignment.DaysOfWeek & currentDayOfWeek) != 0,
-            ScheduleType.Once => assignment.StartDate == today,
-            ScheduleType.DuringWeek => !completionsThisWeek.Any(c => c.TaskAssignmentId == assignment.Id),
-            ScheduleType.DuringMonth => !completionsThisMonth.Any(c => c.TaskAssignmentId == assignment.Id),
-            _ => false
-        };
-    }
 }

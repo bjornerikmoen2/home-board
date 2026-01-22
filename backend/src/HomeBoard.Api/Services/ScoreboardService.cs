@@ -78,13 +78,7 @@ public class ScoreboardService : IScoreboardService
         var allUsersTasks = new List<ScoreboardTaskModel>();
         foreach (var assignment in allUsersAssignments)
         {
-            // Filter out tasks where the due time has passed
-            if (assignment.DueTime.HasValue && currentTime > assignment.DueTime.Value)
-            {
-                continue;
-            }
-            
-            if (ShouldShowTask(assignment, today, currentDayOfWeek, allUsersCompletionsThisWeek, allUsersCompletionsThisMonth) 
+            if (TaskScheduleHelper.ShouldShowTask(assignment, today, currentTime, currentDayOfWeek, allUsersCompletionsThisWeek, allUsersCompletionsThisMonth, showCompletedTasks: false) 
                 && !allUsersTodayCompletions.Contains(assignment.Id))
             {
                 allUsersTasks.Add(new ScoreboardTaskModel
@@ -141,13 +135,7 @@ public class ScoreboardService : IScoreboardService
             var tasks = new List<ScoreboardTaskModel>();
             foreach (var assignment in userAssignments)
             {
-                // Filter out tasks where the due time has passed
-                if (assignment.DueTime.HasValue && currentTime > assignment.DueTime.Value)
-                {
-                    continue;
-                }
-                
-                if (ShouldShowTask(assignment, today, currentDayOfWeek, completionsThisWeek, completionsThisMonth)
+                if (TaskScheduleHelper.ShouldShowTask(assignment, today, currentTime, currentDayOfWeek, completionsThisWeek, completionsThisMonth, showCompletedTasks: false)
                     && !todayCompletions.Contains(assignment.Id))
                 {
                     tasks.Add(new ScoreboardTaskModel
@@ -185,24 +173,6 @@ public class ScoreboardService : IScoreboardService
             AllUsersTasks = allUsersTasks,
             AdminPrefersDarkMode = adminPrefersDarkMode,
             AdminPreferredLanguage = adminPreferredLanguage
-        };
-    }
-
-    private static bool ShouldShowTask(
-        TaskAssignment assignment, 
-        DateOnly today, 
-        DayOfWeekFlag currentDayOfWeek,
-        List<TaskCompletion> completionsThisWeek,
-        List<TaskCompletion> completionsThisMonth)
-    {
-        return assignment.ScheduleType switch
-        {
-            ScheduleType.Daily => true,
-            ScheduleType.Weekly => (assignment.DaysOfWeek & currentDayOfWeek) != 0,
-            ScheduleType.Once => assignment.StartDate == today,
-            ScheduleType.DuringWeek => !completionsThisWeek.Any(c => c.TaskAssignmentId == assignment.Id),
-            ScheduleType.DuringMonth => !completionsThisMonth.Any(c => c.TaskAssignmentId == assignment.Id),
-            _ => false
         };
     }
 }
