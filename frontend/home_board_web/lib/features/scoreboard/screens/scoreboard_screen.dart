@@ -8,11 +8,31 @@ import '../../../core/theme/theme_provider.dart';
 import '../../../core/l10n/locale_provider.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-class ScoreboardScreen extends ConsumerWidget {
+class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScoreboardScreen> createState() => _ScoreboardScreenState();
+}
+
+class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
+  DateTime? _lastRefreshTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastRefreshTime = DateTime.now();
+  }
+
+  void _refreshScoreboard() {
+    setState(() {
+      _lastRefreshTime = DateTime.now();
+    });
+    ref.read(autoRefreshProvider.notifier).manualRefresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Debug: This screen is being rendered
     if (kDebugMode) {
       print('ScoreboardScreen is being built');
@@ -28,6 +48,13 @@ class ScoreboardScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: _refreshScoreboard,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -53,8 +80,7 @@ class ScoreboardScreen extends ConsumerWidget {
                     Text(
                       l10n.scoreboardDisabledMessage,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       textAlign: TextAlign.center,
                     ),
@@ -306,56 +332,6 @@ class _EmptyColumn extends StatelessWidget {
                 ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _AllUsersTasksSection extends StatelessWidget {
-  final List<ScoreboardTask> tasks;
-
-  const _AllUsersTasksSection({required this.tasks});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return Card(
-      elevation: 3,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.group,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.allUsersTasks,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ...tasks.map((task) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _AllUsersTaskItem(task: task),
-                )),
-          ],
-        ),
       ),
     );
   }
