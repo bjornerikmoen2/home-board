@@ -257,53 +257,12 @@ class _AllUsersTasksColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Header
-        Card(
-          elevation: 2,
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.group,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.allUsersTasks,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Tasks list
-        Expanded(
-          child: ListView.separated(
-            itemCount: tasks.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              return _AllUsersTaskItem(task: tasks[index]);
-            },
-          ),
-        ),
-      ],
+    return ListView.separated(
+      itemCount: tasks.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        return _AllUsersTaskItem(task: tasks[index]);
+      },
     );
   }
 }
