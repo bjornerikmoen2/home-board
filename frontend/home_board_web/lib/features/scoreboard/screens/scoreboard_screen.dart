@@ -307,52 +307,29 @@ class _AllUsersTaskItem extends StatelessWidget {
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.task_alt,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    task.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ],
+            Icon(
+              Icons.error_outline,
+              size: 20,
+              color: Colors.red,
             ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFE770), // Gold color
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                task.title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.toll, // Coin icon
-                    size: 14,
-                    color: Color(0xFF1A1A1A), // Dark color for contrast
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${task.points}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFFFFD700), // Yellow/gold color
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${task.points}',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: const Color(0xFF1A1A1A), // Dark text on gold
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -403,32 +380,12 @@ class _UserScoreboardCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD700), // Gold color
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.toll, // Coin icon
-                        size: 18,
-                        color: Color(0xFF1A1A1A), // Dark color for contrast
+                Text(
+                  '${user.points}',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: const Color(0xFFFFD700), // Yellow/gold color
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${user.points}',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: const Color(0xFF1A1A1A), // Dark text on gold
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -447,7 +404,7 @@ class _UserScoreboardCard extends StatelessWidget {
                   Icon(
                     Icons.check_circle_outline,
                     size: 20,
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Colors.green,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -479,9 +436,9 @@ class _TaskItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            Icons.person,
+            Icons.error_outline,
             size: 20,
-            color: Theme.of(context).colorScheme.primary,
+            color: Colors.red,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -491,30 +448,12 @@ class _TaskItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFD700), // Gold color
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.toll, // Coin icon
-                  size: 14,
-                  color: Color(0xFF1A1A1A), // Dark color for contrast
+          Text(
+            '${task.points}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFD700), // Yellow/gold color
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '${task.points}',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: const Color(0xFF1A1A1A), // Dark text on gold
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
