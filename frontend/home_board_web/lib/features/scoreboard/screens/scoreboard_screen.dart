@@ -8,11 +8,31 @@ import '../../../core/theme/theme_provider.dart';
 import '../../../core/l10n/locale_provider.dart';
 import '../../../l10n/gen/app_localizations.dart';
 
-class ScoreboardScreen extends ConsumerWidget {
+class ScoreboardScreen extends ConsumerStatefulWidget {
   const ScoreboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScoreboardScreen> createState() => _ScoreboardScreenState();
+}
+
+class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
+  DateTime? _lastRefreshTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastRefreshTime = DateTime.now();
+  }
+
+  void _refreshScoreboard() {
+    setState(() {
+      _lastRefreshTime = DateTime.now();
+    });
+    ref.read(autoRefreshProvider.notifier).manualRefresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Debug: This screen is being rendered
     if (kDebugMode) {
       print('ScoreboardScreen is being built');
@@ -28,6 +48,13 @@ class ScoreboardScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: _refreshScoreboard,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -53,8 +80,7 @@ class ScoreboardScreen extends ConsumerWidget {
                     Text(
                       l10n.scoreboardDisabledMessage,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       textAlign: TextAlign.center,
                     ),
@@ -231,53 +257,12 @@ class _AllUsersTasksColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Header
-        Card(
-          elevation: 2,
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.group,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.allUsersTasks,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Tasks list
-        Expanded(
-          child: ListView.separated(
-            itemCount: tasks.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              return _AllUsersTaskItem(task: tasks[index]);
-            },
-          ),
-        ),
-      ],
+    return ListView.separated(
+      itemCount: tasks.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        return _AllUsersTaskItem(task: tasks[index]);
+      },
     );
   }
 }
@@ -311,56 +296,6 @@ class _EmptyColumn extends StatelessWidget {
   }
 }
 
-class _AllUsersTasksSection extends StatelessWidget {
-  final List<ScoreboardTask> tasks;
-
-  const _AllUsersTasksSection({required this.tasks});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
-    return Card(
-      elevation: 3,
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.group,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    l10n.allUsersTasks,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ...tasks.map((task) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _AllUsersTaskItem(task: task),
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _AllUsersTaskItem extends StatelessWidget {
   final ScoreboardTask task;
 
@@ -372,52 +307,29 @@ class _AllUsersTaskItem extends StatelessWidget {
       elevation: 1,
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.task_alt,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    task.title,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ],
+            Icon(
+              Icons.error_outline,
+              size: 20,
+              color: Colors.red,
             ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFE770), // Gold color
-                borderRadius: BorderRadius.circular(12),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                task.title,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.toll, // Coin icon
-                    size: 14,
-                    color: Color(0xFF1A1A1A), // Dark color for contrast
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${task.points}',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFFFFD700), // Yellow/gold color
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${task.points}',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: const Color(0xFF1A1A1A), // Dark text on gold
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -468,32 +380,12 @@ class _UserScoreboardCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD700), // Gold color
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.toll, // Coin icon
-                        size: 18,
-                        color: Color(0xFF1A1A1A), // Dark color for contrast
+                Text(
+                  '${user.points}',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: const Color(0xFFFFD700), // Yellow/gold color
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${user.points}',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: const Color(0xFF1A1A1A), // Dark text on gold
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -502,7 +394,7 @@ class _UserScoreboardCard extends StatelessWidget {
             if (user.tasks.isNotEmpty) ...[
               const SizedBox(height: 16),
               ...user.tasks.map((task) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(bottom: 4),
                     child: _TaskItem(task: task),
                   )),
             ] else ...[
@@ -512,7 +404,7 @@ class _UserScoreboardCard extends StatelessWidget {
                   Icon(
                     Icons.check_circle_outline,
                     size: 20,
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Colors.green,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -539,25 +431,14 @@ class _TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
-            .withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
           Icon(
-            Icons.person,
+            Icons.error_outline,
             size: 20,
-            color: Theme.of(context).colorScheme.primary,
+            color: Colors.red,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -567,30 +448,12 @@ class _TaskItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFD700), // Gold color
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.toll, // Coin icon
-                  size: 14,
-                  color: Color(0xFF1A1A1A), // Dark color for contrast
+          Text(
+            '${task.points}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFFFD700), // Yellow/gold color
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '${task.points}',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: const Color(0xFF1A1A1A), // Dark text on gold
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
