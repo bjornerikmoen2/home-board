@@ -1,8 +1,6 @@
 using HomeBoard.Api.Models;
 using HomeBoard.Api.Services;
-using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HomeBoard.Api.Controllers;
 
@@ -10,54 +8,27 @@ namespace HomeBoard.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly HomeBoardDbContext _context;
+    private readonly IAuthService _authService;
     private readonly ITokenService _tokenService;
 
-    public AuthController(HomeBoardDbContext context, ITokenService tokenService)
+    public AuthController(IAuthService authService, ITokenService tokenService)
     {
-        _context = context;
+        _authService = authService;
         _tokenService = tokenService;
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username && u.IsActive);
+        var (user, isValid) = await _authService.ValidateUserCredentialsAsync(request.Username, request.Password!);
 
-        if (user == null)
+        if (!isValid)
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
 
-        // For users with no password required, allow login with empty password
-        if (user.NoPasswordRequired)
-        {
-            if (string.IsNullOrEmpty(request.Password))
-            {
-                // Allow passwordless login
-            }
-            else
-            {
-                // If password provided, still verify it
-                if (!BCrypt.Net.BCrypt.Verify(request.Password!, user.PasswordHash))
-                {
-                    return Unauthorized(new { message = "Invalid username or password" });
-                }
-            }
-        }
-        else
-        {
-            // Verify password using BCrypt
-            if (!BCrypt.Net.BCrypt.Verify(request.Password!, user.PasswordHash))
-            {
-                return Unauthorized(new { message = "Invalid username or password" });
-            }
-        }
-
         // Update last login
-        user.LastLoginAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        await _authService.UpdateLastLoginAsync(user.Id);
 
         var accessToken = _tokenService.GenerateAccessToken(user);
         var refreshToken = _tokenService.GenerateRefreshToken();
@@ -97,17 +68,7 @@ public class AuthController : ControllerBase
     [HttpGet("no-password-users")]
     public async Task<ActionResult<List<NoPasswordUserDto>>> GetNoPasswordUsers()
     {
-        var users = await _context.Users
-            .Where(u => u.IsActive && u.NoPasswordRequired)
-            .Select(u => new NoPasswordUserDto
-            {
-                Id = u.Id,
-                Username = u.Username,
-                DisplayName = u.DisplayName,
-                ProfileImageUrl = u.ProfileImage != null ? $"/api/users/{u.Id}/profile-image" : null
-            })
-            .ToListAsync();
-
+        var users = await _authService.GetNoPasswordUsersAsync();
         return Ok(users);
     }
 }
