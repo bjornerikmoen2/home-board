@@ -9,7 +9,6 @@ namespace HomeBoard.Api.Services;
 public interface ITokenService
 {
     string GenerateAccessToken(User user);
-    string GenerateRefreshToken();
     ClaimsPrincipal? ValidateToken(string token);
 }
 
@@ -45,11 +44,6 @@ public class TokenService : ITokenService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    public string GenerateRefreshToken()
-    {
-        return Convert.ToBase64String(Guid.NewGuid().ToByteArray()) + Convert.ToBase64String(Guid.NewGuid().ToByteArray());
     }
 
     public ClaimsPrincipal? ValidateToken(string token)

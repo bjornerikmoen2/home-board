@@ -228,6 +228,12 @@ public class UserService : IUserService
         }
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+        // A new password logs the user out everywhere, once their access tokens run out.
+        var now = DateTime.UtcNow;
+        var sessions = await _context.RefreshTokens.Where(t => t.UserId == id && t.RevokedAt == null).ToListAsync();
+        sessions.ForEach(t => t.RevokedAt = now);
+
         await _context.SaveChangesAsync();
     }
 

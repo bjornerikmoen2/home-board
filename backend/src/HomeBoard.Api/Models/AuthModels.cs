@@ -18,6 +18,12 @@ public class RefreshTokenRequest
     public required string RefreshToken { get; set; }
 }
 
+public class LogoutRequest
+{
+    /// <summary>The device's refresh token, to revoke. Optional: older apps send no body.</summary>
+    public string? RefreshToken { get; set; }
+}
+
 public class UserDto
 {
     public Guid Id { get; set; }

@@ -47,11 +47,13 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   Future<void> logout() async {
-    // Call logout endpoint
-    await ref.read(authRepositoryProvider).logout();
+    final storage = ref.read(storageServiceProvider);
+
+    // Call logout endpoint, so this device's refresh token stops working
+    await ref.read(authRepositoryProvider).logout(await storage.getRefreshToken());
 
     // Clear storage
-    await ref.read(storageServiceProvider).clearAll();
+    await storage.clearAll();
 
     // Update state
     state = const AsyncValue.data(null);
