@@ -26,10 +26,12 @@ public interface ITaskService
 public class TaskService : ITaskService
 {
     private readonly HomeBoardDbContext _context;
+    private readonly TimeProvider _time;
 
-    public TaskService(HomeBoardDbContext context)
+    public TaskService(HomeBoardDbContext context, TimeProvider? timeProvider = null)
     {
         _context = context;
+        _time = timeProvider ?? TimeProvider.System;
     }
 
     public async Task<List<TaskDefinitionDto>> GetTaskDefinitionsAsync()
@@ -314,7 +316,9 @@ public class TaskService : ITaskService
 
     public async Task<Guid> CompleteTaskAsync(Guid assignmentId, Guid userId, CompleteTaskRequest? request)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var utcNow = _time.GetUtcNow();
+        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
+        var today = FamilyTime.Today(settings?.Timezone, utcNow);
 
         // Get current user to check their role
         var currentUser = await _context.Users.FindAsync(userId);
@@ -364,7 +368,7 @@ public class TaskService : ITaskService
             TaskAssignmentId = assignmentId,
             Date = today,
             CompletedByUserId = userId,
-            CompletedAt = DateTime.UtcNow,
+            CompletedAt = utcNow.UtcDateTime,
             Status = Domain.Enums.TaskStatus.Completed,
             Notes = request?.Notes,
             PhotoUrl = request?.PhotoUrl
@@ -495,9 +499,6 @@ public class TaskService : ITaskService
 
     public async Task<List<TodayTaskDto>> GetTodayTasksAsync(Guid userId)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
-
         // Get current user to check their role
         var currentUser = await _context.Users.FindAsync(userId);
         if (currentUser == null)
@@ -508,10 +509,10 @@ public class TaskService : ITaskService
         // Get family settings for week start configuration and timezone
         var familySettings = await _context.FamilySettings.FirstOrDefaultAsync();
         var weekStartsOn = familySettings?.WeekStartsOn ?? DayOfWeek.Monday;
-        var timezone = familySettings?.Timezone ?? "UTC";
-        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-        var currentTimeInZone = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
-        var currentTime = TimeOnly.FromDateTime(currentTimeInZone);
+        var localNow = FamilyTime.LocalNow(familySettings?.Timezone, _time.GetUtcNow());
+        var today = DateOnly.FromDateTime(localNow);
+        var currentTime = TimeOnly.FromDateTime(localNow);
+        var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
 
         // Get active assignments for this user or their role group
         var assignments = await _context.TaskAssignments
@@ -594,7 +595,7 @@ public class TaskService : ITaskService
         var settings = await _context.FamilySettings.FirstOrDefaultAsync();
         var timezone = settings?.Timezone ?? "UTC";
         var weekStartsOn = settings?.WeekStartsOn ?? DayOfWeek.Monday;
-        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timezone)));
+        var today = FamilyTime.Today(timezone, _time.GetUtcNow());
 
         var start = startDate ?? today;
         var end = endDate ?? start;

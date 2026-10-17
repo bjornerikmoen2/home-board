@@ -1,3 +1,4 @@
+using HomeBoard.Api.Helpers;
 using HomeBoard.Api.Models;
 using HomeBoard.Api.Services;
 using HomeBoard.Infrastructure.Data;
@@ -14,49 +15,49 @@ public class LeaderboardController : ControllerBase
 {
     private readonly HomeBoardDbContext _context;
     private readonly IPointsService _pointsService;
+    private readonly TimeProvider _time;
 
-    public LeaderboardController(HomeBoardDbContext context, IPointsService pointsService)
+    public LeaderboardController(HomeBoardDbContext context, IPointsService pointsService, TimeProvider timeProvider)
     {
         _context = context;
         _pointsService = pointsService;
+        _time = timeProvider;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<LeaderboardEntryDto>>> GetLeaderboard([FromQuery] string? period = "all")
     {
+        // Period boundaries are the family's local midnights, as UTC moments (points and
+        // completions are stamped in UTC). toDate is the start of the period's last day.
         DateTime? fromDate = null;
         DateTime? toDate = null;
-        
-        if (period == "week" || period == "previousWeek")
+
+        if (period == "week" || period == "previousWeek" || period == "month")
         {
-            // Get the week start day from family settings
             var settings = await _context.FamilySettings.FirstOrDefaultAsync();
-            var weekStartsOn = (int)(settings?.WeekStartsOn ?? DayOfWeek.Monday);
-            
-            var today = DateTime.UtcNow.Date;
-            var currentDayOfWeek = (int)today.DayOfWeek;
-            
-            // Calculate days to subtract to get to the start of the week
-            var daysToSubtract = (currentDayOfWeek - weekStartsOn + 7) % 7;
-            var weekStart = today.AddDays(-daysToSubtract);
-            
-            if (period == "previousWeek")
+            var timezone = settings?.Timezone;
+            var today = FamilyTime.Today(timezone, _time.GetUtcNow());
+
+            if (period == "month")
             {
-                // Previous week: from 7 days before week start to the day before week start
-                toDate = weekStart.AddDays(-1);
-                fromDate = toDate.Value.AddDays(-6);
+                // Start from the first day of the current month
+                fromDate = FamilyTime.StartOfDayUtc(DateTimeHelper.GetStartOfMonth(today), timezone);
             }
             else
             {
-                // Current week: from week start to today
-                fromDate = weekStart;
+                var weekStart = DateTimeHelper.GetStartOfWeek(today, settings?.WeekStartsOn ?? DayOfWeek.Monday);
+                if (period == "previousWeek")
+                {
+                    // Previous week: from 7 days before week start to the day before week start
+                    fromDate = FamilyTime.StartOfDayUtc(weekStart.AddDays(-7), timezone);
+                    toDate = FamilyTime.StartOfDayUtc(weekStart.AddDays(-1), timezone);
+                }
+                else
+                {
+                    // Current week: from week start to today
+                    fromDate = FamilyTime.StartOfDayUtc(weekStart, timezone);
+                }
             }
-        }
-        else if (period == "month")
-        {
-            // Start from the first day of the current month
-            var today = DateTime.UtcNow.Date;
-            fromDate = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         }
 
         var pointsByUser = await _pointsService.GetLeaderboardAsync(fromDate, toDate);
