@@ -20,6 +20,7 @@ public interface ITaskService
     Task<Guid> CompleteTaskAsync(Guid assignmentId, Guid userId, CompleteTaskRequest? request);
     Task<List<CalendarTaskDto>> GetCalendarTasksAsync(DateOnly startDate, DateOnly endDate, Guid userId, bool isAdmin);
     Task<List<TodayTaskDto>> GetTodayTasksAsync(Guid userId);
+    Task<ChoresResponse> GetChoresAsync(DateOnly? startDate, DateOnly? endDate);
 }
 
 public class TaskService : ITaskService
@@ -583,4 +584,104 @@ public class TaskService : ITaskService
         return result;
     }
 
+    /// <summary>
+    /// Every chore of every family member on each day in the range (default: today), with whether
+    /// and by whom it was done.
+    /// </summary>
+    public async Task<ChoresResponse> GetChoresAsync(DateOnly? startDate, DateOnly? endDate)
+    {
+        const int maxDays = 62;
+        var settings = await _context.FamilySettings.FirstOrDefaultAsync();
+        var timezone = settings?.Timezone ?? "UTC";
+        var weekStartsOn = settings?.WeekStartsOn ?? DayOfWeek.Monday;
+        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timezone)));
+
+        var start = startDate ?? today;
+        var end = endDate ?? start;
+        if (end < start || end.DayNumber - start.DayNumber >= maxDays)
+        {
+            throw new ArgumentException($"endDate must be on or after startDate and at most {maxDays} days later");
+        }
+
+        var assignments = await _context.TaskAssignments
+            .Include(a => a.TaskDefinition)
+            .Include(a => a.AssignedToUser)
+            .Where(a => a.IsActive && a.TaskDefinition!.IsActive)
+            .ToListAsync();
+
+        // From the start of the first week or month in the range, so "during week/month" chores
+        // done earlier in their period are known.
+        var from = Min(DateTimeHelper.GetStartOfWeek(start, weekStartsOn), DateTimeHelper.GetStartOfMonth(start));
+        var completions = await _context.TaskCompletions
+            .Include(c => c.CompletedByUser)
+            .Where(c => c.Date >= from && c.Date <= end)
+            .ToListAsync();
+
+        var chores = new List<ChoreDto>();
+        for (var date = start; date <= end; date = date.AddDays(1))
+        {
+            foreach (var assignment in assignments)
+            {
+                if (!TaskScheduleHelper.IsChoreOn(assignment, date, completions, weekStartsOn))
+                {
+                    continue;
+                }
+
+                var completion = completions.FirstOrDefault(c => c.TaskAssignmentId == assignment.Id && c.Date == date);
+                chores.Add(new ChoreDto
+                {
+                    Date = date,
+                    AssignmentId = assignment.Id,
+                    Title = assignment.TaskDefinition!.Title,
+                    Description = assignment.TaskDefinition.Description,
+                    Points = assignment.TaskDefinition.DefaultPoints,
+                    Schedule = ScheduleName(assignment.ScheduleType),
+                    DueTime = assignment.DueTime,
+                    AssignedTo = assignment.AssignedToUser?.DisplayName,
+                    AssignedToGroup = assignment.AssignedToGroup switch
+                    {
+                        (int)UserRole.User => "kids",
+                        (int)UserRole.Admin => "parents",
+                        _ => null
+                    },
+                    Status = completion?.Status switch
+                    {
+                        null => "todo",
+                        Domain.Enums.TaskStatus.Completed => "done",
+                        Domain.Enums.TaskStatus.Verified => "verified",
+                        Domain.Enums.TaskStatus.Rejected => "rejected",
+                        _ => "done"
+                    },
+                    CompletedBy = completion?.CompletedByUser?.DisplayName,
+                    CompletedAt = completion?.CompletedAt
+                });
+            }
+        }
+
+        return new ChoresResponse
+        {
+            Timezone = timezone,
+            Today = today,
+            StartDate = start,
+            EndDate = end,
+            Chores = chores
+                .OrderBy(c => c.Date)
+                .ThenBy(c => c.AssignedTo ?? c.AssignedToGroup)
+                .ThenBy(c => c.DueTime ?? TimeOnly.MaxValue)
+                .ThenBy(c => c.Title)
+                .ToList()
+        };
+    }
+
+    private static string ScheduleName(ScheduleType type) => type switch
+    {
+        ScheduleType.Daily => "daily",
+        ScheduleType.Weekly => "weekly",
+        ScheduleType.Once => "once",
+        ScheduleType.DuringWeek => "during_week",
+        ScheduleType.DuringMonth => "during_month",
+        _ => type.ToString().ToLowerInvariant()
+    };
+
+    private static DateOnly Min(DateOnly a, DateOnly b) => a < b ? a : b;
 }
