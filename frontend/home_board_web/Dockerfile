@@ -1,5 +1,11 @@
 # Build stage
-FROM debian:latest AS build-env
+FROM debian:trixie AS build-env
+
+# Flutter is pinned to the release that matches the code generators in pubspec.lock
+# (build_runner, freezed, riverpod_generator, analyzer 7.6 = Dart 3.9). With a newer Dart the
+# analyzer can't parse the Flutter SDK's code and build_runner hangs, so upgrade Flutter and
+# those packages together.
+ARG FLUTTER_VERSION=3.35.7
 
 # Install dependencies
 RUN apt-get update && \
@@ -7,14 +13,13 @@ RUN apt-get update && \
     libglu1-mesa fonts-droid-fallback lib32stdc++6 python3 && \
     apt-get clean
 
-# Install Flutter
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
+# Install Flutter: only the pinned release, without its git history
+RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git /usr/local/flutter
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
-# Set Flutter channel to stable and enable web
-RUN flutter channel stable && \
-    flutter upgrade && \
-    flutter config --enable-web
+# Enable web and download the web SDK
+RUN flutter config --enable-web && \
+    flutter precache --web
 
 # Create app directory
 WORKDIR /app
@@ -32,7 +37,7 @@ COPY . .
 RUN flutter gen-l10n
 
 # Generate code (freezed, json_serializable, etc.)
-RUN flutter pub run build_runner build --delete-conflicting-outputs
+RUN dart run build_runner build --delete-conflicting-outputs
 
 # Enable web for the project
 RUN flutter create . --platforms web

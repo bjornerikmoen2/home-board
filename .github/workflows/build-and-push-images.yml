@@ -10,13 +10,37 @@ on:
       - main
   workflow_dispatch:
 
+# A newer push to the same branch or pull request cancels the run still in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
   FRONTEND_IMAGE_NAME: ${{ github.repository }}/frontend
 
 jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # The solution file doesn't include the test project, so test the project itself.
+      - name: Run backend tests
+        run: dotnet test backend/tests/HomeBoard.Tests/HomeBoard.Tests.csproj
+
   build-backend:
+    needs: test-backend
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,12 +62,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+          # {{branch}} is empty for pull requests, so they get a pr-<number>- prefix instead.
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ github.event_name != 'pull_request' }}
+            type=sha,prefix=pr-${{ github.event.pull_request.number }}-,enable=${{ github.event_name == 'pull_request' }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Backend Docker image
@@ -56,6 +82,8 @@ jobs:
 
   build-frontend:
     runs-on: ubuntu-latest
+    # A hanging Flutter build otherwise runs for GitHub's default of 6 hours.
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
@@ -76,12 +104,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+          # {{branch}} is empty for pull requests, so they get a pr-<number>- prefix instead.
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ github.event_name != 'pull_request' }}
+            type=sha,prefix=pr-${{ github.event.pull_request.number }}-,enable=${{ github.event_name == 'pull_request' }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Frontend Docker image

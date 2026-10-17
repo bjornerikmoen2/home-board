@@ -375,6 +375,58 @@ Authorization: Bearer <token>
 
 ---
 
+### Integrations (API key)
+
+Read-only data for other home services, such as a personal assistant. These endpoints don't use a
+user login: they need the shared key from the `Integrations:ApiKey` setting (environment variable
+`Integrations__ApiKey`) in the `X-Api-Key` header. While no key is configured they answer
+`404 Not Found`; a missing or wrong key gets `401 Unauthorized`.
+
+#### Get Chores
+```http
+GET /api/integrations/chores?startDate=2026-10-19&endDate=2026-10-25
+X-Api-Key: <key>
+```
+
+Both dates are optional: the default is today in the family's timezone, and `endDate` defaults to
+`startDate`. At most 62 days per request.
+
+Every chore of every family member on each day, counted like the kids' "today" list (chores
+whose due time has passed are included). A "during the week/month" chore appears every day until
+it is done, and on the day it was done.
+
+**Response 200 OK:**
+```json
+{
+  "timezone": "Europe/Oslo",
+  "today": "2026-10-19",
+  "startDate": "2026-10-19",
+  "endDate": "2026-10-25",
+  "chores": [
+    {
+      "date": "2026-10-19",
+      "assignmentId": "guid",
+      "title": "Make bed",
+      "description": null,
+      "points": 5,
+      "schedule": "daily",
+      "dueTime": "08:00:00",
+      "assignedTo": "Ola",
+      "assignedToGroup": null,
+      "status": "verified",
+      "completedBy": "Ola",
+      "completedAt": "2026-10-19T06:12:00Z"
+    }
+  ]
+}
+```
+
+- `schedule`: `daily`, `weekly`, `once`, `during_week` or `during_month`
+- `assignedToGroup`: `kids` or `parents` for a chore shared by the group (`assignedTo` is then null)
+- `status`: `todo`, `done` (waiting for a parent to check it), `verified` or `rejected`
+
+---
+
 ### Health Check
 
 #### Check API Health
