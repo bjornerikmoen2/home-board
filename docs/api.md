@@ -425,6 +425,43 @@ it is done, and on the day it was done.
 - `assignedToGroup`: `kids` or `parents` for a chore shared by the group (`assignedTo` is then null)
 - `status`: `todo`, `done` (waiting for a parent to check it), `verified` or `rejected`
 
+#### Get Points
+```http
+GET /api/integrations/points
+X-Api-Key: <key>
+```
+
+Each active child's points (role User), in the same terms as the scoreboard and the payout
+preview, plus the done chores still waiting for a parent's approval (their points count once
+approved).
+
+**Response 200 OK:**
+```json
+{
+  "timezone": "Europe/Oslo",
+  "today": "2026-10-19",
+  "pointToMoneyRate": 0.5,
+  "users": [
+    {
+      "name": "Ola",
+      "scoreboardPoints": 30,
+      "pointsSinceLastPayout": 30,
+      "moneyToPay": 15.0,
+      "lastPayoutAt": "2026-10-01T18:00:00Z",
+      "earnedThisWeek": 20,
+      "earnedThisMonth": 30,
+      "waitingForApproval": [
+        { "date": "2026-10-19", "title": "Make bed", "points": 5, "completedAt": "2026-10-19T06:12:00Z" }
+      ]
+    }
+  ]
+}
+```
+
+- `scoreboardPoints`: all points minus those paid out
+- `pointsSinceLastPayout` / `moneyToPay`: as in the payout preview (never paid below zero)
+- `earnedThisWeek` / `earnedThisMonth`: positive points since the start of the family's week and month
+
 ---
 
 ### Health Check

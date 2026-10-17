@@ -164,7 +164,7 @@ public class ChoresTests : IDisposable
         {
             httpContext.Request.Headers[IntegrationsController.ApiKeyHeader] = sentKey;
         }
-        return new IntegrationsController(_taskService, configuration)
+        return new IntegrationsController(_taskService, new IntegrationService(_context), configuration)
         {
             ControllerContext = new ControllerContext { HttpContext = httpContext }
         };

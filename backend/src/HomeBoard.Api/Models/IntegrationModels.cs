@@ -37,3 +37,43 @@ public class ChoreDto
     public string? CompletedBy { get; set; }
     public DateTime? CompletedAt { get; set; }
 }
+
+/// <summary>
+/// Each child's points: what the scoreboard shows, what the next payout would be, what was earned
+/// this week and month, and the done chores still waiting for a parent to approve them.
+/// </summary>
+public class PointsResponse
+{
+    public required string Timezone { get; set; }
+    public DateOnly Today { get; set; }
+    public decimal PointToMoneyRate { get; set; }
+    public required List<ChildPointsDto> Users { get; set; }
+}
+
+public class ChildPointsDto
+{
+    public required string Name { get; set; }
+
+    /// <summary>All points minus those paid out, as on the scoreboard.</summary>
+    public int ScoreboardPoints { get; set; }
+
+    /// <summary>Net points since the last payout, and what paying them out would cost (as in the payout preview).</summary>
+    public int PointsSinceLastPayout { get; set; }
+    public decimal MoneyToPay { get; set; }
+    public DateTime? LastPayoutAt { get; set; }
+
+    /// <summary>Points earned (positive entries only) since the start of the family's week and month.</summary>
+    public int EarnedThisWeek { get; set; }
+    public int EarnedThisMonth { get; set; }
+
+    /// <summary>Done chores a parent hasn't approved yet; their points count once approved.</summary>
+    public required List<WaitingChoreDto> WaitingForApproval { get; set; }
+}
+
+public class WaitingChoreDto
+{
+    public DateOnly Date { get; set; }
+    public required string Title { get; set; }
+    public int Points { get; set; }
+    public DateTime CompletedAt { get; set; }
+}
