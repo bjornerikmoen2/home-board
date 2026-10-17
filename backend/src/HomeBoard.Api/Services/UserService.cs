@@ -61,6 +61,11 @@ public class UserService : IUserService
             throw new InvalidOperationException("Password is required when 'No Password Required' is not enabled");
         }
 
+        if (request.NoPasswordRequired && request.Role == UserRole.Admin)
+        {
+            throw new InvalidOperationException("Admins always need a password");
+        }
+
         byte[]? profileImageData = null;
         string? contentType = null;
         
@@ -166,6 +171,11 @@ public class UserService : IUserService
         if (request.NoPasswordRequired.HasValue)
         {
             user.NoPasswordRequired = request.NoPasswordRequired.Value;
+        }
+
+        if (user.NoPasswordRequired && user.Role == UserRole.Admin)
+        {
+            throw new InvalidOperationException("Admins always need a password");
         }
         
         if (request.RemoveProfileImage == true)

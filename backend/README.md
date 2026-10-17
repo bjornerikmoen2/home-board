@@ -88,11 +88,12 @@ Apply migrations:
 dotnet ef database update
 ```
 
-## Default Credentials
+## First Admin User
 
-The application seeds a default admin user:
-- **Username**: admin
-- **Password**: Admin123!
+On first start with an empty database, the application creates an admin user `admin`. Its
+password is the `Seed:AdminPassword` setting (environment variable `Seed__AdminPassword`) or, when
+that is not set, a random password printed once in the log ("Created the first admin user").
+Change it after the first login.
 
 ## API Endpoints
 

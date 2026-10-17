@@ -135,7 +135,13 @@ using (var scope = app.Services.CreateScope())
         
         // Seed initial data (admin user, family settings)
         // Safe to run in production - DbSeeder checks if users already exist
-        await seeder.SeedAsync();
+        var generatedPassword = await seeder.SeedAsync(app.Configuration["Seed:AdminPassword"]);
+        if (generatedPassword != null)
+        {
+            scope.ServiceProvider.GetRequiredService<ILogger<Program>>().LogWarning(
+                "Created the first admin user 'admin' with the generated password {Password}. Sign in and change it.",
+                generatedPassword);
+        }
     }
     catch (Exception ex)
     {

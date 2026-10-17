@@ -4,13 +4,19 @@
 - Development: `http://localhost:8080`
 - Production: Configure via your deployment
 
-## Default Credentials
+## First Admin User
 
-On first startup, the system creates a default admin user:
+On first startup with an empty database, the system creates an admin user:
 - **Username**: `admin`
-- **Password**: `Admin123!`
+- **Password**: the `Seed__AdminPassword` setting, or a random password printed once in the API
+  log ("Created the first admin user")
 
-**⚠️ Important**: Change this password immediately after your first login in production!
+**⚠️ Important**: Change this password after your first login!
+
+Users marked "no password required" (children on the family tablet) can only log in without a
+password from the home network; from the internet that login is refused and
+`GET /api/auth/no-password-users` returns an empty list (see `Auth__AllowNoPasswordLoginFromInternet`).
+Admins always need a password.
 
 ## Authentication
 
@@ -32,7 +38,7 @@ Content-Type: application/json
 
 {
   "username": "admin",
-  "password": "Admin123!"
+  "password": "<password>"
 }
 ```
 
@@ -496,7 +502,7 @@ Interactive API documentation available at:
 The API automatically:
 1. **Runs migrations** on startup (creates/updates database schema)
 2. **Seeds initial data** if database is empty:
-   - Creates default admin user (`admin` / `Admin123!`)
+   - Creates the first admin user (`admin`, password from `Seed__AdminPassword` or generated and logged once)
    - Creates default family settings (timezone, point rates)
 
 This happens in all environments, but only when the database is empty, so it's safe for production deployments.
