@@ -36,6 +36,9 @@ public class ChoreDto
 
     public string? CompletedBy { get; set; }
     public DateTime? CompletedAt { get; set; }
+
+    /// <summary>Set once the chore is done; what approving or rejecting it takes.</summary>
+    public Guid? CompletionId { get; set; }
 }
 
 /// <summary>
@@ -52,6 +55,7 @@ public class PointsResponse
 
 public class ChildPointsDto
 {
+    public Guid UserId { get; set; }
     public required string Name { get; set; }
 
     /// <summary>All points minus those paid out, as on the scoreboard.</summary>
@@ -72,8 +76,26 @@ public class ChildPointsDto
 
 public class WaitingChoreDto
 {
+    public Guid CompletionId { get; set; }
     public DateOnly Date { get; set; }
     public required string Title { get; set; }
     public int Points { get; set; }
     public DateTime CompletedAt { get; set; }
+}
+
+/// <summary>A done chore approved or rejected by another home service.</summary>
+public class ReviewResponse
+{
+    public required string Message { get; set; }
+    public required string Title { get; set; }
+    public string? CompletedBy { get; set; }
+    public int PointsAwarded { get; set; }
+}
+
+/// <summary>Bonus points given by another home service.</summary>
+public class BonusResponse
+{
+    public required string Message { get; set; }
+    public required string Name { get; set; }
+    public int PointsAwarded { get; set; }
 }

@@ -654,7 +654,8 @@ public class TaskService : ITaskService
                         _ => "done"
                     },
                     CompletedBy = completion?.CompletedByUser?.DisplayName,
-                    CompletedAt = completion?.CompletedAt
+                    CompletedAt = completion?.CompletedAt,
+                    CompletionId = completion?.Id
                 });
             }
         }

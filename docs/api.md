@@ -400,10 +400,15 @@ Authorization: Bearer <token>
 
 ### Integrations (API key)
 
-Read-only data for other home services, such as a personal assistant. These endpoints don't use a
-user login: they need the shared key from the `Integrations:ApiKey` setting (environment variable
-`Integrations__ApiKey`) in the `X-Api-Key` header. While no key is configured they answer
-`404 Not Found`; a missing or wrong key gets `401 Unauthorized`.
+Data for other home services, such as a personal assistant. These endpoints don't use a user
+login: they need a shared key in the `X-Api-Key` header. While their key is not configured they
+answer `404 Not Found`; a missing or wrong key gets `401 Unauthorized`.
+
+- Reading chores and points takes `Integrations:ApiKey` (environment variable `Integrations__ApiKey`).
+- Approving or rejecting done chores and giving bonus points takes a separate key,
+  `Integrations:WriteApiKey` (`Integrations__WriteApiKey`), so a service can be allowed to read
+  without being allowed to change anything. The changes are recorded under the admin whose
+  username is `Integrations:ActAsUser`, or else the first admin created.
 
 #### Get Chores
 ```http
@@ -438,7 +443,8 @@ it is done, and on the day it was done.
       "assignedToGroup": null,
       "status": "verified",
       "completedBy": "Ola",
-      "completedAt": "2026-10-19T06:12:00Z"
+      "completedAt": "2026-10-19T06:12:00Z",
+      "completionId": "guid"
     }
   ]
 }
@@ -447,6 +453,7 @@ it is done, and on the day it was done.
 - `schedule`: `daily`, `weekly`, `once`, `during_week` or `during_month`
 - `assignedToGroup`: `kids` or `parents` for a chore shared by the group (`assignedTo` is then null)
 - `status`: `todo`, `done` (waiting for a parent to check it), `verified` or `rejected`
+- `completionId`: set once the chore is done; used to approve or reject it
 
 #### Get Points
 ```http
@@ -466,6 +473,7 @@ approved).
   "pointToMoneyRate": 0.5,
   "users": [
     {
+      "userId": "guid",
       "name": "Ola",
       "scoreboardPoints": 30,
       "pointsSinceLastPayout": 30,
@@ -474,7 +482,7 @@ approved).
       "earnedThisWeek": 20,
       "earnedThisMonth": 30,
       "waitingForApproval": [
-        { "date": "2026-10-19", "title": "Make bed", "points": 5, "completedAt": "2026-10-19T06:12:00Z" }
+        { "completionId": "guid", "date": "2026-10-19", "title": "Make bed", "points": 5, "completedAt": "2026-10-19T06:12:00Z" }
       ]
     }
   ]
@@ -484,6 +492,60 @@ approved).
 - `scoreboardPoints`: all points minus those paid out
 - `pointsSinceLastPayout` / `moneyToPay`: as in the payout preview (never paid below zero)
 - `earnedThisWeek` / `earnedThisMonth`: positive points since the start of the family's week and month
+
+#### Approve a Done Chore
+```http
+POST /api/integrations/completions/{completionId}/approve
+X-Api-Key: <write key>
+Content-Type: application/json
+
+{
+  "pointsAwarded": 8
+}
+```
+
+The same as approving in the verification queue: the person who did the chore gets its points, or
+`pointsAwarded` when given (the body is optional).
+
+**Response 200 OK:**
+```json
+{ "message": "Chore approved", "title": "Make bed", "completedBy": "Ola", "pointsAwarded": 5 }
+```
+
+`404 Not Found` for an unknown `completionId`; `409 Conflict` when the chore was already approved
+or rejected.
+
+#### Reject a Done Chore
+```http
+POST /api/integrations/completions/{completionId}/reject
+X-Api-Key: <write key>
+Content-Type: application/json
+
+{
+  "reason": "The bed isn't made"
+}
+```
+
+No points; the reason is optional. Answers as for approving, with `"pointsAwarded": 0`.
+
+#### Give Bonus Points
+```http
+POST /api/integrations/users/{userId}/bonus-points
+X-Api-Key: <write key>
+Content-Type: application/json
+
+{
+  "points": 15,
+  "description": "Carried the shopping"
+}
+```
+
+Only for active children (`userId` from Get Points), and `points` must be more than zero.
+
+**Response 200 OK:**
+```json
+{ "message": "Bonus points awarded", "name": "Ola", "pointsAwarded": 15 }
+```
 
 ---
 
