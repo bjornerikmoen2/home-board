@@ -32,6 +32,10 @@ services:
       App__Timezone: "Europe/Oslo"
       # Read-only API for other home services (GET /api/integrations/chores); off when empty
       Integrations__ApiKey: "${INTEGRATIONS_API_KEY:-}"
+      # Lets them approve chores and give bonus points too; off when empty (docs/api.md, Integrations)
+      Integrations__WriteApiKey: "${INTEGRATIONS_WRITE_API_KEY:-}"
+      # Username of the admin those changes are recorded under; empty = the first admin
+      Integrations__ActAsUser: "${INTEGRATIONS_ACT_AS_USER:-}"
       # Cors__AllowedOrigins: "*"  # Default: allow all origins (for development)
       # For production, uncomment and set specific origins:
       # Cors__AllowedOrigins: "https://yourdomain.com,https://www.yourdomain.com"

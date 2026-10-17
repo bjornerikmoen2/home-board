@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using HomeBoard.Api.Models;
 using HomeBoard.Api.Services;
-using HomeBoard.Domain.Enums;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +14,12 @@ namespace HomeBoard.Api.Controllers;
 public class VerificationController : ControllerBase
 {
     private readonly HomeBoardDbContext _context;
-    private readonly IPointsService _pointsService;
+    private readonly IVerificationService _verificationService;
 
-    public VerificationController(HomeBoardDbContext context, IPointsService pointsService)
+    public VerificationController(HomeBoardDbContext context, IVerificationService verificationService)
     {
         _context = context;
-        _pointsService = pointsService;
+        _verificationService = verificationService;
     }
 
     [HttpGet("pending")]
@@ -55,49 +54,14 @@ public class VerificationController : ControllerBase
     {
         var adminUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var completion = await _context.TaskCompletions
-            .Include(c => c.TaskAssignment)
-            .ThenInclude(a => a!.TaskDefinition)
-            .FirstOrDefaultAsync(c => c.Id == completionId);
-
-        if (completion == null)
+        var result = await _verificationService.VerifyAsync(completionId, adminUserId, request?.PointsAwarded);
+        return result.Outcome switch
         {
-            return NotFound();
-        }
-
-        if (completion.Status != Domain.Enums.TaskStatus.Completed)
-        {
-            return BadRequest(new { message = "Task completion has already been verified or rejected" });
-        }
-
-        // Idempotency check: ensure no points have been awarded for this completion
-        var existingPoints = await _context.PointsLedger
-            .AnyAsync(p => p.SourceType == PointSourceType.TaskVerified && p.SourceId == completionId);
-
-        if (existingPoints)
-        {
-            return BadRequest(new { message = "Points already awarded for this completion" });
-        }
-
-        // Update completion status
-        completion.Status = Domain.Enums.TaskStatus.Verified;
-        completion.VerifiedByUserId = adminUserId;
-        completion.VerifiedAt = DateTime.UtcNow;
-
-        // Award points
-        var pointsToAward = request?.PointsAwarded ?? completion.TaskAssignment!.TaskDefinition!.DefaultPoints;
-        await _pointsService.AddPointsAsync(
-            completion.CompletedByUserId,
-            PointSourceType.TaskVerified,
-            pointsToAward,
-            completionId,
-            $"Verified: {completion.TaskAssignment.TaskDefinition.Title}",
-            adminUserId
-        );
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Task verified and points awarded", pointsAwarded = pointsToAward });
+            ReviewOutcome.NotFound => NotFound(),
+            ReviewOutcome.AlreadyReviewed => BadRequest(new { message = "Task completion has already been verified or rejected" }),
+            ReviewOutcome.AlreadyAwarded => BadRequest(new { message = "Points already awarded for this completion" }),
+            _ => Ok(new { message = "Task verified and points awarded", pointsAwarded = result.PointsAwarded })
+        };
     }
 
     [HttpPost("{completionId}/reject")]
@@ -105,26 +69,12 @@ public class VerificationController : ControllerBase
     {
         var adminUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var completion = await _context.TaskCompletions
-            .FirstOrDefaultAsync(c => c.Id == completionId);
-
-        if (completion == null)
+        var result = await _verificationService.RejectAsync(completionId, adminUserId, request.Reason);
+        return result.Outcome switch
         {
-            return NotFound();
-        }
-
-        if (completion.Status != Domain.Enums.TaskStatus.Completed)
-        {
-            return BadRequest(new { message = "Task completion has already been verified or rejected" });
-        }
-
-        completion.Status = Domain.Enums.TaskStatus.Rejected;
-        completion.VerifiedByUserId = adminUserId;
-        completion.VerifiedAt = DateTime.UtcNow;
-        completion.RejectionReason = request.Reason;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Task rejected" });
+            ReviewOutcome.NotFound => NotFound(),
+            ReviewOutcome.Done => Ok(new { message = "Task rejected" }),
+            _ => BadRequest(new { message = "Task completion has already been verified or rejected" })
+        };
     }
 }
