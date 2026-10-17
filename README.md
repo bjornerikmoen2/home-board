@@ -92,11 +92,13 @@ A family chores and rewards management system designed for families with childre
    - **API Swagger**: http://localhost:8080/swagger
    - **Health Check**: http://localhost:8080/health
 
-6. **Login with default credentials**:
+6. **Log in as the first admin**:
    - Username: `admin`
-   - Password: `Admin123!`
+   - Password: the value of `Seed__AdminPassword` if you set it for the API; otherwise a random
+     password, printed once in the API log on first start (`docker compose logs api`, look for
+     "Created the first admin user")
    
-   **⚠️ Change this password immediately after first login!**
+   **⚠️ Change this password after the first login!**
 
 ### Managing Services
 
@@ -317,7 +319,11 @@ The docker-compose.yml file uses pre-built images from GitHub Container Registry
    ```
 
 2. **Update docker-compose.yml** for production:
-   - Change `ASPNETCORE_ENVIRONMENT` to `Production` in the `api` service
+   - Use `ASPNETCORE_ENVIRONMENT: Production` in the `api` service (`docker-compose-ghcr.yml` does;
+     Development turns on Swagger and detailed error pages)
+   - Passwordless login (kids on the family tablet) only works from the home network: requests
+     that arrive with a public client address, e.g. through a Cloudflare Tunnel, are refused. Set
+     `Auth__AllowNoPasswordLoginFromInternet: "true"` to allow it from anywhere
    - Configure specific CORS origins (uncomment and set in docker-compose.yml)
    - Set `App__Timezone` if different from default `Europe/Oslo`
    - Set up proper SSL/TLS termination (reverse proxy recommended)

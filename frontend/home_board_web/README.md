@@ -100,9 +100,8 @@ lib/
 - JWT-based authentication
 - Automatic token refresh
 - Role-based routing (Admin vs User)
-- Default admin credentials:
-  - Username: `admin`
-  - Password: `Admin123!`
+- First admin user: `admin`, with the password from the API's `Seed__AdminPassword` setting or the
+  one printed once in the API log (see the backend README)
 
 ## API Integration
 

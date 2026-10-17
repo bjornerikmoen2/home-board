@@ -69,10 +69,11 @@ Or for development with hot reload:
 flutter run -d chrome --web-hot-reload
 ```
 
-## Default Login Credentials
+## First Login
 
 - **Username:** admin
-- **Password:** Admin123!
+- **Password:** the API's `Seed__AdminPassword` setting, or the random password printed once in the
+  API log on first start ("Created the first admin user")
 
 ## Feature Overview
 

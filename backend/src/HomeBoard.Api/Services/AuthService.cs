@@ -1,5 +1,6 @@
 using HomeBoard.Api.Models;
 using HomeBoard.Domain.Entities;
+using HomeBoard.Domain.Enums;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,9 @@ namespace HomeBoard.Api.Services;
 
 public interface IAuthService
 {
-    Task<(User user, bool isValid)> ValidateUserCredentialsAsync(string username, string password);
+    /// <param name="allowNoPassword">Whether users marked NoPasswordRequired may log in with an
+    /// empty password here (false for requests from the internet).</param>
+    Task<(User user, bool isValid)> ValidateUserCredentialsAsync(string username, string? password, bool allowNoPassword = true);
     Task UpdateLastLoginAsync(Guid userId);
     Task<List<NoPasswordUserDto>> GetNoPasswordUsersAsync();
 }
@@ -21,7 +24,7 @@ public class AuthService : IAuthService
         _context = context;
     }
 
-    public async Task<(User user, bool isValid)> ValidateUserCredentialsAsync(string username, string password)
+    public async Task<(User user, bool isValid)> ValidateUserCredentialsAsync(string username, string? password, bool allowNoPassword = true)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Username == username && u.IsActive);
@@ -31,26 +34,17 @@ public class AuthService : IAuthService
             return (null!, false);
         }
 
-        // For users with no password required, allow login with empty password
-        if (user.NoPasswordRequired)
+        if (string.IsNullOrEmpty(password))
         {
-            if (string.IsNullOrEmpty(password))
-            {
-                return (user, true);
-            }
-            else
-            {
-                // If password provided, still verify it
-                bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-                return (user, isValid);
-            }
+            // Passwordless login is for children on the family tablet: never for admins, and
+            // only where the caller allows it (the home network, see AuthController).
+            var noPasswordOk = user.NoPasswordRequired && user.Role == UserRole.User && allowNoPassword;
+            return (user, noPasswordOk);
         }
-        else
-        {
-            // Verify password using BCrypt
-            bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-            return (user, isValid);
-        }
+
+        // Verify password using BCrypt
+        bool isValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+        return (user, isValid);
     }
 
     public async Task UpdateLastLoginAsync(Guid userId)
@@ -66,7 +60,7 @@ public class AuthService : IAuthService
     public async Task<List<NoPasswordUserDto>> GetNoPasswordUsersAsync()
     {
         return await _context.Users
-            .Where(u => u.IsActive && u.NoPasswordRequired)
+            .Where(u => u.IsActive && u.NoPasswordRequired && u.Role == UserRole.User)
             .Select(u => new NoPasswordUserDto
             {
                 Id = u.Id,

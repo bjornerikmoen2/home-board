@@ -24,7 +24,7 @@ services:
     image: ghcr.io/bjornerikmoen2/home-board/backend
     container_name: home-board-api
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__Default: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
       Jwt__Issuer: "HomeBoard"
       Jwt__Audience: "HomeBoard"
