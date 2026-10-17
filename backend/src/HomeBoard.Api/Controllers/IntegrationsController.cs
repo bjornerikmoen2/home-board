@@ -20,11 +20,13 @@ public class IntegrationsController : ControllerBase
     public const string ApiKeyHeader = "X-Api-Key";
 
     private readonly ITaskService _taskService;
+    private readonly IIntegrationService _integrationService;
     private readonly string? _apiKey;
 
-    public IntegrationsController(ITaskService taskService, IConfiguration configuration)
+    public IntegrationsController(ITaskService taskService, IIntegrationService integrationService, IConfiguration configuration)
     {
         _taskService = taskService;
+        _integrationService = integrationService;
         _apiKey = configuration["Integrations:ApiKey"];
     }
 
@@ -53,6 +55,25 @@ public class IntegrationsController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Each child's points (scoreboard, next payout, this week and month) and the done chores still
+    /// waiting for a parent's approval.
+    /// </summary>
+    [HttpGet("points")]
+    public async Task<ActionResult<PointsResponse>> GetPoints()
+    {
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            return NotFound();
+        }
+        if (!HasValidApiKey())
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await _integrationService.GetPointsAsync());
     }
 
     private bool HasValidApiKey()
