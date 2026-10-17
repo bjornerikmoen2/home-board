@@ -80,6 +80,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // Register application services
+// The clock; tests swap it for a fixed time
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPointsService, PointsService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();

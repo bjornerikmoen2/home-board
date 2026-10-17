@@ -15,10 +15,12 @@ public interface IScoreboardService
 public class ScoreboardService : IScoreboardService
 {
     private readonly HomeBoardDbContext _context;
+    private readonly TimeProvider _time;
 
-    public ScoreboardService(HomeBoardDbContext context)
+    public ScoreboardService(HomeBoardDbContext context, TimeProvider? timeProvider = null)
     {
         _context = context;
+        _time = timeProvider ?? TimeProvider.System;
     }
 
     public async Task<ScoreboardResponseModel> GetScoreboardAsync()
@@ -30,15 +32,12 @@ public class ScoreboardService : IScoreboardService
             throw new InvalidOperationException("Scoreboard is not enabled");
         }
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
-
-        // Get family settings for week start and timezone
+        // Today and the current time in the family's timezone
         var weekStartsOn = settings.WeekStartsOn;
-        var timezone = settings.Timezone;
-        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timezone);
-        var currentTimeInZone = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZoneInfo);
-        var currentTime = TimeOnly.FromDateTime(currentTimeInZone);
+        var localNow = FamilyTime.LocalNow(settings.Timezone, _time.GetUtcNow());
+        var today = DateOnly.FromDateTime(localNow);
+        var currentTime = TimeOnly.FromDateTime(localNow);
+        var currentDayOfWeek = (DayOfWeekFlag)(1 << (int)today.DayOfWeek);
         var weekStart = DateTimeHelper.GetStartOfWeek(today, weekStartsOn);
         var weekEnd = weekStart.AddDays(6);
         var monthStart = new DateOnly(today.Year, today.Month, 1);
