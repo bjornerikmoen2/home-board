@@ -2,6 +2,7 @@ using HomeBoard.Api.Helpers;
 using HomeBoard.Api.Models;
 using HomeBoard.Api.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace HomeBoard.Api.Controllers;
 
@@ -25,6 +26,7 @@ public class AuthController : ControllerBase
     private bool NoPasswordAllowed => _noPasswordFromInternet || !HomeNetwork.IsFromInternet(Request);
 
     [HttpPost("login")]
+    [EnableRateLimiting(LoginRateLimit.Policy)]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
     {
         var (user, isValid) = await _authService.ValidateUserCredentialsAsync(request.Username, request.Password, NoPasswordAllowed);

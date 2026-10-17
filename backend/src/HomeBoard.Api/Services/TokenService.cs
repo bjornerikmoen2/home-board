@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using HomeBoard.Api.Helpers;
 using HomeBoard.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 
@@ -21,8 +21,7 @@ public class TokenService : ITokenService
     public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        var signingKey = _configuration["Jwt:SigningKey"] ?? throw new InvalidOperationException("JWT signing key not configured");
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+        _key = new SymmetricSecurityKey(JwtSigningKey.Read(_configuration));
     }
 
     public string GenerateAccessToken(User user)

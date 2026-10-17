@@ -1,4 +1,4 @@
-using System.Text;
+using HomeBoard.Api.Helpers;
 using HomeBoard.Api.Services;
 using HomeBoard.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,7 +55,7 @@ builder.Services.AddDbContext<HomeBoardDbContext>(options =>
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var signingKey = jwtSettings["SigningKey"] ?? throw new InvalidOperationException("JWT signing key not configured");
+var signingKey = JwtSigningKey.Read(builder.Configuration);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -72,12 +72,21 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+        IssuerSigningKey = new SymmetricSecurityKey(signingKey),
         ClockSkew = TimeSpan.Zero
     };
 });
 
 builder.Services.AddAuthorization();
+
+// Login attempts per client address (see LoginRateLimit)
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = (context, cancellationToken) => new ValueTask(context.HttpContext.Response.WriteAsJsonAsync(
+        new { message = "Too many login attempts. Try again in a minute." }, cancellationToken));
+    options.AddPolicy(LoginRateLimit.Policy, LoginRateLimit.Partition);
+});
 
 // Register application services
 // The clock; tests swap it for a fixed time
@@ -170,6 +179,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseCors("AllowConfiguredOrigins");
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

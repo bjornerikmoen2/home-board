@@ -70,7 +70,13 @@ Contains API controllers, services, and models:
    dotnet ef database update
    ```
 
-3. Run the application:
+3. Set a JWT signing key once (at least 32 bytes; there is no default, and the API won't start
+   without one):
+   ```bash
+   dotnet user-secrets set Jwt:SigningKey "$(openssl rand -base64 48)"
+   ```
+
+4. Run the application:
    ```bash
    dotnet run
    ```
@@ -148,6 +154,12 @@ Change it after the first login.
 
 Key configuration settings in `appsettings.json`:
 
+`Jwt:SigningKey` is not in these files: set it with the `Jwt__SigningKey` environment variable
+(Docker) or user secrets (local), at least 32 bytes.
+
+Login attempts are limited to 10 per minute per client address (HTTP 429 after that). The
+calendar accepts at most 62 days per request and analytics at most 366 days.
+
 ```json
 {
   "ConnectionStrings": {
@@ -155,8 +167,7 @@ Key configuration settings in `appsettings.json`:
   },
   "Jwt": {
     "Issuer": "HomeBoard",
-    "Audience": "HomeBoard",
-    "SigningKey": "YourSecretKey"
+    "Audience": "HomeBoard"
   },
   "App": {
     "Timezone": "Europe/Oslo"

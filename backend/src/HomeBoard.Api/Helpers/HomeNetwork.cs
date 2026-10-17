@@ -31,6 +31,24 @@ public static class HomeNetwork
         return addresses.Any(address => IPAddress.TryParse(WithoutPort(address), out var ip) && IsPublic(ip));
     }
 
+    /// <summary>
+    /// The client's address, for per-client limits: Cloudflare's CF-Connecting-IP (which a caller
+    /// can't fake), else the first X-Forwarded-For entry (set by the local reverse proxy), else
+    /// X-Real-IP, else the connection's address.
+    /// </summary>
+    public static string ClientAddress(HttpRequest request)
+    {
+        foreach (var header in new[] { "CF-Connecting-IP", "X-Forwarded-For", "X-Real-IP" })
+        {
+            var first = request.Headers[header].ToString().Split(',')[0].Trim();
+            if (IPAddress.TryParse(WithoutPort(first), out var ip))
+            {
+                return ip.ToString();
+            }
+        }
+        return request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    }
+
     /// <summary>False for loopback, private (RFC 1918, IPv6 unique-local), link-local and CGNAT addresses.</summary>
     public static bool IsPublic(IPAddress ip)
     {

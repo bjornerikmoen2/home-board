@@ -148,8 +148,9 @@ docker-compose up -d          # Restart with new images
    dotnet ef database update
    ```
 
-4. **Run the API**:
+4. **Run the API** (first set a JWT signing key, at least 32 bytes; there is no default):
    ```bash
+   dotnet user-secrets set Jwt:SigningKey "$(openssl rand -base64 48)"
    dotnet run
    ```
    API will be available at http://localhost:8080

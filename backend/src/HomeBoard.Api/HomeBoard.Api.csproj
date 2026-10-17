@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Local development keeps Jwt:SigningKey in user secrets: dotnet user-secrets set Jwt:SigningKey <key> -->
+    <UserSecretsId>homeboard-api-8d6f1c2e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

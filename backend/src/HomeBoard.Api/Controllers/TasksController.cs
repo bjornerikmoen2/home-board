@@ -145,11 +145,19 @@ public class TasksController : ControllerBase
         }
     }
 
+    /// <summary>The calendar shows a month at a time; longer ranges are refused.</summary>
+    public const int MaxCalendarDays = 62;
+
     [HttpGet("calendar")]
     public async Task<ActionResult<List<CalendarTaskDto>>> GetCalendarTasks(
         [FromQuery] DateOnly startDate,
         [FromQuery] DateOnly endDate)
     {
+        if (endDate < startDate || endDate.DayNumber - startDate.DayNumber >= MaxCalendarDays)
+        {
+            return BadRequest(new { message = $"endDate must be on or after startDate and at most {MaxCalendarDays} days later" });
+        }
+
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var isAdmin = User.IsInRole("Admin");
 
