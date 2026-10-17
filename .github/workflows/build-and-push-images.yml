@@ -10,6 +10,11 @@ on:
       - main
   workflow_dispatch:
 
+# A newer push to the same branch or pull request cancels the run still in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
@@ -77,6 +82,8 @@ jobs:
 
   build-frontend:
     runs-on: ubuntu-latest
+    # A hanging Flutter build otherwise runs for GitHub's default of 6 hours.
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
