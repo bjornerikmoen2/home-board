@@ -19,6 +19,7 @@ public class HomeBoardDbContext : DbContext
     public DbSet<FamilySettings> FamilySettings => Set<FamilySettings>();
     public DbSet<UserPayoutState> UserPayoutStates => Set<UserPayoutState>();
     public DbSet<Payout> Payouts => Set<Payout>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -204,6 +205,23 @@ public class HomeBoardDbContext : DbContext
 
             // Index for efficient querying by user and date
             entity.HasIndex(e => new { e.UserId, e.PaidAt });
+        });
+
+        // RefreshToken configuration
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TokenHash).IsRequired().HasMaxLength(64);
+            entity.HasIndex(e => e.TokenHash).IsUnique();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.ExpiresAt).IsRequired();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.UserId);
         });
     }
 }

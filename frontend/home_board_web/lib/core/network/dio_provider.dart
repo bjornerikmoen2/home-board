@@ -20,7 +20,7 @@ Dio dio(DioRef ref) {
   );
 
   // Add auth interceptor
-  dio.interceptors.add(AuthInterceptor(ref));
+  dio.interceptors.add(AuthInterceptor(ref, dio));
 
   // Add logging interceptor in debug mode
   dio.interceptors.add(

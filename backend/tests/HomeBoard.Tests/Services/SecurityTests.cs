@@ -158,7 +158,6 @@ public class SecurityTests : IDisposable
     {
         var tokens = new Mock<ITokenService>();
         tokens.Setup(t => t.GenerateAccessToken(It.IsAny<User>())).Returns("access");
-        tokens.Setup(t => t.GenerateRefreshToken()).Returns("refresh");
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {

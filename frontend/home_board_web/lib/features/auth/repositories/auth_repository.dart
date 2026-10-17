@@ -29,9 +29,13 @@ class AuthRepository {
     }
   }
 
-  Future<void> logout() async {
+  /// Revokes this device's refresh token on the server.
+  Future<void> logout(String? refreshToken) async {
     try {
-      await _dio.post('/auth/logout');
+      await _dio.post(
+        '/auth/logout',
+        data: refreshToken == null ? null : {'refreshToken': refreshToken},
+      );
     } catch (e) {
       // Ignore errors on logout
     }

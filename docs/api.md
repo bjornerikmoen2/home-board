@@ -56,6 +56,10 @@ Content-Type: application/json
 }
 ```
 
+The access token is valid for an hour. The refresh token gets a new one without logging in again:
+it works for 30 days, and each refresh starts a new 30 days, so a device in daily use stays logged
+in. Only a hash of it is stored.
+
 #### Refresh Token
 ```http
 POST /api/auth/refresh
@@ -66,11 +70,24 @@ Content-Type: application/json
 }
 ```
 
+**Response 200 OK:** the same as for login, with a new access token and a **new refresh token**.
+Each refresh token works once; keep the new one for next time. `401 Unauthorized` when the token
+is unknown, used, expired or revoked, when the user was deactivated, and for a passwordless (kid)
+login refreshed from the internet or after the child got a password.
+
 #### Logout
 ```http
 POST /api/auth/logout
-Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "refreshToken": "abc123..."
+}
 ```
+
+Revokes the refresh token, so this device can't get new access tokens; the access token itself
+runs out within the hour. The body is optional and the answer is always `200 OK`. Resetting a
+user's password revokes all their refresh tokens.
 
 ---
 

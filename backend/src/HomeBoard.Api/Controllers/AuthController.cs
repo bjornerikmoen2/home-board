@@ -1,7 +1,9 @@
 using HomeBoard.Api.Helpers;
 using HomeBoard.Api.Models;
 using HomeBoard.Api.Services;
+using HomeBoard.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace HomeBoard.Api.Controllers;
@@ -39,38 +41,36 @@ public class AuthController : ControllerBase
         // Update last login
         await _authService.UpdateLastLoginAsync(user.Id);
 
-        var accessToken = _tokenService.GenerateAccessToken(user);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-
-        return Ok(new LoginResponse
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken,
-            User = new UserDto
-            {
-                Id = user.Id,
-                Username = user.Username,
-                DisplayName = user.DisplayName,
-                Role = user.Role.ToString(),
-                PreferredLanguage = user.PreferredLanguage,
-                PrefersDarkMode = user.PrefersDarkMode,
-                ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
-            }
-        });
+        var refreshToken = await _authService.IssueRefreshTokenAsync(user.Id, passwordless: string.IsNullOrEmpty(request.Password));
+        return Ok(Tokens(user, refreshToken));
     }
 
+    /// <summary>
+    /// A new access token for an expired one. The refresh token is used up: the response has the
+    /// one to use next time.
+    /// </summary>
     [HttpPost("refresh")]
     public async Task<ActionResult<LoginResponse>> Refresh([FromBody] RefreshTokenRequest request)
     {
-        // In a production app, refresh tokens should be stored and validated
-        // For now, we'll return Unauthorized
-        return Unauthorized(new { message = "Refresh token functionality not fully implemented" });
+        var rotated = await _authService.RotateRefreshTokenAsync(request.RefreshToken, NoPasswordAllowed);
+        if (rotated is not var (user, refreshToken))
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token" });
+        }
+        return Ok(Tokens(user, refreshToken));
     }
 
+    /// <summary>
+    /// Ends the session on this device: its refresh token stops working. The access token runs
+    /// out on its own within the hour.
+    /// </summary>
     [HttpPost("logout")]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] LogoutRequest? request)
     {
-        // In a production app, invalidate the refresh token here
+        if (!string.IsNullOrEmpty(request?.RefreshToken))
+        {
+            await _authService.RevokeRefreshTokenAsync(request.RefreshToken);
+        }
         return Ok(new { message = "Logged out successfully" });
     }
 
@@ -88,4 +88,20 @@ public class AuthController : ControllerBase
         var users = await _authService.GetNoPasswordUsersAsync();
         return Ok(users);
     }
+
+    private LoginResponse Tokens(User user, string refreshToken) => new()
+    {
+        AccessToken = _tokenService.GenerateAccessToken(user),
+        RefreshToken = refreshToken,
+        User = new UserDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            DisplayName = user.DisplayName,
+            Role = user.Role.ToString(),
+            PreferredLanguage = user.PreferredLanguage,
+            PrefersDarkMode = user.PrefersDarkMode,
+            ProfileImageUrl = user.ProfileImage != null ? $"/api/users/{user.Id}/profile-image" : null
+        }
+    };
 }
