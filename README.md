@@ -19,7 +19,7 @@ A family chores and rewards management system designed for families with childre
 ## Tech Stack
 
 ### Backend
-- **ASP.NET Core 9** - Web API
+- **ASP.NET Core 10** - Web API
 - **PostgreSQL** - Database
 - **Entity Framework Core** - ORM
 - **JWT** - Authentication
@@ -129,7 +129,7 @@ docker-compose up -d          # Restart with new images
 ### Backend
 
 1. **Prerequisites**:
-   - .NET 9 SDK
+   - .NET 10 SDK
    - PostgreSQL installed locally
 
 2. **Configure database**:
