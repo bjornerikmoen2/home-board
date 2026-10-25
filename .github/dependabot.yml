@@ -18,6 +18,10 @@ updates:
       dotnet-packages:
         patterns: ["Microsoft.*", "System.*", "Npgsql*", "Swashbuckle*"]
         update-types: [minor, patch]
+      # Everything else in one pull request too: separate ones per project leave the
+      # projects on different versions, which fails the build as a package downgrade.
+      other-packages:
+        patterns: ["*"]
     ignore:
       - dependency-name: "Microsoft.*"
         update-types: ["version-update:semver-major"]
@@ -33,11 +37,16 @@ updates:
         patterns: ["*"]
         update-types: [minor, patch]
     ignore:
+      # The code generators and the packages that go with them move together, by hand.
       - dependency-name: analyzer
       - dependency-name: build_runner
       - dependency-name: freezed
+      - dependency-name: freezed_annotation
       - dependency-name: json_serializable
+      - dependency-name: json_annotation
       - dependency-name: riverpod_generator
+      - dependency-name: riverpod_annotation
+      - dependency-name: flutter_riverpod
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
 
