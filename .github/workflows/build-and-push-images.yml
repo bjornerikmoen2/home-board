@@ -8,6 +8,9 @@ on:
   pull_request:
     branches:
       - main
+  # Weekly rebuild, so fixes in the base images reach the images even when the code doesn't change.
+  schedule:
+    - cron: "37 3 * * 1"
   workflow_dispatch:
 
 # A newer push to the same branch or pull request cancels the run still in progress.
@@ -45,12 +48,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Dependabot's pull requests get a read-only token, so their images are built but not pushed.
       - name: Log in to the Container registry
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -73,12 +79,44 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Backend Docker image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          push: true
+          pull: true
+          push: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # Scan the image that was just pushed. Findings go to the repository's Security tab; a
+      # fixable critical vulnerability fails the run (after the push, so it never blocks a fix).
+      - name: Scan Backend image for vulnerabilities
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: sarif
+          output: trivy-backend.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Upload Backend scan results to the Security tab
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: trivy-backend.sarif
+          category: backend-image
+
+      - name: Fail on fixable critical vulnerabilities in the Backend image
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          skip-setup-trivy: true
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -87,12 +125,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Dependabot's pull requests get a read-only token, so their images are built but not pushed.
       - name: Log in to the Container registry
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -115,10 +156,40 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Frontend Docker image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: ./frontend/home_board_web
-          push: true
+          pull: true
+          push: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Scan Frontend image for vulnerabilities
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: sarif
+          output: trivy-frontend.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Upload Frontend scan results to the Security tab
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: trivy-frontend.sarif
+          category: frontend-image
+
+      - name: Fail on fixable critical vulnerabilities in the Frontend image
+        if: github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: table
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          skip-setup-trivy: true
 

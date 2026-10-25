@@ -1,0 +1,51 @@
+# Pull requests for newer packages and GitHub Actions.
+# Security fixes in the base images arrive through the weekly rebuild in CI. A new .NET major
+# version and the Flutter code generators (tied to the Flutter version pinned in the frontend
+# Dockerfile) are updated by hand.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directories:
+      - /backend/src/HomeBoard.Api
+      - /backend/src/HomeBoard.Infrastructure
+      - /backend/tests/HomeBoard.Tests
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      test-packages:
+        patterns: ["xunit*", "Moq", "MockQueryable*", "coverlet*", "Microsoft.NET.Test.Sdk"]
+      dotnet-packages:
+        patterns: ["Microsoft.*", "System.*", "Npgsql*", "Swashbuckle*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "Microsoft.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "Npgsql*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: pub
+    directory: /frontend/home_board_web
+    schedule:
+      interval: monthly
+    groups:
+      flutter-packages:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: analyzer
+      - dependency-name: build_runner
+      - dependency-name: freezed
+      - dependency-name: json_serializable
+      - dependency-name: riverpod_generator
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ["*"]
