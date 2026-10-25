@@ -33,7 +33,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       # The solution file doesn't include the test project, so test the project itself.
       - name: Run backend tests
