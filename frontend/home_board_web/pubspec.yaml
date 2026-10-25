@@ -13,24 +13,24 @@ dependencies:
     sdk: flutter
   
   # State Management
-  flutter_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
   
   # Routing
   go_router: ^14.6.2
   
   # HTTP Client
-  dio: ^5.7.0
+  dio: ^5.11.1
   
   # Local Storage
-  shared_preferences: ^2.3.3
+  shared_preferences: ^2.5.6
   
   # JSON Serialization
-  json_annotation: ^4.9.0
-  freezed_annotation: ^2.4.4
+  json_annotation: ^4.12.0
+  freezed_annotation: ^3.1.0
   
   # UI
-  flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.3.0
   intl: ^0.20.0
   
   # File Picker
@@ -41,10 +41,10 @@ dev_dependencies:
     sdk: flutter
   
   # Code Generation
-  build_runner: ^2.4.13
-  json_serializable: ^6.8.0
-  freezed: ^2.5.7
-  riverpod_generator: ^2.6.2
+  build_runner: ^2.16.2
+  json_serializable: ^6.15.2
+  freezed: ^4.0.3
+  riverpod_generator: ^4.0.9
   
   # Linting
   flutter_lints: ^5.0.0
