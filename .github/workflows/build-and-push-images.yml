@@ -59,7 +59,7 @@ jobs:
       # Dependabot's pull requests get a read-only token, so their images are built but not pushed.
       - name: Log in to the Container registry
         if: github.event.pull_request.user.login != 'dependabot[bot]'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -136,7 +136,7 @@ jobs:
       # Dependabot's pull requests get a read-only token, so their images are built but not pushed.
       - name: Log in to the Container registry
         if: github.event.pull_request.user.login != 'dependabot[bot]'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
