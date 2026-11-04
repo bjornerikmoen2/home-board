@@ -48,6 +48,9 @@ RUN flutter build web --release
 # Runtime stage - use nginx to serve the static files
 FROM nginx:alpine
 
+# Pick up Alpine security fixes that the nginx base image doesn't have yet
+RUN apk upgrade --no-cache
+
 # Copy the built web app to nginx html directory
 COPY --from=build-env /app/build/web /usr/share/nginx/html
 
