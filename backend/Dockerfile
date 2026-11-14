@@ -1,4 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+# Pick up Ubuntu security fixes that the aspnet base image doesn't have yet
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 EXPOSE 8080
 
