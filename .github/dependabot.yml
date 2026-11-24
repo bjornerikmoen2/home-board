@@ -27,6 +27,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "Npgsql*"
         update-types: ["version-update:semver-major"]
+      # Swashbuckle 11 needs Microsoft.OpenApi 3, but ASP.NET Core 10's OpenApi package
+      # requires 2.x; move to it together with .NET 11.
+      - dependency-name: "Swashbuckle*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
